@@ -1,0 +1,103 @@
+/* ====== Base table layout ====== */
+
+.schedule {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    table-layout: fixed;
+}
+
+.schedule tr {
+    height: 18px; /* tweak this to your block height */
+}
+
+.schedule th,
+.schedule td {
+    border: 1px solid #000;
+    padding: 2px 4px;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+/* top header rows (dates, day numbers, sections R/G/B etc.) */
+.schedule .week-header {
+    font-size: 13px;
+    font-weight: bold;
+    background: #ffffff;
+}
+
+.schedule .day-header {
+    font-size: 12px;
+    font-weight: bold;
+    background: #f0f0f0;
+}
+.schedule .section-header {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* shared styles for all blocks */
+.schedule .slot {
+    position: relative;   /* <-- REQUIRED */
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.15;
+    padding: 3px 2px;
+}
+
+.schedule .slot .time {
+    background: transparent !important;
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    opacity: 1;
+}
+
+.schedule .slot .name {
+    margin-top: 12px;        /* pushes class name down */
+}
+
+/* make text wrap nicely inside each block */
+.schedule .slot span {
+    display: block;
+}
+
+/* ====== Color themes for each type of block ====== */
+
+/* classes/subjects */
+.slot.Physics { background:#b7db69; }        /* light green */
+.slot.Math    { background:#e74c3c; } /* red */
+.slot.STEM    { background:#4b4a73; } /* dark purple */
+.slot.Hum     { background:#ffe95a; }        /* yellow */
+.slot.Lang    { background:#84e5fb; }        /* light cyan */
+.slot.CS      { background:#d2d3de; }        /* light gray */
+
+/* structural blocks */
+.slot.lunch      { background:#f6c56b; font-weight:bold; }
+.slot.flex-block { background:#f1e0c8; font-size:13px; }
+.slot.event   { background:#fbe7c6;}
+
+/* after-school / footer notes if you choose to make them table rows */
+.schedule .footer-note {
+    border: none;
+    padding-top: 8px;
+    font-style: italic;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* Optional: make whole table a bit smaller on narrow screens */
+@media (max-width: 900px) {
+    .schedule {
+        font-size: 10px;
+    }
+    .schedule .slot {
+        font-size: 10px;
+    }
+}
