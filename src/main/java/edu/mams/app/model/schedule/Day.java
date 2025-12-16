@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a day in a schedule system.
- * This class encapsulates data related to a specific day, including its date,
- * day number, schedule blocks, teacher requests, notes, and associated clubs.
+ * Represents a single day that includes various scheduling information such as date, day number,
+ * schedule entries, teacher requests, notes, clubs, sections, and class assignments. Provides
+ * functionality to manage and interact with these elements, including updating schedules,
+ * generating blocks, and retrieving section-specific schedules.
  */
 public class Day {
     private LocalDate date;
@@ -131,6 +132,29 @@ public class Day {
         return sections;
     }
 
+    /**
+     * Loads teacher requests for a specific date and processes them according to their type.
+     *
+     * This method performs the following logic:
+     * 1. Calls {@link RequestLoader#loadRequests(LocalDate)} to load teacher requests
+     *    matching the current instance's date.
+     * 2. Iterates through the loaded requests, invoking the {@link TeacherRequest#setAssignmentFromList(List)}
+     *    method for each request to assign corresponding assignments from the `classes` list.
+     * 3. Processes all instances of {@link AllSchoolRequest} within the list of loaded requests:
+     *    - The assignment associated with the {@link AllSchoolRequest} is removed from the `classes` list.
+     *
+     * The method updates the `requests` field with the list of loaded requests and modifies the
+     * `classes` list by removing assignments referenced by `AllSchoolRequest` objects.
+     *
+     * Preconditions:
+     * - The `date` field must be initialized to define the load criteria for requests.
+     * - The `classes` field must be populated with a list of assignments prior to method invocation.
+     *
+     * Postconditions:
+     * - The `requests` list is populated with teacher requests that match the current instance's date.
+     * - Assignments for the loaded requests are set using the `classes` list.
+     * - The `classes` list is updated to exclude assignments referenced by any `AllSchoolRequest`.
+     */
     public void loadRequests() {
         requests = RequestLoader.loadRequests(date);
         for (int i = 0; i < requests.size(); i++) {
@@ -147,10 +171,34 @@ public class Day {
         return classes;
     }
 
+    /**
+     * Generates a schedule consisting of blocks for the day based on the specified template.
+     *
+     * This method uses the provided template name to build a schedule, which includes
+     * different types of blocks such as class blocks or all-school events. The generated
+     * blocks are stored in the `entries` field of the current instance.
+     *
+     * @param templateName the name of the schedule template to use for generating blocks.
+     */
     public void generateBlocks(String templateName) {
         entries = ScheduleBuilder.buildSchedule(templateName, this);
     }
 
+    /**
+     * Updates the duration of each schedule entry in the list based on their start times.
+     *
+     * This method iterates over the list of schedule entries and calculates the duration
+     * for each entry by finding the time difference between its start time and the start
+     * time of the next entry. For the last entry in the list, its duration is calculated
+     * as the time difference between its start time and a fixed end time of 14:45.
+     *
+     * Preconditions:
+     * - The `entries` list contains at least one schedule entry with initialized start times.
+     *
+     * Postconditions:
+     * - Each schedule entry in the list has its duration (`length`) updated. The last entry's
+     *   duration is set relative to the fixed end time of 14:45.
+     */
     public void updateDurations() {
         for (int i = 0; i < entries.size() - 1; i++) {
             entries.get(i).setLength(Duration.between(entries.get(i).getStart(), entries.get(i+1).getStart()));
