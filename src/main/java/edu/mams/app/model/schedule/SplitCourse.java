@@ -4,6 +4,11 @@ import edu.mams.app.model.people.HalfSection;
 
 import java.util.Map;
 
+/**
+ * Represents a specialized type of assignment where a course is divided into multiple half-sections, usually two,
+ * each associated with a specific course. This class organizes and manages the relationship between
+ * half-sections and their corresponding courses.
+ */
 public class SplitCourse extends Assignment {
     private Map<HalfSection, Course> halfSectionCourses;
 
@@ -16,9 +21,14 @@ public class SplitCourse extends Assignment {
         return halfSectionCourses;
     }
 
+    /**
+     * Retrieves the name of the split block that combines the names of all associated half-sections
+     * and their corresponding courses in the format: "Split Block: [HalfSectionName - CourseName, ...]".
+     *
+     * @return A string representing the names of half-sections and their associated courses in the split block.
+     */
     @Override
     public String getName() {
-        // Build a readable name from all subgroups
         StringBuilder sb = new StringBuilder();
         sb.append("Split Block: ");
         boolean first = true;
