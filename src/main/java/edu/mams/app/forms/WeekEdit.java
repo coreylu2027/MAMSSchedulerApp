@@ -129,6 +129,7 @@ public class WeekEdit extends JFrame {
 
     public static void main(String[] args) {
         Week week = Tester.testTemplate();
+        HtmlOutput.output(week);
         SwingUtilities.invokeLater(() -> new WeekEdit(week).setVisible(true));
     }
 
