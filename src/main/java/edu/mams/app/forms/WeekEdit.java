@@ -111,9 +111,23 @@ public class WeekEdit extends JFrame {
     private void onSave() {
         System.out.println("Saving for day: " + daySelector.getSelectedItem());
 
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        Day baseDay = week.getDay(date);
+
+        Day updatedDay = baseDay;
         for (BlockRow row : currentRows) {
-            row.applyToModel();
+            updatedDay = row.applyToModel(updatedDay);
         }
+        updatedDay = updatedDay.withUpdatedDurations();
+
+        // replace the Day inside the Week (without mutating the old Day instance)
+        for (int i = 0; i < week.getDays().size(); i++) {
+            if (week.getDays().get(i).getDate().equals(date)) {
+                week.getDays().set(i, updatedDay);
+                break;
+            }
+        }
+
         HtmlOutput.output(week);
     }
 
@@ -149,7 +163,6 @@ public class WeekEdit extends JFrame {
         AllSchoolPanel allSchoolPanel;
         ScheduleEntry entry;
 
-        private final Day day;
         private final int blockIndex;
         private final List<Section> sections;
 
@@ -161,7 +174,6 @@ public class WeekEdit extends JFrame {
 
             this.sections = sections;
             this.entry = preselected;
-            this.day = day;
             this.blockIndex = blockIndex;
 
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -254,8 +266,7 @@ public class WeekEdit extends JFrame {
             });
         }
 
-
-        void applyToModel() {
+        Day applyToModel(Day baseDay) {
             Date d = (Date) timeSpinner.getValue();
             LocalTime newStart = d.toInstant()
                     .atZone(java.time.ZoneId.systemDefault())
@@ -263,21 +274,16 @@ public class WeekEdit extends JFrame {
                     .withSecond(0)
                     .withNano(0);
 
-            entry.setStart(newStart);
-
-            // 2. Update type-specific fields
             String type = (String) entryType.getSelectedItem();
 
+            ScheduleEntry newEntry;
             if ("Sections".equals(type)) {
-                // ensure we have a ClassBlock
-                if (!(entry instanceof ClassBlock)) {
-                    // convert from AllSchoolBlock -> ClassBlock if needed
-                    ClassBlock newBlock = new ClassBlock(newStart);
-                    // copy length or other fields from old entry if needed
-                    day.getEntries().set(blockIndex, newBlock);
-                    entry = newBlock;
+                ClassBlock cb = new ClassBlock(newStart);
+
+                // ensure we have a map to write into
+                if (cb.getSectionCourses() == null) {
+                    cb.setSectionCourses(new java.util.HashMap<>());
                 }
-                ClassBlock cb = (ClassBlock) entry;
 
                 if (sectionPanel != null) {
                     for (int i = 0; i < sections.size(); i++) {
@@ -285,26 +291,20 @@ public class WeekEdit extends JFrame {
                         Section section = sections.get(i);
 
                         if ("(Open)".equals(selectedClassName)) {
-                            // Explicitly clear the class
                             cb.setSectionCourse(section, null);
                         } else {
                             Assignment selectedAssignment = classes.stream()
                                     .filter(a -> a.getName().equals(selectedClassName))
                                     .findFirst()
                                     .orElse(null);
-
                             cb.setSectionCourse(section, selectedAssignment);
                         }
                     }
                 }
+
+                newEntry = cb;
             } else if ("All School".equals(type)) {
-                // ensure we have an AllSchoolBlock
-                if (!(entry instanceof AllSchoolBlock)) {
-                    AllSchoolBlock newBlock = new AllSchoolBlock(newStart);
-                    day.getEntries().set(blockIndex, newBlock);
-                    entry = newBlock;
-                }
-                AllSchoolBlock ab = (AllSchoolBlock) entry;
+                AllSchoolBlock ab = new AllSchoolBlock(newStart);
 
                 if (allSchoolPanel != null) {
                     String name = (String) allSchoolPanel.getCombo().getSelectedItem();
@@ -314,12 +314,18 @@ public class WeekEdit extends JFrame {
                                 .findFirst()
                                 .orElse(null);
                         if (selectedAssignment != null) {
-                            ab.setAssignment(selectedAssignment); // adjust to your API
+                            ab.setAssignment(selectedAssignment);
                         }
                     }
                 }
+
+                newEntry = ab;
+            } else {
+                throw new IllegalStateException("Unknown entry type: " + type);
             }
-            day.updateDurations();
+
+            // Return a new Day instance rather than mutating the existing one
+            return baseDay.withUpdatedEntry(blockIndex, newEntry);
         }
     }
 

@@ -12,7 +12,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a single day that includes various scheduling information such as date, day number,
@@ -57,6 +59,67 @@ public class Day {
 
     public void setEntries(List<ScheduleEntry> entries) {
         this.entries = entries;
+    }
+
+    /**
+     * Returns a copy of this Day with a deep-copied entries list.
+     * (Other fields are copied in the "safe enough" way for this app:
+     *  - date/dayNumber are immutable
+     *  - sections/classes are reused or shallow-copied as appropriate
+     *  - requests/notes/clubs are reused as-is)
+     */
+    public Day copy() {
+        Day copy = new Day(this.date, this.dayNumber, this.sections, this.classes);
+        copy.entries = deepCopyEntries(this.entries);
+        copy.requests = this.requests;
+        copy.notes = this.notes;
+        copy.clubs = this.clubs;
+        return copy;
+    }
+
+    /**
+     * Returns a copy of this Day with one entry replaced (and the list deep-copied).
+     */
+    public Day withUpdatedEntry(int index, ScheduleEntry newEntry) {
+        Day copy = this.copy();
+        copy.entries.set(index, newEntry);
+        return copy;
+    }
+
+    /**
+     * Returns a copy of this Day where entry durations have been recalculated.
+     * Does not mutate the original Day.
+     */
+    public Day withUpdatedDurations() {
+        Day copy = this.copy();
+        copy.updateDurations(); // safe: we're mutating the copy's entries
+        return copy;
+    }
+
+    private static List<ScheduleEntry> deepCopyEntries(List<ScheduleEntry> source) {
+        if (source == null) return null;
+        List<ScheduleEntry> out = new ArrayList<>(source.size());
+        for (ScheduleEntry e : source) {
+            out.add(copyEntry(e));
+        }
+        return out;
+    }
+
+    private static ScheduleEntry copyEntry(ScheduleEntry e) {
+        if (e == null) return null;
+
+        if (e instanceof ClassBlock cb) {
+            Map<Section, Assignment> original = cb.getSectionCourses();
+            Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
+            return new ClassBlock(cb.getStart(), cb.getLength(), copied);
+        }
+
+        if (e instanceof AllSchoolBlock ab) {
+            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment());
+        }
+
+        // If you add more ScheduleEntry subclasses later, extend this copier.
+        throw new IllegalArgumentException("Unsupported ScheduleEntry type for copy: " + e.getClass().getName());
     }
 
     @Override
@@ -201,7 +264,7 @@ public class Day {
      */
     public void updateDurations() {
         for (int i = 0; i < entries.size() - 1; i++) {
-            entries.get(i).setLength(Duration.between(entries.get(i).getStart(), entries.get(i+1).getStart()));
+            entries.get(i).setLength(Duration.between(entries.get(i).getStart(), entries.get(i + 1).getStart()));
         }
         entries.get(entries.size() - 1).setLength(Duration.between(entries.get(entries.size() - 1).getStart(), LocalTime.of(14, 45)));
     }
