@@ -55,12 +55,25 @@ public class ScheduleBuilder {
             }
         }
 
-        int numClassBlocks = 0;
+        boolean[][] forbidden = getForbidden(entries, classes, requests);
+
+        int[][] grid = LatinFill.generate(classes.size(), sections.size(), forbidden);
+        int block = 0;
         for (ScheduleEntry entry : entries) {
-            if (entry instanceof ClassBlock) {
-                numClassBlocks++;
+            if (entry instanceof ClassBlock classBlock) {
+                Map<Section, Assignment> sectionCourses = new HashMap<>();
+                for (int i = 0; i < sections.size(); i++) {
+                    sectionCourses.put(sections.get(i), classes.get(grid[block][i]));
+                }
+                classBlock.setSectionCourses(sectionCourses);
+                block++;
             }
         }
+        return entries;
+    }
+
+    private static boolean[][] getForbidden(List<ScheduleEntry> entries, List<Assignment> classes, List<TeacherRequest> requests) {
+        int numClassBlocks = getNumClassBlocks(entries);
 
         boolean[][] forbidden = new boolean[numClassBlocks][numClassBlocks];
 
@@ -82,24 +95,71 @@ public class ScheduleBuilder {
                 }
             }
         }
+        return forbidden;
+    }
 
-        int[][] grid = LatinFill.generate(classes.size(), sections.size(), forbidden);
-        int block = 0;
+    private static int getNumClassBlocks(List<ScheduleEntry> entries) {
+        int numClassBlocks = 0;
         for (ScheduleEntry entry : entries) {
-            if (entry instanceof ClassBlock classBlock) {
-                Map<Section, Assignment> sectionCourses = new HashMap<>();
-                for (int i = 0; i < sections.size(); i++) {
-                    sectionCourses.put(sections.get(i), classes.get(grid[block][i]));
-                }
-                classBlock.setSectionCourses(sectionCourses);
-                block++;
+            if (entry instanceof ClassBlock) {
+                numClassBlocks++;
             }
         }
-        return entries;
+        return numClassBlocks;
     }
 
     public static List<ScheduleEntry> buildNewSchedule(String templateName, Day day) {
         return buildNewNoSplitSchedule(templateName, day);
     }
 
+    public static List<ScheduleEntry> buildAroundSchedule(Day day) {
+        List<ScheduleEntry> entries = day.getEntries();
+        List<Assignment> classes = day.getClasses();
+        List<Section> sections = day.getSections();
+        List<TeacherRequest> requests = day.getRequests();
+
+        boolean[][] forbidden = getForbidden(entries, classes, requests);
+
+        int numClassBlocks = getNumClassBlocks(entries);
+        int[][] partial = new int[numClassBlocks][numClassBlocks];
+        for (int i = 0; i < numClassBlocks; i++) {
+            for (int j = 0; j < numClassBlocks; j++) {
+                partial[i][j] = -1;
+            }
+        }
+
+        int block = 0;
+        for (ScheduleEntry entry : entries) {
+            if (entry instanceof ClassBlock classBlock) {
+                int sectionCounter = 0;
+                for (Section section : sections) {
+                    Assignment assignment = classBlock.getSectionCourses().get(section);
+                    if (assignment != null) {
+                        if (assignment instanceof Course) {
+                            int classIndex = classes.indexOf(assignment);
+                            partial[block][sectionCounter] = classIndex;
+                        }
+                    }
+                    sectionCounter++;
+                }
+                block++;
+            }
+        }
+
+        int[][] grid = LatinFill.generateFromPartial(partial, forbidden);
+        block = 0;
+        for (ScheduleEntry entry : entries) {
+            if (entry instanceof ClassBlock classBlock) {
+                int sectionCounter = 0;
+                for (Section section : sections) {
+                    if (classBlock.getSectionCourses().get(section) == null) {
+                        classBlock.getSectionCourses().put(section, classes.get(grid[block][sectionCounter]));
+                    }
+                    sectionCounter++;
+                }
+                block++;
+            }
+        }
+        return entries;
+    }
 }

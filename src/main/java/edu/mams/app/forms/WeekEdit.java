@@ -3,7 +3,9 @@ package edu.mams.app.forms;
 import edu.mams.app.model.people.Section;
 import edu.mams.app.model.people.Teacher;
 import edu.mams.app.model.schedule.*;
+import edu.mams.app.model.schedule.Event;
 import edu.mams.app.model.util.HtmlOutput;
+import edu.mams.app.model.util.ScheduleBuilder;
 import edu.mams.app.model.util.Tester;
 
 import java.io.File;
@@ -76,18 +78,20 @@ public class WeekEdit extends JFrame {
     }
 
     private void generateDay() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        Day day = week.getDay(date);
+        generateDay(day);
+    }
+
+    private void generateDay(Day day) {
         dynamicPanel.removeAll();
         dynamicPanel.setLayout(new GridLayout(0, 1));
         currentRows.clear();
 
-        LocalDate date = (LocalDate) daySelector.getSelectedItem();
-        Day day = week.getDay(date);
-
         int blocks = day.getEntries().size();
 
         for (int i = 0; i < blocks; i++) {
-            // Get the LocalTime for this block
-            LocalTime startTime = day.getEntries().get(i).getStart();  // adjust to your API
+            LocalTime startTime = day.getEntries().get(i).getStart();
             BlockRow row = new BlockRow(
                     day,
                     i,
@@ -96,6 +100,7 @@ public class WeekEdit extends JFrame {
                     day.getEntries().get(i)
             );
             currentRows.add(row);
+
             JPanel wrapper = new JPanel();
             wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
             wrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -108,17 +113,12 @@ public class WeekEdit extends JFrame {
         dynamicPanel.revalidate();
         dynamicPanel.repaint();
     }
+
     private void onSave() {
         System.out.println("Saving for day: " + daySelector.getSelectedItem());
 
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
-        Day baseDay = week.getDay(date);
-
-        Day updatedDay = baseDay;
-        for (BlockRow row : currentRows) {
-            updatedDay = row.applyToModel(updatedDay);
-        }
-        updatedDay = updatedDay.withUpdatedDurations();
+        Day updatedDay = getUpdatedDay(date);
 
         // replace the Day inside the Week (without mutating the old Day instance)
         for (int i = 0; i < week.getDays().size(); i++) {
@@ -129,6 +129,17 @@ public class WeekEdit extends JFrame {
         }
 
         HtmlOutput.output(week);
+    }
+
+    private Day getUpdatedDay(LocalDate date) {
+        Day baseDay = week.getDay(date);
+
+        Day updatedDay = baseDay;
+        for (BlockRow row : currentRows) {
+            updatedDay = row.applyToModel(updatedDay);
+        }
+        updatedDay = updatedDay.withUpdatedDurations();
+        return updatedDay;
     }
 
     private void onCancel() {
@@ -145,7 +156,18 @@ public class WeekEdit extends JFrame {
     }
 
     private void generate() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
 
+        // 1) Build "what the user currently has in the UI" as a Day (still not saved to week)
+        Day updatedDay = getUpdatedDay(date);
+
+        // 2) Generate a preview Day WITHOUT mutating week
+        Day previewDay = updatedDay.copy();
+        previewDay.setEntries(ScheduleBuilder.buildAroundSchedule(previewDay));
+        previewDay.updateDurations();
+
+        // 3) Show previewDay in the UI (still not saved anywhere)
+        generateDay(previewDay);
     }
 
     public static void main(String[] args) {
@@ -308,14 +330,14 @@ public class WeekEdit extends JFrame {
 
                 if (allSchoolPanel != null) {
                     String name = (String) allSchoolPanel.getCombo().getSelectedItem();
-                    if (name != null) {
+                    if ("(Open)".equals(name) || name == null) {
+                        ab.setAssignment(null);
+                    } else {
                         Assignment selectedAssignment = classes.stream()
                                 .filter(a -> a.getName().equals(name))
                                 .findFirst()
-                                .orElse(null);
-                        if (selectedAssignment != null) {
-                            ab.setAssignment(selectedAssignment);
-                        }
+                                .orElse(new Event(name));
+                        ab.setAssignment(selectedAssignment); // can be null safely
                     }
                 }
 
@@ -380,12 +402,22 @@ public class WeekEdit extends JFrame {
 
             combo = new JComboBox<>();
 
+            // Populate choices
+            for (Assignment a : classes) {
+                combo.addItem(a.getName());
+            }
+            combo.addItem("(Open)");
+            combo.addItem("Flex");
+            combo.addItem("Lunch");
+            combo.addItem("Class Meeting");
+            combo.addItem("15 min break");
+
+
+            // Preselect existing value (or Open)
             if (preselected != null && preselected.getAssignment() != null) {
-                String assignmentName = preselected.getAssignment().getName();
-                if (assignmentName != null && !assignmentName.isBlank()) {
-                    combo.addItem(assignmentName);
-                    combo.setSelectedItem(assignmentName);
-                }
+                combo.setSelectedItem(preselected.getAssignment().getName());
+            } else {
+                combo.setSelectedItem("(Open)");
             }
 
             add(combo);
@@ -395,4 +427,5 @@ public class WeekEdit extends JFrame {
             return combo;
         }
     }
+
 }
