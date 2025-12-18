@@ -28,6 +28,7 @@ public class WeekEdit extends JFrame {
 
     private JPanel dynamicPanel;
     private JButton openHTML;
+    private JButton generate;
 
     private static List<Assignment> classes;
 
@@ -58,11 +59,13 @@ public class WeekEdit extends JFrame {
         saveButton.setText("Save");
         cancelButton.setText("Cancel");
         openHTML.setText("Open HTML");
+        generate.setText("Generate");
 
         daySelector.addActionListener(e -> generateDay());
         saveButton.addActionListener(e -> onSave());
         cancelButton.addActionListener(e -> onCancel());
         openHTML.addActionListener(e -> onOpenHTML());
+        generate.addActionListener(e -> generate());
     }
 
     private void loadWeekIntoForm() {
@@ -125,6 +128,10 @@ public class WeekEdit extends JFrame {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private void generate() {
+
     }
 
     public static void main(String[] args) {
@@ -275,13 +282,18 @@ public class WeekEdit extends JFrame {
                 if (sectionPanel != null) {
                     for (int i = 0; i < sections.size(); i++) {
                         String selectedClassName = sectionPanel.getClassForSection(i);
-                        Assignment selectedAssignment = classes.stream()
-                                .filter(a -> a.getName().equals(selectedClassName))
-                                .findFirst()
-                                .orElse(null);
-                        if (selectedAssignment != null) {
-                            // adjust this to whatever your API is:
-                            cb.setSectionCourse(sections.get(i), selectedAssignment);
+                        Section section = sections.get(i);
+
+                        if ("(Open)".equals(selectedClassName)) {
+                            // Explicitly clear the class
+                            cb.setSectionCourse(section, null);
+                        } else {
+                            Assignment selectedAssignment = classes.stream()
+                                    .filter(a -> a.getName().equals(selectedClassName))
+                                    .findFirst()
+                                    .orElse(null);
+
+                            cb.setSectionCourse(section, selectedAssignment);
                         }
                     }
                 }
@@ -326,6 +338,7 @@ public class WeekEdit extends JFrame {
                 for (Assignment assignment : classes) {
                     combos[i].addItem(assignment.getName());
                 }
+                combos[i].addItem("(Open)");
 
                 // Only try to preselect if we actually have a preselected ClassBlock
                 if (preselected != null &&

@@ -77,6 +77,7 @@
 .slot.Hum     { background:#ffe95a; }        /* yellow */
 .slot.Lang    { background:#84e5fb; }        /* light cyan */
 .slot.CS      { background:#d2d3de; }        /* light gray */
+.slot.OPEN    { background:#2471bf; }
 
 /* structural blocks */
 .slot.lunch      { background:#f6c56b; font-weight:bold; }

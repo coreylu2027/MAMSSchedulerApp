@@ -23,6 +23,7 @@ public class HtmlOutput {
             dayHeader();
             sectionHeader();
             entries();
+            close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
@@ -95,32 +96,6 @@ public class HtmlOutput {
         out.println("  </tr>");
     }
 
-//    private static <T> void put2D(ArrayList<ArrayList<T>> grid, int row, int col, T value) {
-//        // Ensure row exists
-//        while (grid.size() <= row) {
-//            grid.add(new ArrayList<>());
-//        }
-//        // Ensure column exists inside that row
-//        ArrayList<T> r = grid.get(row);
-//        while (r.size() <= col) {
-//            r.add(null); // placeholder
-//        }
-//        // Set the value
-//        r.set(col, value);
-//    }
-//
-//    private static ArrayList<ArrayList<ScheduleEntry>> createGrid() {
-//        ArrayList<ArrayList<ScheduleEntry>> grid = new ArrayList<>();
-//        for (int d = 0; d < week.getDays().size(); d++){
-//            Day day = week.getDays().get(d);
-//            for (int s = 0; s < day.getBlocks().size(); s++) {
-//                ScheduleEntry se = day.getBlocks().get(s);
-//                put2D(grid, s, d, se);
-//            }
-//        }
-//        return grid;
-//    }
-
     private static void entries() {
         int[] currentEntry = new int[week.getDays().size()];
         ArrayList<String> rows = new ArrayList<>();
@@ -192,6 +167,14 @@ public class HtmlOutput {
                                     out.print("      <div class=\"time\">" + classBlock.getStart() + "</div>\n");
                                     out.print("      <div class=\"name\">" + secondSplit + "</div>\n");
                                     out.print("    </td>\n");
+                                } else {
+                                    out.print("    <td class=\"slot class OPEN\" colspan=\"2\" rowspan=\"");
+                                    out.print(classBlock.getLength().toMinutes() / 15);
+                                    out.print("\">\n");
+
+                                    out.print("      <div class=\"time\">" + classBlock.getStart() + "</div>\n");
+                                    out.print("      <div class=\"name\"> OPEN </div>\n");
+                                    out.print("    </td>\n");
                                 }
                             }
                         }
@@ -202,5 +185,10 @@ public class HtmlOutput {
             out.print("  </tr>\n");
             currentTime = currentTime.plusMinutes(15);
         }
+    }
+
+    private static void close() {
+        out.print("</table>");
+        out.print("</body>");
     }
 }
