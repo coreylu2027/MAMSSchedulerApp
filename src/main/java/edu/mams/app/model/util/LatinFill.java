@@ -138,8 +138,7 @@ public class LatinFill {
 
 
     // Check if any forbidden[r][value] would be hit by current perms/column choices
-    private static boolean violates(boolean[][] forbidden, int n, int cols,
-                                    int[] symPerm, int[] rowPerm, int[] colPick) {
+    private static boolean violates(boolean[][] forbidden, int n, int cols, int[] symPerm, int[] rowPerm, int[] colPick) {
         if (forbidden == null) return false;
         for (int r = 0; r < n; r++) {
             int rr = rowPerm[r];
