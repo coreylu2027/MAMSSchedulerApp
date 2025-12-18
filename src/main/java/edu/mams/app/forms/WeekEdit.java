@@ -93,7 +93,6 @@ public class WeekEdit extends JFrame {
         for (int i = 0; i < blocks; i++) {
             LocalTime startTime = day.getEntries().get(i).getStart();
             BlockRow row = new BlockRow(
-                    day,
                     i,
                     startTime,
                     day.getSections(),
@@ -188,8 +187,7 @@ public class WeekEdit extends JFrame {
         private final int blockIndex;
         private final List<Section> sections;
 
-        BlockRow(Day day,
-                 int blockIndex,
+        BlockRow(int blockIndex,
                  LocalTime startTime,
                  List<Section> sections,
                  ScheduleEntry preselected) {
