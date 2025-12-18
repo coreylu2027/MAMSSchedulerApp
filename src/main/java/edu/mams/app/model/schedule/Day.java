@@ -25,24 +25,18 @@ import java.util.Map;
 public class Day {
     private LocalDate date;
     private int dayNumber;
+
     private List<ScheduleEntry> entries;
     private List<TeacherRequest> requests;
+
     private List<String> notes;
     private List<String> clubs;
+
     private List<Section> sections;
     private List<Assignment> classes;
+
     private boolean split = false;
     private Course splitCourse = null;
-
-    public Day(LocalDate date) {
-        this.date = date;
-        this.entries = new ArrayList<>();
-    }
-
-    public Day(LocalDate date, List<ScheduleEntry> entries) {
-        this.date = date;
-        this.entries = entries;
-    }
 
     public Day(LocalDate date, int dayNumber, List<Section> sections, List<Assignment> classes) {
         this.date = date;
@@ -93,6 +87,34 @@ public class Day {
         this.splitCourse = course;
     }
 
+    public List<String> getNotes() {
+        return notes;
+    }
+
+    public List<String> getClubs() {
+        return clubs;
+    }
+
+    public boolean isSplit() {
+        return split;
+    }
+
+    public Course getSplitCourse() {
+        return splitCourse;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public int getDayNumber() {
+        return dayNumber;
+    }
+
+    public List<Section> getSections() {
+        return sections;
+    }
+
     /**
      * Returns a copy of this Day with one entry replaced (and the list deep-copied).
      */
@@ -110,44 +132,6 @@ public class Day {
         Day copy = this.copy();
         copy.updateDurations(); // safe: we're mutating the copy's entries
         return copy;
-    }
-
-    private static List<ScheduleEntry> deepCopyEntries(List<ScheduleEntry> source) {
-        if (source == null) return null;
-        List<ScheduleEntry> out = new ArrayList<>(source.size());
-        for (ScheduleEntry e : source) {
-            out.add(copyEntry(e));
-        }
-        return out;
-    }
-
-    private static ScheduleEntry copyEntry(ScheduleEntry e) {
-        if (e == null) return null;
-
-        if (e instanceof ClassBlock cb) {
-            Map<Section, Assignment> original = cb.getSectionCourses();
-            Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
-            return new ClassBlock(cb.getStart(), cb.getLength(), copied);
-        }
-
-        if (e instanceof AllSchoolBlock ab) {
-            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment());
-        }
-
-        // If you add more ScheduleEntry subclasses later, extend this copier.
-        throw new IllegalArgumentException("Unsupported ScheduleEntry type for copy: " + e.getClass().getName());
-    }
-
-    @Override
-    public String toString() {
-        return "Day{" +
-                "date=" + date +
-                ", dayNumber=" + dayNumber +
-                ", blocks=" + entries +
-                ", requests=" + requests +
-                ", notes=" + notes +
-                ", clubs=" + clubs +
-                '}';
     }
 
     public String getSectionSchedule(Group group) {
@@ -197,18 +181,6 @@ public class Day {
             }        }
 
         return sb.toString();
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public int getDayNumber() {
-        return dayNumber;
-    }
-
-    public List<Section> getSections() {
-        return sections;
     }
 
     /**
@@ -289,19 +261,41 @@ public class Day {
         entries.get(entries.size() - 1).setLength(Duration.between(entries.get(entries.size() - 1).getStart(), LocalTime.of(14, 45)));
     }
 
-    public List<String> getNotes() {
-        return notes;
+    private static List<ScheduleEntry> deepCopyEntries(List<ScheduleEntry> source) {
+        if (source == null) return null;
+        List<ScheduleEntry> out = new ArrayList<>(source.size());
+        for (ScheduleEntry e : source) {
+            out.add(copyEntry(e));
+        }
+        return out;
     }
 
-    public List<String> getClubs() {
-        return clubs;
+    private static ScheduleEntry copyEntry(ScheduleEntry e) {
+        if (e == null) return null;
+
+        if (e instanceof ClassBlock cb) {
+            Map<Section, Assignment> original = cb.getSectionCourses();
+            Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
+            return new ClassBlock(cb.getStart(), cb.getLength(), copied);
+        }
+
+        if (e instanceof AllSchoolBlock ab) {
+            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment());
+        }
+
+        // If you add more ScheduleEntry subclasses later, extend this copier.
+        throw new IllegalArgumentException("Unsupported ScheduleEntry type for copy: " + e.getClass().getName());
     }
 
-    public boolean isSplit() {
-        return split;
-    }
-
-    public Course getSplitCourse() {
-        return splitCourse;
+    @Override
+    public String toString() {
+        return "Day{" +
+                "date=" + date +
+                ", dayNumber=" + dayNumber +
+                ", blocks=" + entries +
+                ", requests=" + requests +
+                ", notes=" + notes +
+                ", clubs=" + clubs +
+                '}';
     }
 }
