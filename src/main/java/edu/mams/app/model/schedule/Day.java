@@ -181,7 +181,7 @@ public class Day {
      * @param templateName the name of the schedule template to use for generating blocks.
      */
     public void generateBlocks(String templateName) {
-        entries = ScheduleBuilder.buildSchedule(templateName, this);
+        entries = ScheduleBuilder.buildNewSchedule(templateName, this);
     }
 
     /**

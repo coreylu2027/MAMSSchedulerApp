@@ -12,8 +12,8 @@ import java.util.*;
 
 public class ScheduleBuilder {
     private static TemplateManager templateManager;
-    private static Course splitClass = new Course("Lang", new Teacher("Wildfong"));
-    private static Section splitSection = new Section("G");
+    private static Course splitClass = null;
+    private static Section splitSection = null;
 
     public static void setTemplateManager(TemplateManager templateManager) {
         ScheduleBuilder.templateManager = templateManager;
@@ -23,11 +23,14 @@ public class ScheduleBuilder {
         ScheduleBuilder.splitClass = splitClass;
     }
 
-    public static List<ScheduleEntry> buildSchedule(String templateName, Day day) {
-        return buildSchedule(templateName, day.getRequests(), day.getClasses(), day.getSections());
+    public static void setSplitSection(Section splitSection) {
+        ScheduleBuilder.splitSection = splitSection;
     }
 
-    public static List<ScheduleEntry> buildSchedule(String templateName, List<TeacherRequest> requests, List<Assignment> classes, List<Section> sections) {
+    public static List<ScheduleEntry> buildNewNoSplitSchedule(String templateName, Day day) {
+        List<TeacherRequest> requests = day.getRequests();
+        List<Assignment> classes = day.getClasses();
+        List<Section> sections = day.getSections();
         List<ScheduleEntry> entries = new ArrayList<>();
 
         DayTemplate template = templateManager.getTemplate(templateName);
@@ -80,25 +83,13 @@ public class ScheduleBuilder {
             }
         }
 
-        boolean split = true;
         int[][] grid = LatinFill.generate(classes.size(), sections.size(), forbidden);
         int block = 0;
         for (ScheduleEntry entry : entries) {
             if (entry instanceof ClassBlock classBlock) {
                 Map<Section, Assignment> sectionCourses = new HashMap<>();
                 for (int i = 0; i < sections.size(); i++) {
-                    if (split && sections.get(i).equals(splitSection) && classes.get(grid[block][i]).equals(splitClass)) {
-                        SplitCourse splitCourse = new SplitCourse(Map.of(
-                                new HalfSection("Intermediate", sections.get(i)),
-                                (Course) classes.get(grid[block][i]),
-                                new HalfSection("Advanced", sections.get(i)),
-                                (Course) classes.get(2))
-                        );
-                        sectionCourses.put(sections.get(i), splitCourse);
-                    }
-                    else {
-                        sectionCourses.put(sections.get(i), classes.get(grid[block][i]));
-                    }
+                    sectionCourses.put(sections.get(i), classes.get(grid[block][i]));
                 }
                 classBlock.setSectionCourses(sectionCourses);
                 block++;
@@ -106,4 +97,9 @@ public class ScheduleBuilder {
         }
         return entries;
     }
+
+    public static List<ScheduleEntry> buildNewSchedule(String templateName, Day day) {
+        return buildNewNoSplitSchedule(templateName, day);
+    }
+
 }

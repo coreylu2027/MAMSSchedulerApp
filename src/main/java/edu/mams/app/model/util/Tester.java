@@ -54,6 +54,8 @@ public class Tester {
         );
 
         ScheduleBuilder.setTemplateManager(manager);
+        ScheduleBuilder.setSplitClass((Course) classes.get(5));
+        ScheduleBuilder.setSplitSection(sections.get(1));
 
         // Homeroom Day
         manager.addTemplate(new DayTemplate(
