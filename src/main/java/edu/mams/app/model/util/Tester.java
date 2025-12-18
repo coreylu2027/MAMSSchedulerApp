@@ -1,6 +1,5 @@
 package edu.mams.app.model.util;
 
-import edu.mams.app.model.people.HalfSection;
 import edu.mams.app.model.people.Section;
 import edu.mams.app.model.people.Teacher;
 import edu.mams.app.model.requests.RequestLoader;
@@ -12,11 +11,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Tester {
     public static void main(String[] args) {
-//        testDataStructure();
         testTemplate();
     }
 
@@ -133,98 +130,5 @@ public class Tester {
         week.loadRequests();
         week.generateBlocks();
         return week;
-    }
-    private static void testDataStructure() {
-        List<Course> classes = new ArrayList<>();
-        classes.add(new Course("Math", new Teacher("Durost")));
-        classes.add(new Course("Physics", new Teacher("Chase")));
-        classes.add(new Course("CS", new Teacher("Taricco")));
-        classes.add(new Course("STEM", new Teacher("Crowthers")));
-        classes.add(new Course("Hum", new Teacher("Small")));
-        classes.add(new Course("Lang", new Teacher("Wildfong")));
-
-        List<Section> sections = new ArrayList<>(
-                List.of(
-                        new Section("R"),
-                        new Section("G"),
-                        new Section("B")
-                )
-        );
-
-        Day monday = new Day(LocalDate.of(2025, 10, 6));
-
-        List<ScheduleEntry> blocks = new ArrayList<>();
-
-        blocks.add(new AllSchoolBlock(
-                LocalTime.of(7,45),
-                Duration.ofMinutes(105),
-                classes.get(3)
-        ));
-
-        blocks.add(new AllSchoolBlock(
-                LocalTime.of(9,30),
-                Duration.ofMinutes(45),
-                new Event("HR Advisory")
-        ));
-
-        HalfSection G1 = new HalfSection("G1");
-        HalfSection G2 = new HalfSection("G2");
-        sections.get(1).addHalfSection(G1);
-        sections.get(1).addHalfSection(G2);
-
-        blocks.add(new ClassBlock(
-                LocalTime.of(10,15),
-                Duration.ofMinutes(60),
-                Map.of(
-                        sections.get(0), classes.get(0),
-                        sections.get(1), new SplitCourse(Map.of(G1, classes.get(5), G2, classes.get(1))),
-                        sections.get(2), classes.get(2)
-                )
-        ));
-
-        blocks.add(new ClassBlock(
-                LocalTime.of(11,15),
-                Duration.ofMinutes(60),
-                Map.of(
-                        sections.get(0), classes.get(2),
-                        sections.get(1), new SplitCourse(Map.of(G1, classes.get(1), G2, classes.get(5))),
-                        sections.get(2), classes.get(0)
-                )
-        ));
-
-        blocks.add(
-                new AllSchoolBlock(LocalTime.of(12, 15),
-                        Duration.ofMinutes(30),
-                        new Event("Lunch")))
-        ;
-
-        blocks.add(new ClassBlock(
-                LocalTime.of(12, 45),
-                Duration.ofMinutes(60),
-                Map.of(
-                        sections.get(0), classes.get(1),
-                        sections.get(1), classes.get(0),
-                        sections.get(2), classes.get(5)
-                ))
-        );
-
-        blocks.add(new ClassBlock(
-                LocalTime.of(1, 45),
-                Duration.ofMinutes(60),
-                Map.of(
-                        sections.get(0), classes.get(5),
-                        sections.get(1), classes.get(2),
-                        sections.get(2), classes.get(1)
-                ))
-        );
-
-        monday.getEntries().addAll(blocks);
-
-        System.out.println(monday);
-
-        System.out.println(monday.getSectionSchedule(sections.get(0)));
-        System.out.println(monday.getSectionSchedule(sections.get(1)));
-        System.out.println(monday.getSectionSchedule(sections.get(2)));
-        System.out.println(monday.getSectionSchedule(G1));
     }
 }
