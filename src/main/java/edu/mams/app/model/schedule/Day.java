@@ -31,6 +31,8 @@ public class Day {
     private List<String> clubs;
     private List<Section> sections;
     private List<Assignment> classes;
+    private boolean split = false;
+    private Course splitCourse = null;
 
     public Day(LocalDate date) {
         this.date = date;
@@ -51,6 +53,10 @@ public class Day {
 
     public List<ScheduleEntry> getEntries() {
         return entries;
+    }
+
+    public ScheduleEntry getEntry(int i) {
+        return entries.get(i);
     }
 
     public List<TeacherRequest> getRequests() {
@@ -75,6 +81,16 @@ public class Day {
         copy.notes = this.notes;
         copy.clubs = this.clubs;
         return copy;
+    }
+
+    public void setSplit(boolean split, Course course) {
+        this.split = split;
+        this.splitCourse = course;
+    }
+
+    public void setSplit(Course course) {
+        this.split = true;
+        this.splitCourse = course;
     }
 
     /**
@@ -244,7 +260,11 @@ public class Day {
      * @param templateName the name of the schedule template to use for generating blocks.
      */
     public void generateBlocks(String templateName) {
-        entries = ScheduleBuilder.buildNewSchedule(templateName, this);
+        if (split) {
+            entries = ScheduleBuilder.buildNewSplitSchedule(templateName, this);
+        } else {
+            entries = ScheduleBuilder.buildNewNoSplitSchedule(templateName, this);
+        }
     }
 
     /**
@@ -267,5 +287,21 @@ public class Day {
             entries.get(i).setLength(Duration.between(entries.get(i).getStart(), entries.get(i + 1).getStart()));
         }
         entries.get(entries.size() - 1).setLength(Duration.between(entries.get(entries.size() - 1).getStart(), LocalTime.of(14, 45)));
+    }
+
+    public List<String> getNotes() {
+        return notes;
+    }
+
+    public List<String> getClubs() {
+        return clubs;
+    }
+
+    public boolean isSplit() {
+        return split;
+    }
+
+    public Course getSplitCourse() {
+        return splitCourse;
     }
 }

@@ -91,12 +91,12 @@ public class WeekEdit extends JFrame {
         int blocks = day.getEntries().size();
 
         for (int i = 0; i < blocks; i++) {
-            LocalTime startTime = day.getEntries().get(i).getStart();
+            LocalTime startTime = day.getEntry(i).getStart();
             BlockRow row = new BlockRow(
                     i,
                     startTime,
                     day.getSections(),
-                    day.getEntries().get(i)
+                    day.getEntry(i)
             );
             currentRows.add(row);
 

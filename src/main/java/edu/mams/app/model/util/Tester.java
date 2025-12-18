@@ -123,38 +123,15 @@ public class Tester {
         Day monday = new Day(LocalDate.of(2025, 12, 1), 71, sections, classes);
         Day tuesday = new Day(LocalDate.of(2025, 12, 2), 72, sections, classes);
         Day wednesday = new Day(LocalDate.of(2025, 12, 3), 73, sections, removeIndex(classes, 0));
-        Day thursday = new Day(LocalDate.of(2025, 12, 4), 71, XYZ, removeIndex(classes, 5));
-        Day friday = new Day(LocalDate.of(2025, 12, 5), 71, sections, classes);
+        Day thursday = new Day(LocalDate.of(2025, 12, 4), 74, XYZ, removeIndex(classes, 5));
+        Day friday = new Day(LocalDate.of(2025, 12, 5), 75, sections, classes);
 
+        tuesday.setSplit(true, (Course) classes.get(4));
 
-//        Day monday = new Day(LocalDate.of(2025, 12, 1), 71, ScheduleBuilder.buildSchedule("Class Meeting Day", requests, removeIndex(classes, 4), sections), sections);
-//        Day tuesday = new Day(LocalDate.of(2025, 12, 2), 72, ScheduleBuilder.buildSchedule("Homeroom Day", new ArrayList<>(), classes, sections), sections);
-//        Day wednesday = new Day(LocalDate.of(2025, 12, 3), 73, ScheduleBuilder.buildSchedule("Flex Day", new ArrayList<>(), removeIndex(classes, 0), sections), sections);
-//        Day thursday = new Day(LocalDate.of(2025, 12, 4), 74, ScheduleBuilder.buildSchedule("PE Day", new ArrayList<>(), removeIndex(classes, 5), XYZ), XYZ);
-//        Day friday = new Day(LocalDate.of(2025, 12, 5), 75, ScheduleBuilder.buildSchedule("Class Meeting Day", new ArrayList<>(), classes, sections), sections);
-//        System.out.println(monday);
-//
-//        System.out.println(monday.getSectionSchedule(sections.get(0)));
-//        System.out.println(monday.getSectionSchedule(sections.get(1)));
-//        System.out.println(monday.getSectionSchedule(sections.get(2)));
 
         Week week = new Week(new ArrayList<>(List.of(monday, tuesday, wednesday, thursday, friday)));
         week.loadRequests();
         week.generateBlocks();
-/*
-        sb.buildSchedule("Homeroom Day");
-        boolean[][] forbidden = new boolean[6][6];
-        forbidden[0][2] = true;
-        forbidden[1][2] = true;
-        forbidden[2][2] = true;
-        forbidden[3][2] = true;
-
-        sb.solve(forbidden);
-        Day tuesday = new Day(LocalDate.of(2025, 10, 6), sb.getEntries());
-        System.out.println(tuesday.getSectionSchedule(sections.get(0)));
-        System.out.println(tuesday.getSectionSchedule(sections.get(1)));
-        System.out.println(tuesday.getSectionSchedule(sections.get(2)));
-*/
         return week;
     }
     private static void testDataStructure() {
