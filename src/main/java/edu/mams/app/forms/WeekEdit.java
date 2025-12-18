@@ -409,6 +409,8 @@ public class WeekEdit extends JFrame {
             combo.addItem("Lunch");
             combo.addItem("Class Meeting");
             combo.addItem("15 min break");
+            combo.addItem("Homeroom");
+
 
 
             // Preselect existing value (or Open)
