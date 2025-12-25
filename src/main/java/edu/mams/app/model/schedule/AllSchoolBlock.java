@@ -7,6 +7,7 @@ import java.time.LocalTime;
 
 public class AllSchoolBlock extends ScheduleEntry {
     private Assignment assignment;
+    private String reason;
 
     public AllSchoolBlock(LocalTime start) {
         super(start);
@@ -25,6 +26,7 @@ public class AllSchoolBlock extends ScheduleEntry {
     public AllSchoolBlock(AllSchoolRequest request) {
         super(request.getStartTime(), request.getLength());
         this.assignment = request.getAssignment();
+        this.reason = request.getReason();
     }
 
     public Assignment getAssignment() {
@@ -33,6 +35,14 @@ public class AllSchoolBlock extends ScheduleEntry {
 
     public void setAssignment(Assignment assignment) {
         this.assignment = assignment;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     @Override

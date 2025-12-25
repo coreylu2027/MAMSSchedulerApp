@@ -53,6 +53,11 @@ public class ScheduleBuilder {
         partial[partial.length - 1][3] = splitIndex;
         partial[partial.length - 2][3] = langIndex;
 
+//        int freeBlocks = partial.length - 4;
+//        for (int i = 0; i < freeBlocks; i++) {
+//            partial[i][4+i] = langIndex;
+//        }
+
         int[][] grid = LatinFill.generateFromPartial(partial, forbidden);
         fillEntries(entries, sections, classes, grid);
 

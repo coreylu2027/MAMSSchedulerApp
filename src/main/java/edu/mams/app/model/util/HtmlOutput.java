@@ -111,9 +111,12 @@ public class HtmlOutput {
                                 out.print("    <td class=\"slot span " + course.getName() +
                                         "\" colspan=\"6\" rowspan=\"");
                                 out.print(allSchoolBlock.getLength().toMinutes() / 15);
-                                out.print("\">");
+                                out.print("\">\n");
                                 out.print("      <div class=\"time\">" + allSchoolBlock.getStart() + "</div>\n");
                                 out.print("      <div class=\"name\">" + course.getName() + "</div>\n");
+                                if (!allSchoolBlock.getReason().isEmpty()) {
+                                    out.print("      <div class=\"reason\">" + allSchoolBlock.getReason() + "</div>\n");
+                                }
                                 out.print("    </td>\n");
                             } else {
                                 out.print("    <td class=\"slot span event\" colspan=\"6\" rowspan=\"");

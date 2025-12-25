@@ -411,8 +411,6 @@ public class WeekEdit extends JFrame {
             combo.addItem("15 min break");
             combo.addItem("Homeroom");
 
-
-
             // Preselect existing value (or Open)
             if (preselected != null && preselected.getAssignment() != null) {
                 combo.setSelectedItem(preselected.getAssignment().getName());

@@ -6,10 +6,13 @@
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 12px;
     table-layout: fixed;
+    /* Remove overflow: hidden if it prevents the table from rendering correctly */
 }
 
 .schedule tr {
-    height: 18px; /* tweak this to your block height */
+    /* Each row represents 15 mins. 4 rows = 60 mins. */
+    /* Use a fixed height so 'rowspan' blocks don't stretch the rows. */
+    height: 20px; 
 }
 
 .schedule th,
@@ -19,6 +22,8 @@
     text-align: center;
     vertical-align: middle;
     box-sizing: border-box;
+    /* This ensures that content doesn't push the height of the row */
+    overflow: hidden;
 }
 
 /* top header rows (dates, day numbers, sections R/G/B etc.) */
@@ -45,6 +50,7 @@
     font-weight: bold;
     line-height: 1.15;
     padding: 3px 2px;
+    height: 100%;
 }
 
 .schedule .slot .time {
@@ -61,11 +67,24 @@
 
 .schedule .slot .name {
     margin-top: 12px;        /* pushes class name down */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.schedule .slot .reason {
+    margin-top: 6px;         /* reduced margin to save space */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 /* make text wrap nicely inside each block */
 .schedule .slot span {
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ====== Color themes for each type of block ====== */
