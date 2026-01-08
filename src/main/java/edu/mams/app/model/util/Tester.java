@@ -114,9 +114,10 @@ public class Tester {
         ));
 
         List<TeacherRequest> requests = RequestLoader.loadRequests(LocalDate.of(2025, 10, 5));
-        for (int i = 0; i < requests.size(); i++) {
-            requests.get(i).setAssignmentFromList(classes);
+        for (TeacherRequest request : requests) {
+            request.setAssignmentFromList(classes);
         }
+
         Day monday = new Day(LocalDate.of(2025, 12, 1), 71, sections, classes);
         Day tuesday = new Day(LocalDate.of(2025, 12, 2), 72, sections, classes);
         Day wednesday = new Day(LocalDate.of(2025, 12, 3), 73, sections, removeIndex(classes, 0));
