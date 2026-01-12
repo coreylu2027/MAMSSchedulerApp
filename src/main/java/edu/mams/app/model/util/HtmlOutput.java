@@ -102,82 +102,66 @@ public class HtmlOutput {
         boolean running = true;
         LocalTime currentTime = LocalTime.of(7, 45);
         while (currentTime.isBefore(LocalTime.of(14, 45))) {
-            out.print("  <tr>\n");
+            out.print("  <tr class=\"time-row\">");
             for (Day day : week.getDays()) {
                 for (ScheduleEntry entry : day.getEntries()) {
                     if (entry.getStart().equals(currentTime)) {
                         if (entry instanceof AllSchoolBlock allSchoolBlock) {
-                            if (allSchoolBlock.getAssignment() instanceof Course course) {
-                                out.print("    <td class=\"slot span " + course.getName() +
-                                        "\" colspan=\"6\" rowspan=\"");
-                                out.print(allSchoolBlock.getLength().toMinutes() / 15);
-                                out.print("\">\n");
-                                out.print("      <div class=\"time\">" + allSchoolBlock.getStart() + "</div>\n");
-                                out.print("      <div class=\"name\">" + course.getName() + "</div>\n");
-                                if (!allSchoolBlock.getReason().isEmpty()) {
-                                    out.print("      <div class=\"reason\">" + allSchoolBlock.getReason() + "</div>\n");
-                                }
-                                out.print("    </td>\n");
-                            } else {
-                                out.print("    <td class=\"slot span event\" colspan=\"6\" rowspan=\"");
-                                out.print(allSchoolBlock.getLength().toMinutes() / 15);
-                                out.print("\">");
-                                if (allSchoolBlock.getLength().toMinutes() <= 15) {
-                                    out.print(allSchoolBlock.getStart());
-                                    out.print(" (");
-                                    out.print(allSchoolBlock.getAssignment().getName());
-                                    out.print(")");
-                                } else {
-                                    out.print("      <div class=\"time\">" + allSchoolBlock.getStart() + "</div>\n");
-                                    out.print("      <div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>\n");
-                                }
-                                out.print("    </td>\n");
-                            }
+                            int span = (int) (allSchoolBlock.getLength().toMinutes() / 15);
 
+                            if (allSchoolBlock.getAssignment() instanceof Course course) {
+                                out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
+                                out.print("<div class=\"slot span " + course.getName() + "\">");
+                                out.print("<div class=\"time\">" + allSchoolBlock.getStart() + "</div>");
+                                out.print("<div class=\"name\">" + course.getName() + "</div>");
+                                if (allSchoolBlock.getReason() != null) {
+                                    out.print("<div class=\"reason\">" + allSchoolBlock.getReason() + "</div>");
+                                }
+                                out.print("</div></td>\n");
+                            } else {
+                                out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
+                                out.print("<div class=\"slot span event\">");
+                                out.print("<div class=\"time\">" + allSchoolBlock.getStart() + "</div>");
+                                out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
+                                out.print("</div></td>\n");
+                            }
                         } else if (entry instanceof ClassBlock classBlock) {
                             for (Section section : day.getSections()) {
                                 Assignment assignment = classBlock.getSectionCourses().get(section);
                                 if (assignment instanceof Course) {
-                                    out.print("    <td class=\"slot class ");
-                                    out.print(assignment.getName());
-                                    out.print("\" colspan=\"2\" rowspan=\"");
-                                    out.print(classBlock.getLength().toMinutes() / 15);
-                                    out.print("\">\n");
+                                    int span = (int) (classBlock.getLength().toMinutes() / 15);
 
-                                    out.print("      <div class=\"time\">" + classBlock.getStart() + "</div>\n");
-                                    out.print("      <div class=\"name\">" + assignment.getName() + "</div>\n");
-                                    out.print("    </td>\n");
+                                    out.print("    <td class=\"slot-cell\" colspan=\"2\" rowspan=\"" + span + "\">");
+                                    out.print("<div class=\"slot class " + assignment.getName() + "\">");
+                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"name\">" + assignment.getName() + "</div>");
+                                    out.print("</div></td>\n");
                                 } else if (assignment instanceof SplitCourse splitCourse) {
                                     String firstSplit = splitCourse.getHalfSectionCourses().get(new HalfSection("Intermediate")).getName();
                                     String secondSplit = splitCourse.getHalfSectionCourses().get(new HalfSection("Advanced")).getName();
 
-                                    out.print("    <td class=\"slot class ");
-                                    out.print(firstSplit);
-                                    out.print("\" colspan=\"1\" rowspan=\"");
-                                    out.print(classBlock.getLength().toMinutes() / 15);
-                                    out.print("\">\n");
+                                    int span = (int) (classBlock.getLength().toMinutes() / 15);
 
-                                    out.print("      <div class=\"time\">" + classBlock.getStart() + "</div>\n");
-                                    out.print("      <div class=\"name\">" + firstSplit + "</div>\n");
-                                    out.print("    </td>\n");
+                                    out.print("    <td class=\"slot-cell\" colspan=\"1\" rowspan=\"" + span + "\">");
+                                    out.print("<div class=\"slot class " + firstSplit + "\">");
+                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"name\">" + firstSplit + "</div>");
+                                    out.print("</div></td>\n");
 
-                                    out.print("    <td class=\"slot class ");
-                                    out.print(secondSplit);
-                                    out.print("\" colspan=\"1\" rowspan=\"");
-                                    out.print(classBlock.getLength().toMinutes() / 15);
-                                    out.print("\">\n");
+                                    out.print("    <td class=\"slot-cell\" colspan=\"1\" rowspan=\"" + span + "\">");
+                                    out.print("<div class=\"slot class " + secondSplit + "\">");
+                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"name\">" + secondSplit + "</div>");
+                                    out.print("</div></td>\n");
 
-                                    out.print("      <div class=\"time\">" + classBlock.getStart() + "</div>\n");
-                                    out.print("      <div class=\"name\">" + secondSplit + "</div>\n");
-                                    out.print("    </td>\n");
                                 } else {
-                                    out.print("    <td class=\"slot class OPEN\" colspan=\"2\" rowspan=\"");
-                                    out.print(classBlock.getLength().toMinutes() / 15);
-                                    out.print("\">\n");
+                                    int span = (int) (classBlock.getLength().toMinutes() / 15);
 
-                                    out.print("      <div class=\"time\">" + classBlock.getStart() + "</div>\n");
-                                    out.print("      <div class=\"name\"> OPEN </div>\n");
-                                    out.print("    </td>\n");
+                                    out.print("    <td class=\"slot-cell\" colspan=\"2\" rowspan=\"" + span + "\">");
+                                    out.print("<div class=\"slot class " + "OPEN" + "\">");
+                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"name\">" + "OPEN" + "</div>");
+                                    out.print("</div></td>\n");
                                 }
                             }
                         }
