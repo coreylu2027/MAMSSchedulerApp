@@ -3,6 +3,12 @@ package edu.mams.app.model.util;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * The {@code LatinFill} class provides utilities for generating Latin squares
+ * with various constraints. A Latin square is an n×n grid where every row
+ * and every column contains each integer value from 0 to n-1 exactly once.
+ * The class supports both generating unrestricted Latin squares and constrained ones.
+ */
 public class LatinFill {
 
     // ===== Public API =====
