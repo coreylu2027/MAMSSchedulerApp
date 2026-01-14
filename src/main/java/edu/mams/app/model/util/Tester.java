@@ -24,8 +24,6 @@ public class Tester {
     }
 
     public static Week testTemplate() {
-        TemplateManager manager = new TemplateManager();
-
         List<Assignment> classes = new ArrayList<>();
         classes.add(new Course("Math", new Teacher("Durost")));
         classes.add(new Course("Physics", new Teacher("Chase")));
@@ -50,12 +48,11 @@ public class Tester {
                 )
         );
 
-        ScheduleBuilder.setTemplateManager(manager);
         ScheduleBuilder.setSplitClass((Course) classes.get(5));
         ScheduleBuilder.setSplitSection(sections.get(1));
 
         // Homeroom Day
-        manager.addTemplate(new DayTemplate(
+        TemplateManager.addTemplate(new DayTemplate(
                 "Class Meeting Day",
                 List.of(
                         new BlockDefinition("ClassBlock", LocalTime.of(7,45), Duration.ofMinutes(60), "Block 1"),
@@ -70,7 +67,7 @@ public class Tester {
         ));
 
         // Homeroom Day
-        manager.addTemplate(new DayTemplate(
+        TemplateManager.addTemplate(new DayTemplate(
                 "Homeroom Day",
                 List.of(
                         new BlockDefinition("ClassBlock", LocalTime.of(7,45), Duration.ofMinutes(60), "Block 1"),
@@ -85,7 +82,7 @@ public class Tester {
         ));
 
         // Flex Day
-        manager.addTemplate(new DayTemplate(
+        TemplateManager.addTemplate(new DayTemplate(
                 "Flex Day",
                 List.of(
                         new BlockDefinition("ClassBlock", LocalTime.of(7,45), Duration.ofMinutes(60), "Block 1"),
@@ -99,7 +96,7 @@ public class Tester {
                 )
         ));
 
-        manager.addTemplate(new DayTemplate(
+        TemplateManager.addTemplate(new DayTemplate(
                 "PE Day",
                 List.of(
                         new BlockDefinition("ClassBlock", LocalTime.of(7,45), Duration.ofMinutes(60), "Block 1"),
@@ -113,10 +110,6 @@ public class Tester {
                 )
         ));
 
-        List<TeacherRequest> requests = RequestLoader.loadRequests(LocalDate.of(2025, 10, 5));
-        for (TeacherRequest request : requests) {
-            request.setAssignmentFromList(classes);
-        }
 
         Day monday = new Day(LocalDate.of(2025, 12, 1), 71, sections, classes);
         Day tuesday = new Day(LocalDate.of(2025, 12, 2), 72, sections, classes);

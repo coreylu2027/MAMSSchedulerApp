@@ -31,6 +31,7 @@ public class WeekEdit extends JFrame {
     private JPanel dynamicPanel;
     private JButton openHTML;
     private JButton generate;
+    private JComboBox template;
 
     private static List<Assignment> classes;
 
@@ -55,7 +56,13 @@ public class WeekEdit extends JFrame {
 
         loadWeekIntoForm();
 
+        for (String templateName : TemplateManager.listTemplateNames()) {
+            template.addItem(templateName);
+        }
+
+
         generateDay();
+
 
         titleLabel.setText("Week of " + week.getStartingDate());
         saveButton.setText("Save");
@@ -87,6 +94,8 @@ public class WeekEdit extends JFrame {
         dynamicPanel.removeAll();
         dynamicPanel.setLayout(new GridLayout(0, 1));
         currentRows.clear();
+
+        template.setSelectedItem(day.getTemplate());
 
         int blocks = day.getEntries().size();
 
@@ -424,6 +433,7 @@ public class WeekEdit extends JFrame {
             add(combo);
 
             reason = new JTextField(20);
+            reason.setToolTipText("Reason (optional)");
             if (preselected.getReason() != null) {
                 reason.setText(preselected.getReason());
             }

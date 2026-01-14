@@ -10,13 +10,8 @@ import edu.mams.app.model.schedule.*;
 import java.util.*;
 
 public class ScheduleBuilder {
-    private static TemplateManager templateManager;
     private static Course splitClass = null;
     private static Section splitSection = null;
-
-    public static void setTemplateManager(TemplateManager templateManager) {
-        ScheduleBuilder.templateManager = templateManager;
-    }
 
     public static void setSplitClass(Course splitClass) {
         ScheduleBuilder.splitClass = splitClass;
@@ -108,7 +103,7 @@ public class ScheduleBuilder {
     private static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes) {
         List<ScheduleEntry> entries = new ArrayList<>();
 
-        DayTemplate template = templateManager.getTemplate(templateName);
+        DayTemplate template = TemplateManager.getTemplate(templateName);
 
         for (BlockDefinition def : template.getBlocks()) {
             switch (def.getType()) {

@@ -8,11 +8,10 @@ import java.util.List;
 public class Week {
     private List<Day> days;
 
+    public Week() {}
+
     public Week(List<Day> days) {
         this.days = days;
-    }
-
-    public Week() {
     }
 
     public List<Day> getDays() {

@@ -38,6 +38,8 @@ public class Day {
     private boolean split = false;
     private Course splitCourse = null;
 
+    private String template;
+
     public Day(LocalDate date, int dayNumber, List<Section> sections, List<Assignment> classes) {
         this.date = date;
         this.dayNumber = dayNumber;
@@ -222,6 +224,10 @@ public class Day {
         return classes;
     }
 
+    public String getTemplate() {
+        return template;
+    }
+
     /**
      * Generates a schedule consisting of blocks for the day based on the specified template.
      *
@@ -232,6 +238,7 @@ public class Day {
      * @param templateName the name of the schedule template to use for generating blocks.
      */
     public void generateBlocks(String templateName) {
+        this.template = templateName;
         if (split) {
             entries = ScheduleBuilder.buildNewSplitSchedule(templateName, this);
         } else {
