@@ -36,7 +36,7 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
+          <text value="Save"/>
         </properties>
       </component>
       <component id="3cf51" class="javax.swing.JButton" binding="cancelButton">
@@ -44,7 +44,7 @@
           <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
+          <text value="Cancel"/>
         </properties>
       </component>
       <component id="b1af5" class="javax.swing.JButton" binding="openHTML">
@@ -52,7 +52,7 @@
           <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
+          <text value="Open HTML"/>
         </properties>
       </component>
       <component id="73676" class="javax.swing.JButton" binding="generate">
@@ -60,7 +60,7 @@
           <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
+          <text value="Generate"/>
         </properties>
       </component>
       <component id="448f" class="javax.swing.JComboBox" binding="template">

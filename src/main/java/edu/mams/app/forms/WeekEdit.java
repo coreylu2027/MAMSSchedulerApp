@@ -67,10 +67,6 @@ public class WeekEdit extends JFrame {
 
 
         titleLabel.setText("Week of " + week.getStartingDate());
-        saveButton.setText("Save");
-        cancelButton.setText("Cancel");
-        openHTML.setText("Open HTML");
-        generate.setText("Generate");
 
         daySelector.addActionListener(e -> generateDay());
         saveButton.addActionListener(e -> onSave());
