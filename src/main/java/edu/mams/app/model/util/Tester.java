@@ -117,7 +117,7 @@ public class Tester {
         Day thursday = new Day(LocalDate.of(2025, 12, 4), 74, XYZ, removeIndex(classes, 5));
         Day friday = new Day(LocalDate.of(2025, 12, 5), 75, sections, classes);
 
-        tuesday.setSplit(true, (Course) classes.get(4));
+        tuesday.setSplitCourse((Course) classes.get(4));
 
 
         Week week = new Week(new ArrayList<>(List.of(monday, tuesday, wednesday, thursday, friday)));

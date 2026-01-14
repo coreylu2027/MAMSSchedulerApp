@@ -9,6 +9,9 @@ public abstract class Group {
         this.name = name;
     }
 
+    public Group() {
+    }
+
     public String getName() {
         return name;
     }

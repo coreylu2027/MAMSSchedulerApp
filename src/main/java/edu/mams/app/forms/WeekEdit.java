@@ -20,7 +20,9 @@ import java.time.LocalDate;
 import java.sql.Time;
 
 public class WeekEdit extends JFrame {
+    private static Schedule schedule;
     private Week week;
+    private static File file = new File("schedule.json");
 
     private JPanel contentPane;
     private JLabel titleLabel;
@@ -137,6 +139,8 @@ public class WeekEdit extends JFrame {
         }
 
         HtmlOutput.output(week);
+        schedule.addWeek(week);
+        schedule.saveToFile(file);
     }
 
     private Day getUpdatedDay(LocalDate date) {
@@ -179,13 +183,23 @@ public class WeekEdit extends JFrame {
     }
 
     public static void main(String[] args) {
-        Week week = Tester.testTemplate();
+        Week week = new Week();
+        if (false) {
+            week = Tester.testTemplate();
+            schedule.addWeek(week);
+            schedule.saveToFile(file);
+
+        } else {
+            schedule = Schedule.loadFromFile(file);
+            week = schedule.getWeek(LocalDate.of(2025, 12, 1));
+        }
+
         HtmlOutput.output(week);
-        SwingUtilities.invokeLater(() -> new WeekEdit(week).setVisible(true));
+        Week finalWeek = week;
+        SwingUtilities.invokeLater(() -> new WeekEdit(finalWeek).setVisible(true));
     }
 
     private static class BlockRow extends JPanel {
-        JComboBox classSelect;
         JSpinner timeSpinner;
         JButton insertButton;
         JComboBox<String> entryType;

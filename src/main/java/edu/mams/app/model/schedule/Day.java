@@ -26,6 +26,9 @@ public class Day {
     private LocalDate date;
     private int dayNumber;
 
+    public Day() {
+    }
+
     private List<ScheduleEntry> entries;
     private List<TeacherRequest> requests;
 
@@ -36,7 +39,7 @@ public class Day {
     private List<Assignment> classes;
 
     private boolean split = false;
-    private Course splitCourse = null;
+    private Assignment splitCourse = null;
 
     private String template;
 
@@ -79,12 +82,7 @@ public class Day {
         return copy;
     }
 
-    public void setSplit(boolean split, Course course) {
-        this.split = split;
-        this.splitCourse = course;
-    }
-
-    public void setSplit(Course course) {
+    public void setSplitCourse(Course course) {
         this.split = true;
         this.splitCourse = course;
     }
@@ -101,7 +99,7 @@ public class Day {
         return split;
     }
 
-    public Course getSplitCourse() {
+    public Assignment getSplitCourse() {
         return splitCourse;
     }
 
@@ -115,6 +113,10 @@ public class Day {
 
     public List<Section> getSections() {
         return sections;
+    }
+
+    public void setSplit(boolean split) {
+        this.split = split;
     }
 
     /**

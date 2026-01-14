@@ -23,6 +23,9 @@ public class ClassBlock extends ScheduleEntry {
         this.sectionCourses = sectionCourses;
     }
 
+    public ClassBlock() {
+    }
+
     public Map<Section, Assignment> getSectionCourses() {
         return sectionCourses;
     }

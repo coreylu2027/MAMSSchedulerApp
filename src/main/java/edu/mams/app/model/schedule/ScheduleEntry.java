@@ -5,10 +5,22 @@ import edu.mams.app.model.requests.TeacherTimeRequest;
 import java.time.Duration;
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Base abstract class for all schedule entries.
  * Provides start and length getters for JSON serialization.
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ClassBlock.class, name = "class"),
+        @JsonSubTypes.Type(value = AllSchoolBlock.class, name = "allSchool"),
+})
 public abstract class ScheduleEntry {
     protected LocalTime start;
     protected Duration length;
@@ -21,6 +33,9 @@ public abstract class ScheduleEntry {
     protected ScheduleEntry(LocalTime start) {
         this.start = start;
         this.length = Duration.ofHours(1);
+    }
+
+    protected ScheduleEntry() {
     }
 
     public boolean intersects(TeacherTimeRequest request) {
@@ -45,6 +60,7 @@ public abstract class ScheduleEntry {
     }
 }
 
+/*
 class PEBlock extends ScheduleEntry {
     private String group1;
     private String group2;
@@ -72,4 +88,4 @@ class PEBlock extends ScheduleEntry {
                 ", length=" + length +
                 '}';
     }
-}
+}*/

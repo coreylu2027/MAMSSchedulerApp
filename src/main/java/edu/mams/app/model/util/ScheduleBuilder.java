@@ -34,7 +34,7 @@ public class ScheduleBuilder {
         List<Assignment> classes = day.getClasses();
         List<Section> sections = day.getSections();
         List<ScheduleEntry> entries = getScheduleEntries(templateName, requests, classes);
-        Course partnerSplit = day.getSplitCourse();
+        Course partnerSplit = (Course) day.getSplitCourse();
 
         boolean[][] forbidden = getForbidden(entries, classes, requests);
 

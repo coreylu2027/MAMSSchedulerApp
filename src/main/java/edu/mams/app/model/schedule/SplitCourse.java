@@ -17,6 +17,9 @@ public class SplitCourse extends Assignment {
         this.halfSectionCourses = halfSectionCourses;
     }
 
+    public SplitCourse() {
+    }
+
     public Map<HalfSection, Course> getHalfSectionCourses() {
         return halfSectionCourses;
     }

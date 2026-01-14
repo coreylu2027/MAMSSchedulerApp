@@ -6,6 +6,9 @@ import java.util.List;
 public class Section extends Group {
     private List<HalfSection> halfSections = new ArrayList<>();
 
+    public Section() {
+    }
+
     public Section(String name) {
         super(name);
     }

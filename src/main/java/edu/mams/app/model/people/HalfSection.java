@@ -15,6 +15,9 @@ public class HalfSection extends Group {
         super(name);
     }
 
+    public HalfSection() {
+    }
+
     public HalfSection(String name, Section parentSection) {
         super(name);
         this.parentSection = parentSection;
@@ -30,6 +33,6 @@ public class HalfSection extends Group {
 
     @Override
     public String toString() {
-        return name + " (of " + parentSection.getName() + ")";
+        return name;
     }
 }

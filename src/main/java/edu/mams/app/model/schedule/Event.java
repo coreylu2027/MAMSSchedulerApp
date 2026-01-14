@@ -5,6 +5,9 @@ public class Event extends Assignment {
         super(name);
     }
 
+    public Event() {
+    }
+
     @Override
     public String toString() {
         return "Event{" +

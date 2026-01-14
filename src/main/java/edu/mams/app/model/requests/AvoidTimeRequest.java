@@ -15,4 +15,6 @@ public class AvoidTimeRequest extends TeacherTimeRequest {
         super(teacher, reason, length, startTime);
     }
 
+    public AvoidTimeRequest() {
+    }
 }

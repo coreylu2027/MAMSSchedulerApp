@@ -20,6 +20,9 @@ public class Teacher {
                 '}';
     }
 
+    public Teacher() {
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Teacher teacher)) return false;

@@ -17,6 +17,9 @@ public class TeacherTimeRequest extends TeacherRequest {
         this.startTime = startTime;
     }
 
+    public TeacherTimeRequest() {
+    }
+
     public TeacherTimeRequest(Teacher teacher, String reason, Duration length, LocalTime startTime) {
         super(teacher, reason);
         this.length = length;

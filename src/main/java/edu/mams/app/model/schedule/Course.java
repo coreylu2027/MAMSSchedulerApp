@@ -5,6 +5,10 @@ import edu.mams.app.model.people.Teacher;
 public class Course extends Assignment{
     private Teacher teacher;
 
+    public Course() {
+        super();
+    }
+
     public Course(String name, Teacher teacher) {
         super(name);
         this.teacher = teacher;

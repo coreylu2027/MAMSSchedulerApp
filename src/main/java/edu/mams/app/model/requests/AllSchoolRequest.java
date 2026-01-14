@@ -15,4 +15,6 @@ public class AllSchoolRequest extends TeacherTimeRequest {
         super(teacher, reason, length, startTime);
     }
 
+    public AllSchoolRequest() {
+    }
 }

@@ -35,6 +35,9 @@ public class AllSchoolBlock extends ScheduleEntry {
         this.reason = request.getReason();
     }
 
+    public AllSchoolBlock() {
+    }
+
     public Assignment getAssignment() {
         return assignment;
     }
