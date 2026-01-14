@@ -1,0 +1,1194 @@
+{
+  "weeks" : {
+    "2025-12-01" : {
+      "days" : [ {
+        "date" : "2025-12-01",
+        "dayNumber" : 71,
+        "entries" : [ {
+          "type" : "class",
+          "start" : "07:45:00",
+          "length" : 4500.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "09:00:00",
+          "length" : 2700.000000000,
+          "assignment" : {
+            "type" : "course",
+            "name" : "Hum",
+            "teacher" : {
+              "name" : "Small"
+            }
+          },
+          "reason" : "Satire Project"
+        }, {
+          "type" : "allSchool",
+          "start" : "09:45:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Class Meeting"
+          },
+          "reason" : ""
+        }, {
+          "type" : "class",
+          "start" : "10:15:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "11:15:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "12:15:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Lunch"
+          },
+          "reason" : ""
+        }, {
+          "type" : "class",
+          "start" : "12:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "13:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            }
+          }
+        } ],
+        "requests" : [ {
+          "type" : "allSchoolRequest",
+          "teacher" : {
+            "name" : "Small"
+          },
+          "assignment" : {
+            "type" : "course",
+            "name" : "Hum",
+            "teacher" : {
+              "name" : "Small"
+            }
+          },
+          "reason" : "Satire Project",
+          "length" : 3600.000000000,
+          "startTime" : "08:45:00"
+        } ],
+        "notes" : null,
+        "clubs" : null,
+        "sections" : [ {
+          "name" : "R",
+          "halfSections" : [ ]
+        }, {
+          "name" : "G",
+          "halfSections" : [ ]
+        }, {
+          "name" : "B",
+          "halfSections" : [ ]
+        } ],
+        "classes" : [ {
+          "type" : "course",
+          "name" : "Math",
+          "teacher" : {
+            "name" : "Durost"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Physics",
+          "teacher" : {
+            "name" : "Chase"
+          }
+        }, {
+          "type" : "course",
+          "name" : "CS",
+          "teacher" : {
+            "name" : "Taricco"
+          }
+        }, {
+          "type" : "course",
+          "name" : "STEM",
+          "teacher" : {
+            "name" : "Crowthers"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Lang",
+          "teacher" : {
+            "name" : "Wildfong"
+          }
+        } ],
+        "split" : false,
+        "splitCourse" : null,
+        "template" : null
+      }, {
+        "date" : "2025-12-02",
+        "dayNumber" : 72,
+        "entries" : [ {
+          "type" : "class",
+          "start" : "07:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "08:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "09:45:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Homeroom"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "10:15:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "11:15:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "12:15:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Lunch"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "12:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            },
+            "G" : {
+              "type" : "splitCourse",
+              "name" : "Split Block: Advanced - Hum, Intermediate - Lang",
+              "halfSectionCourses" : {
+                "Advanced" : {
+                  "type" : "course",
+                  "name" : "Hum",
+                  "teacher" : {
+                    "name" : "Small"
+                  }
+                },
+                "Intermediate" : {
+                  "type" : "course",
+                  "name" : "Lang",
+                  "teacher" : {
+                    "name" : "Wildfong"
+                  }
+                }
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "13:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "G" : {
+              "type" : "splitCourse",
+              "name" : "Split Block: Advanced - Lang, Intermediate - Hum",
+              "halfSectionCourses" : {
+                "Advanced" : {
+                  "type" : "course",
+                  "name" : "Lang",
+                  "teacher" : {
+                    "name" : "Wildfong"
+                  }
+                },
+                "Intermediate" : {
+                  "type" : "course",
+                  "name" : "Hum",
+                  "teacher" : {
+                    "name" : "Small"
+                  }
+                }
+              }
+            }
+          }
+        } ],
+        "requests" : [ {
+          "type" : "avoidTimeRequest",
+          "teacher" : {
+            "name" : "Wildfong"
+          },
+          "assignment" : {
+            "type" : "course",
+            "name" : "Lang",
+            "teacher" : {
+              "name" : "Wildfong"
+            }
+          },
+          "reason" : "",
+          "length" : 12600.000000000,
+          "startTime" : "07:45:00"
+        } ],
+        "notes" : null,
+        "clubs" : null,
+        "sections" : [ {
+          "name" : "R",
+          "halfSections" : [ ]
+        }, {
+          "name" : "G",
+          "halfSections" : [ ]
+        }, {
+          "name" : "B",
+          "halfSections" : [ ]
+        } ],
+        "classes" : [ {
+          "type" : "course",
+          "name" : "Math",
+          "teacher" : {
+            "name" : "Durost"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Physics",
+          "teacher" : {
+            "name" : "Chase"
+          }
+        }, {
+          "type" : "course",
+          "name" : "CS",
+          "teacher" : {
+            "name" : "Taricco"
+          }
+        }, {
+          "type" : "course",
+          "name" : "STEM",
+          "teacher" : {
+            "name" : "Crowthers"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Hum",
+          "teacher" : {
+            "name" : "Small"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Lang",
+          "teacher" : {
+            "name" : "Wildfong"
+          }
+        } ],
+        "split" : true,
+        "splitCourse" : {
+          "type" : "course",
+          "name" : "Hum",
+          "teacher" : {
+            "name" : "Small"
+          }
+        },
+        "template" : "Homeroom Day"
+      }, {
+        "date" : "2025-12-03",
+        "dayNumber" : 73,
+        "entries" : [ {
+          "type" : "class",
+          "start" : "07:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "08:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "09:45:00",
+          "length" : 900.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "15 min break"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "10:00:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "11:00:00",
+          "length" : 4500.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Flex"
+          },
+          "reason" : null
+        }, {
+          "type" : "allSchool",
+          "start" : "12:15:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Lunch"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "12:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "13:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            }
+          }
+        } ],
+        "requests" : [ ],
+        "notes" : null,
+        "clubs" : null,
+        "sections" : [ {
+          "name" : "R",
+          "halfSections" : [ ]
+        }, {
+          "name" : "G",
+          "halfSections" : [ ]
+        }, {
+          "name" : "B",
+          "halfSections" : [ ]
+        } ],
+        "classes" : [ {
+          "type" : "course",
+          "name" : "Physics",
+          "teacher" : {
+            "name" : "Chase"
+          }
+        }, {
+          "type" : "course",
+          "name" : "CS",
+          "teacher" : {
+            "name" : "Taricco"
+          }
+        }, {
+          "type" : "course",
+          "name" : "STEM",
+          "teacher" : {
+            "name" : "Crowthers"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Hum",
+          "teacher" : {
+            "name" : "Small"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Lang",
+          "teacher" : {
+            "name" : "Wildfong"
+          }
+        } ],
+        "split" : true,
+        "splitCourse" : null,
+        "template" : "Flex Day"
+      }, {
+        "date" : "2025-12-04",
+        "dayNumber" : 74,
+        "entries" : [ {
+          "type" : "class",
+          "start" : "07:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "X" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "Y" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "Z" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "08:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "X" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            },
+            "Y" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "Z" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "09:45:00",
+          "length" : 900.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "15 min break"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "10:00:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "X" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "Y" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "Z" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "11:00:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "X" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "Y" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            },
+            "Z" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "12:00:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Lunch"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "12:30:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "X" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "Y" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "Z" : {
+              "type" : "course",
+              "name" : "Math",
+              "teacher" : {
+                "name" : "Durost"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "13:30:00",
+          "length" : 4500.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "PE"
+          },
+          "reason" : null
+        } ],
+        "requests" : [ {
+          "type" : "avoidTimeRequest",
+          "teacher" : {
+            "name" : "Taricco"
+          },
+          "assignment" : {
+            "type" : "course",
+            "name" : "CS",
+            "teacher" : {
+              "name" : "Taricco"
+            }
+          },
+          "reason" : "",
+          "length" : 13500.000000000,
+          "startTime" : "11:00:00"
+        } ],
+        "notes" : null,
+        "clubs" : null,
+        "sections" : [ {
+          "name" : "X",
+          "halfSections" : [ ]
+        }, {
+          "name" : "Y",
+          "halfSections" : [ ]
+        }, {
+          "name" : "Z",
+          "halfSections" : [ ]
+        } ],
+        "classes" : [ {
+          "type" : "course",
+          "name" : "Math",
+          "teacher" : {
+            "name" : "Durost"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Physics",
+          "teacher" : {
+            "name" : "Chase"
+          }
+        }, {
+          "type" : "course",
+          "name" : "CS",
+          "teacher" : {
+            "name" : "Taricco"
+          }
+        }, {
+          "type" : "course",
+          "name" : "STEM",
+          "teacher" : {
+            "name" : "Crowthers"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Hum",
+          "teacher" : {
+            "name" : "Small"
+          }
+        } ],
+        "split" : true,
+        "splitCourse" : null,
+        "template" : "PE Day"
+      }, {
+        "date" : "2025-12-05",
+        "dayNumber" : 75,
+        "entries" : [ {
+          "type" : "allSchool",
+          "start" : "07:45:00",
+          "length" : 3600.000000000,
+          "assignment" : {
+            "type" : "course",
+            "name" : "Math",
+            "teacher" : {
+              "name" : "Durost"
+            }
+          },
+          "reason" : ""
+        }, {
+          "type" : "class",
+          "start" : "08:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "09:45:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Homeroom"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "10:15:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "11:15:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "STEM",
+              "teacher" : {
+                "name" : "Crowthers"
+              }
+            }
+          }
+        }, {
+          "type" : "allSchool",
+          "start" : "12:15:00",
+          "length" : 1800.000000000,
+          "assignment" : {
+            "type" : "event",
+            "name" : "Lunch"
+          },
+          "reason" : null
+        }, {
+          "type" : "class",
+          "start" : "12:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "Lang",
+              "teacher" : {
+                "name" : "Wildfong"
+              }
+            }
+          }
+        }, {
+          "type" : "class",
+          "start" : "13:45:00",
+          "length" : 3600.000000000,
+          "sectionCourses" : {
+            "R" : {
+              "type" : "course",
+              "name" : "Physics",
+              "teacher" : {
+                "name" : "Chase"
+              }
+            },
+            "B" : {
+              "type" : "course",
+              "name" : "Hum",
+              "teacher" : {
+                "name" : "Small"
+              }
+            },
+            "G" : {
+              "type" : "course",
+              "name" : "CS",
+              "teacher" : {
+                "name" : "Taricco"
+              }
+            }
+          }
+        } ],
+        "requests" : [ {
+          "type" : "allSchoolRequest",
+          "teacher" : {
+            "name" : "Durost"
+          },
+          "assignment" : {
+            "type" : "course",
+            "name" : "Math",
+            "teacher" : {
+              "name" : "Durost"
+            }
+          },
+          "reason" : "",
+          "length" : 3600.000000000,
+          "startTime" : "07:45:00"
+        } ],
+        "notes" : null,
+        "clubs" : null,
+        "sections" : [ {
+          "name" : "R",
+          "halfSections" : [ ]
+        }, {
+          "name" : "G",
+          "halfSections" : [ ]
+        }, {
+          "name" : "B",
+          "halfSections" : [ ]
+        } ],
+        "classes" : [ {
+          "type" : "course",
+          "name" : "Physics",
+          "teacher" : {
+            "name" : "Chase"
+          }
+        }, {
+          "type" : "course",
+          "name" : "CS",
+          "teacher" : {
+            "name" : "Taricco"
+          }
+        }, {
+          "type" : "course",
+          "name" : "STEM",
+          "teacher" : {
+            "name" : "Crowthers"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Hum",
+          "teacher" : {
+            "name" : "Small"
+          }
+        }, {
+          "type" : "course",
+          "name" : "Lang",
+          "teacher" : {
+            "name" : "Wildfong"
+          }
+        } ],
+        "split" : true,
+        "splitCourse" : null,
+        "template" : "Homeroom Day"
+      } ]
+    }
+  }
+}
