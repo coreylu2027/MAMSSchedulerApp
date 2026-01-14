@@ -119,11 +119,19 @@ public class HtmlOutput {
                                 }
                                 out.print("</div></td>\n");
                             } else {
-                                out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
-                                out.print("<div class=\"slot span event\">");
-                                out.print("<div class=\"time\">" + allSchoolBlock.getStart() + "</div>");
-                                out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
-                                out.print("</div></td>\n");
+                                if (span == 1) {
+                                    out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
+                                    out.print("<div class=\"slot span event\">");
+                                    out.print("<div class=\"time\">" + allSchoolBlock.getStart() + " (" + allSchoolBlock.getAssignment().getName() + ")" + "</div>");
+                                    out.print("</div></td>\n");
+                                } else {
+                                    out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
+                                    out.print("<div class=\"slot span event\">");
+                                    out.print("<div class=\"time\">" + allSchoolBlock.getStart() + "</div>");
+                                    out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
+                                    out.print("</div></td>\n");
+                                }
+
                             }
                         } else if (entry instanceof ClassBlock classBlock) {
                             for (Section section : day.getSections()) {
