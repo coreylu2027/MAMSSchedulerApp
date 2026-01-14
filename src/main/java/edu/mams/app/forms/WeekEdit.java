@@ -182,9 +182,116 @@ public class WeekEdit extends JFrame {
         generateDay(previewDay);
     }
 
+    // ----- Insert/Delete helpers -----
+
+    private void insertAfter(BlockRow row) {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        int idx = currentRows.indexOf(row);
+        if (idx < 0) return;
+
+        Day updatedDay = getUpdatedDay(date);
+        List<ScheduleEntry> entries = new ArrayList<>(updatedDay.getEntries());
+        if (idx >= entries.size()) return;
+
+        LocalTime currentStart = entries.get(idx).getStart();
+        LocalTime insertStart = currentStart.plusMinutes(15);
+
+        // Default new entry type matches the row you clicked (+) on
+        String type = (String) row.entryType.getSelectedItem();
+        ScheduleEntry inserted = "All School".equals(type)
+                ? new AllSchoolBlock(insertStart)
+                : new ClassBlock(insertStart);
+
+        // Decide whether we need to shift future blocks.
+        // We only shift if the next block starts BEFORE insertStart + 15 (no 15-min slot available).
+        boolean needShift = false;
+        int nextIndex = idx + 1;
+
+        if (nextIndex < entries.size()) {
+            LocalTime nextStart = entries.get(nextIndex).getStart();
+            LocalTime requiredGapEnd = insertStart.plusMinutes(15);
+            needShift = nextStart.isBefore(requiredGapEnd);
+        }
+
+        if (needShift) {
+            for (int j = nextIndex; j < entries.size(); j++) {
+                entries.set(j, shiftedCopy(entries.get(j), +15));
+            }
+        }
+
+        entries.add(idx + 1, inserted);
+
+        Day newDay = updatedDay.copy();
+        newDay.setEntries(entries);
+        newDay.updateDurations();
+        generateDay(newDay);
+    }
+
+    private void deleteRow(BlockRow row) {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        int idx = currentRows.indexOf(row);
+        if (idx < 0) return;
+
+        Day updatedDay = getUpdatedDay(date);
+        List<ScheduleEntry> entries = new ArrayList<>(updatedDay.getEntries());
+
+        // Don't allow deleting the last remaining block (optional safeguard)
+        if (entries.size() <= 1) return;
+
+        if (idx >= entries.size()) return;
+
+        // Remove the entry at idx
+        entries.remove(idx);
+
+        // Shift all later entries backward by 15 minutes
+        for (int j = idx; j < entries.size(); j++) {
+            entries.set(j, shiftedCopy(entries.get(j), -15));
+        }
+
+        Day newDay = updatedDay.copy();
+        newDay.setEntries(entries);
+        newDay.updateDurations();
+        generateDay(newDay);
+    }
+
+    /**
+     * Returns a deep-ish copy of the ScheduleEntry with its start time shifted by minutesDelta,
+     * preserving section maps / assignment / reason.
+     */
+    private static ScheduleEntry shiftedCopy(ScheduleEntry entry, int minutesDelta) {
+        LocalTime newStart = entry.getStart().plusMinutes(minutesDelta);
+
+        if (entry instanceof ClassBlock cb) {
+            ClassBlock out = new ClassBlock(newStart);
+
+            if (cb.getSectionCourses() != null) {
+                // copy the map so edits don't alias the old object
+                out.setSectionCourses(new java.util.HashMap<>(cb.getSectionCourses()));
+            } else {
+                out.setSectionCourses(new java.util.HashMap<>());
+            }
+            return out;
+        }
+
+        if (entry instanceof AllSchoolBlock ab) {
+            AllSchoolBlock out = new AllSchoolBlock(newStart);
+            out.setAssignment(ab.getAssignment());
+            out.setReason(ab.getReason());
+            return out;
+        }
+
+        // If you add more ScheduleEntry subtypes later, handle them here.
+        throw new IllegalStateException("Unsupported ScheduleEntry type for shift: " + entry.getClass());
+    }
+
     public static void main(String[] args) {
         Week week = new Week();
-        if (false) {
+        if (true) {
+            schedule = new Schedule();
             week = Tester.testTemplate();
             schedule.addWeek(week);
             schedule.saveToFile(file);
@@ -199,9 +306,10 @@ public class WeekEdit extends JFrame {
         SwingUtilities.invokeLater(() -> new WeekEdit(finalWeek).setVisible(true));
     }
 
-    private static class BlockRow extends JPanel {
+    private class BlockRow extends JPanel {
         JSpinner timeSpinner;
         JButton insertButton;
+        JButton deleteButton;
         JComboBox<String> entryType;
         SectionClassPanel sectionPanel;
         AllSchoolPanel allSchoolPanel;
@@ -210,11 +318,7 @@ public class WeekEdit extends JFrame {
         private final int blockIndex;
         private final List<Section> sections;
 
-        BlockRow(int blockIndex,
-                 LocalTime startTime,
-                 List<Section> sections,
-                 ScheduleEntry preselected) {
-
+        BlockRow(int blockIndex, LocalTime startTime, List<Section> sections, ScheduleEntry preselected) {
             this.sections = sections;
             this.entry = preselected;
             this.blockIndex = blockIndex;
@@ -258,10 +362,15 @@ public class WeekEdit extends JFrame {
             timeSpinner.setEditor(editor);
 
             insertButton = new JButton("+");
+            deleteButton = new JButton("-");
+
+            insertButton.addActionListener(e -> WeekEdit.this.insertAfter(this));
+            deleteButton.addActionListener(e -> WeekEdit.this.deleteRow(this));
 
             top.add(entryType);
             top.add(timeSpinner);
             top.add(insertButton);
+            top.add(deleteButton);
             add(top);
 
             // ----- Initial panel based on preselected type -----
@@ -448,11 +557,11 @@ public class WeekEdit extends JFrame {
 
             reason = new JTextField(20);
             reason.setToolTipText("Reason (optional)");
-            if (preselected.getReason() != null) {
+            if (preselected != null && preselected.getReason() != null) {
                 reason.setText(preselected.getReason());
             }
-
             add(reason);
+
         }
 
         public JComboBox<String> getCombo() {

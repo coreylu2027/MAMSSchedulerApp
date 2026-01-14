@@ -124,9 +124,23 @@ public class Day {
      */
     public Day withUpdatedEntry(int index, ScheduleEntry newEntry) {
         Day copy = this.copy();
-        copy.entries.set(index, newEntry);
+
+        if (index < copy.entries.size()) {
+            // normal edit of an existing block
+            copy.entries.set(index, newEntry);
+        } else if (index == copy.entries.size()) {
+            // newly inserted block at the end
+            copy.entries.add(newEntry);
+        } else {
+            // defensive: should never happen
+            throw new IllegalStateException(
+                    "Block index " + index + " out of bounds for entries size " + copy.entries.size()
+            );
+        }
+
         return copy;
     }
+
 
     /**
      * Returns a copy of this Day where entry durations have been recalculated.
@@ -228,6 +242,10 @@ public class Day {
 
     public String getTemplate() {
         return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
     /**
