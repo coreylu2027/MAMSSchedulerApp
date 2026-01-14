@@ -397,6 +397,9 @@ public class WeekEdit extends JFrame {
     private static class AllSchoolPanel extends JPanel {
         private final JComboBox<String> combo;
         private final JTextField reason;
+        private static final String[] DEFAULT_OPTIONS = {
+                "(Open)", "Flex", "Lunch", "Class Meeting", "15 min break", "Homeroom", "PE"
+        };
 
         AllSchoolPanel(AllSchoolBlock preselected) {
             super(new FlowLayout(FlowLayout.LEFT));
@@ -407,12 +410,9 @@ public class WeekEdit extends JFrame {
             for (Assignment a : classes) {
                 combo.addItem(a.getName());
             }
-            combo.addItem("(Open)");
-            combo.addItem("Flex");
-            combo.addItem("Lunch");
-            combo.addItem("Class Meeting");
-            combo.addItem("15 min break");
-            combo.addItem("Homeroom");
+            for (String option : DEFAULT_OPTIONS) {
+                combo.addItem(option);
+            }
 
             // Preselect existing value (or Open)
             if (preselected != null && preselected.getAssignment() != null) {
