@@ -23,6 +23,12 @@ public class AllSchoolBlock extends ScheduleEntry {
         this.assignment = assignment;
     }
 
+    public AllSchoolBlock(LocalTime start, Duration length, Assignment assignment, String reason) {
+        super(start, length);
+        this.assignment = assignment;
+        this.reason = reason;
+    }
+
     public AllSchoolBlock(AllSchoolRequest request) {
         super(request.getStartTime(), request.getLength());
         this.assignment = request.getAssignment();

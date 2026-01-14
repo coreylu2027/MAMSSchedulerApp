@@ -328,6 +328,8 @@ public class WeekEdit extends JFrame {
 
                 if (allSchoolPanel != null) {
                     String name = (String) allSchoolPanel.getCombo().getSelectedItem();
+                    String reason = allSchoolPanel.reason.getText();
+                    ab.setReason(reason);
                     if ("(Open)".equals(name) || name == null) {
                         ab.setAssignment(null);
                     } else {
@@ -335,7 +337,7 @@ public class WeekEdit extends JFrame {
                                 .filter(a -> a.getName().equals(name))
                                 .findFirst()
                                 .orElse(new Event(name));
-                        ab.setAssignment(selectedAssignment); // can be null safely
+                        ab.setAssignment(selectedAssignment);
                     }
                 }
 
@@ -394,6 +396,7 @@ public class WeekEdit extends JFrame {
 
     private static class AllSchoolPanel extends JPanel {
         private final JComboBox<String> combo;
+        private final JTextField reason;
 
         AllSchoolPanel(AllSchoolBlock preselected) {
             super(new FlowLayout(FlowLayout.LEFT));
@@ -419,6 +422,13 @@ public class WeekEdit extends JFrame {
             }
 
             add(combo);
+
+            reason = new JTextField(20);
+            if (preselected.getReason() != null) {
+                reason.setText(preselected.getReason());
+            }
+
+            add(reason);
         }
 
         public JComboBox<String> getCombo() {

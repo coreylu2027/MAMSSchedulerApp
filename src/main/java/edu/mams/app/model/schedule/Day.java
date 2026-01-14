@@ -280,7 +280,7 @@ public class Day {
         }
 
         if (e instanceof AllSchoolBlock ab) {
-            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment());
+            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment(), ab.getReason());
         }
 
         // If you add more ScheduleEntry subclasses later, extend this copier.
