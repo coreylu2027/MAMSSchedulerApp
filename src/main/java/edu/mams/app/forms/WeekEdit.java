@@ -1,12 +1,9 @@
 package edu.mams.app.forms;
 
-import edu.mams.app.model.people.Section;
-import edu.mams.app.model.people.Teacher;
+import edu.mams.app.model.people.*;
 import edu.mams.app.model.schedule.*;
 import edu.mams.app.model.schedule.Event;
-import edu.mams.app.model.util.HtmlOutput;
-import edu.mams.app.model.util.ScheduleBuilder;
-import edu.mams.app.model.util.Tester;
+import edu.mams.app.model.util.*;
 
 import java.io.File;
 import java.time.LocalTime;
@@ -19,8 +16,8 @@ import java.util.List;
 
 public class WeekEdit extends JFrame {
     private static Schedule schedule;
-    private Week week;
-    private static File file = new File("schedule.json");
+    private final Week week;
+    private static final File file = new File("schedule.json");
 
     private JPanel contentPane;
     private JLabel titleLabel;
@@ -412,24 +409,6 @@ public class WeekEdit extends JFrame {
         throw new IllegalStateException("Unsupported ScheduleEntry type for shift: " + entry.getClass());
     }
 
-    public static void main(String[] args) {
-        Week week = new Week();
-        if (true) {
-            schedule = new Schedule();
-            week = Tester.testTemplate();
-            schedule.addWeek(week);
-            schedule.saveToFile(file);
-
-        } else {
-            schedule = Schedule.loadFromFile(file);
-            week = schedule.getWeek(LocalDate.of(2025, 12, 1));
-        }
-
-        HtmlOutput.output(week);
-        Week finalWeek = week;
-        SwingUtilities.invokeLater(() -> new WeekEdit(finalWeek).setVisible(true));
-    }
-
     private class BlockRow extends JPanel {
         JSpinner timeSpinner;
         JButton insertButton;
@@ -556,7 +535,7 @@ public class WeekEdit extends JFrame {
             b.setMargin(new Insets(2, 10, 2, 10));
         }
 
-        Day applyToModel(Day baseDay) {
+        private Day applyToModel(Day baseDay) {
             Date d = (Date) timeSpinner.getValue();
             LocalTime newStart = d.toInstant()
                     .atZone(java.time.ZoneId.systemDefault())
