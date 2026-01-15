@@ -190,8 +190,8 @@ public class WeekEdit extends JFrame {
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
         Day day = week.getDay(date);
         day.setSections(sectionGroups.get("RGB"));
-        day.setClasses(classes);
-        week.loadRequests();
+        day.setClasses(new ArrayList<>(classes));
+        day.loadRequests();
         String templateName = (String) template.getSelectedItem();
         if (templateName == null) return;
 
@@ -203,6 +203,8 @@ public class WeekEdit extends JFrame {
     private void generateDay(Day day) {
         dynamicPanel.removeAll();
         dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
+        dynamicPanel.setBackground(new Color(245, 246, 248));
+        dynamicPanel.setOpaque(true);
         currentRows.clear();
 
         template.setSelectedItem(day.getTemplate());
@@ -225,9 +227,17 @@ public class WeekEdit extends JFrame {
             JPanel wrapper = new JPanel();
             wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
             wrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
+            wrapper.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                    BorderFactory.createEmptyBorder(10, 10, 10, 10)
+            ));
+            wrapper.setBackground(Color.WHITE);
+            wrapper.setOpaque(true);
+
+            row.setOpaque(false); // let wrapper show the white card background
+
             wrapper.add(row);
-            wrapper.add(Box.createVerticalStrut(5));
-            wrapper.add(new JSeparator());
+            wrapper.add(Box.createVerticalStrut(6));
             // Ensure row does not stretch vertically
             row.setAlignmentX(Component.LEFT_ALIGNMENT);
             wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, wrapper.getPreferredSize().height));
@@ -481,6 +491,9 @@ public class WeekEdit extends JFrame {
             insertButton.addActionListener(e -> WeekEdit.this.insertAfter(this));
             deleteButton.addActionListener(e -> WeekEdit.this.deleteRow(this));
 
+            styleMiniButton(insertButton);
+            styleMiniButton(deleteButton);
+
             top.add(entryType);
             top.add(timeSpinner);
             top.add(insertButton);
@@ -536,6 +549,11 @@ public class WeekEdit extends JFrame {
             // Do this AFTER children are added so preferred height is correct.
             setAlignmentX(Component.LEFT_ALIGNMENT);
             setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
+        }
+
+        private static void styleMiniButton(JButton b) {
+            b.setFocusPainted(false);
+            b.setMargin(new Insets(2, 10, 2, 10));
         }
 
         Day applyToModel(Day baseDay) {
@@ -676,7 +694,10 @@ public class WeekEdit extends JFrame {
 
             add(combo);
 
-            reason = new JTextField(20);
+
+            reason = new JTextField();
+            reason.setColumns(20);
+            reason.setPreferredSize(new Dimension(250, 28));
             reason.setToolTipText("Reason (optional)");
             if (preselected != null && preselected.getReason() != null) {
                 reason.setText(preselected.getReason());
