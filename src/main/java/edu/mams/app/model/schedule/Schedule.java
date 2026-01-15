@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Schedule {
@@ -54,6 +55,11 @@ public class Schedule {
             throw new RuntimeException("Failed to load schedule", e);
         }
     }
+
+    public List<LocalDate> getWeekStartDates() {
+        return new java.util.ArrayList<>(weeks.keySet());
+    }
+
 
     private static ObjectMapper createMapper() {
         ObjectMapper mapper = new ObjectMapper();

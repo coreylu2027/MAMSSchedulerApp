@@ -66,6 +66,10 @@ public class Day {
         this.entries = entries;
     }
 
+    public void setClasses(List<Assignment> classes) {
+        this.classes = classes;
+    }
+
     /**
      * Returns a copy of this Day with a deep-copied entries list.
      * (Other fields are copied in the "safe enough" way for this app:
@@ -79,6 +83,10 @@ public class Day {
         copy.requests = this.requests;
         copy.notes = this.notes;
         copy.clubs = this.clubs;
+        copy.template = this.template;
+        copy.splitCourse = this.splitCourse;
+        copy.split = this.split;
+        copy.sections = this.sections;
         return copy;
     }
 
@@ -286,6 +294,10 @@ public class Day {
             entries.get(i).setLength(Duration.between(entries.get(i).getStart(), entries.get(i + 1).getStart()));
         }
         entries.get(entries.size() - 1).setLength(Duration.between(entries.get(entries.size() - 1).getStart(), LocalTime.of(14, 45)));
+    }
+
+    public void setSections(List<Section> sections) {
+        this.sections = sections;
     }
 
     private static List<ScheduleEntry> deepCopyEntries(List<ScheduleEntry> source) {

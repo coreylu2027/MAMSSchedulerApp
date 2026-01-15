@@ -100,7 +100,7 @@ public class ScheduleBuilder {
         return entries;
     }
 
-    private static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes) {
+    public static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes) {
         List<ScheduleEntry> entries = new ArrayList<>();
 
         DayTemplate template = TemplateManager.getTemplate(templateName);

@@ -10,14 +10,12 @@ import edu.mams.app.model.util.Tester;
 
 import java.io.File;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.sql.Time;
+import java.util.List;
 
 public class WeekEdit extends JFrame {
     private static Schedule schedule;
@@ -33,11 +31,16 @@ public class WeekEdit extends JFrame {
     private JPanel dynamicPanel;
     private JButton openHTML;
     private JButton generate;
-    private JComboBox template;
+    private JComboBox<String> template;
+    private JButton insertTemplateButton;
+    private JComboBox<String> sectionSelect;
+    private JButton editClasses;
 
     private static List<Assignment> classes;
 
     private java.util.List<BlockRow> currentRows = new java.util.ArrayList<>();
+
+    private final Map<String, List<Section>> sectionGroups = new LinkedHashMap<>();
 
     public WeekEdit(Week week) {
         classes = new ArrayList<>();
@@ -62,9 +65,8 @@ public class WeekEdit extends JFrame {
             template.addItem(templateName);
         }
 
-
+        populateSections();
         generateDay();
-
 
         titleLabel.setText("Week of " + week.getStartingDate());
 
@@ -73,6 +75,102 @@ public class WeekEdit extends JFrame {
         cancelButton.addActionListener(e -> onCancel());
         openHTML.addActionListener(e -> onOpenHTML());
         generate.addActionListener(e -> generate());
+        insertTemplateButton.addActionListener(e -> insertTemplate());
+        sectionSelect.addActionListener(e -> changeSection());
+        editClasses.addActionListener(e -> editClasses());
+    }
+
+    private void editClasses() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        Day day = week.getDay(date);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel label = new JLabel("Select classes for " + date + ":");
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(label);
+        panel.add(Box.createVerticalStrut(8));
+
+        // Pre-select boxes based on what's already on the day
+        java.util.List<Assignment> existing = day.getClasses(); // <-- assumes you have this
+        java.util.Set<String> existingNames = new java.util.HashSet<>();
+        if (existing != null) {
+            for (Assignment a : existing) existingNames.add(a.getName());
+        }
+
+        java.util.List<JCheckBox> boxes = new ArrayList<>();
+        for (Assignment a : classes) {
+            JCheckBox cb = new JCheckBox(a.getName());
+            cb.setAlignmentX(Component.LEFT_ALIGNMENT);
+            cb.setSelected(existingNames.contains(a.getName()));
+            boxes.add(cb);
+            panel.add(cb);
+        }
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "Edit Classes",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) return;
+
+        // --- Gather selections ---
+        java.util.List<Assignment> selected = new ArrayList<>();
+        for (int i = 0; i < boxes.size(); i++) {
+            if (boxes.get(i).isSelected()) {
+                selected.add(classes.get(i)); // same index as checkbox list
+            }
+        }
+
+        // Save onto the Day model
+        day.setClasses(selected); // <-- assumes you have this setter
+    }
+
+    private void populateSections() {
+        List<Section> RGB = new ArrayList<>(List.of(
+                new Section("R"),
+                new Section("G"),
+                new Section("B")
+        ));
+
+        List<Section> XYZ = new ArrayList<>(List.of(
+                new Section("X"),
+                new Section("Y"),
+                new Section("Z")
+        ));
+
+        sectionGroups.put("RGB", RGB);
+        sectionGroups.put("XYZ", XYZ);
+
+        sectionSelect.removeAllItems();
+        for (String key : sectionGroups.keySet()) {
+            sectionSelect.addItem(key);
+        }
+    }
+
+    private void changeSection() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        String selectedGroup = (String) sectionSelect.getSelectedItem();
+        if (selectedGroup == null) return;
+
+        Day day = week.getDay(date);
+        if (day == null) return;
+
+        List<Section> chosen = sectionGroups.get(selectedGroup);
+        if (chosen == null) return;
+
+        // Use a copy so you don't accidentally share/mutate the list stored in the map
+        day.setSections(new ArrayList<>(chosen));
+
+        // Refresh UI to reflect new sections (headers, column structure, etc.)
+        generateDay();
     }
 
     private void loadWeekIntoForm() {
@@ -88,13 +186,30 @@ public class WeekEdit extends JFrame {
         generateDay(day);
     }
 
+    private void insertTemplate() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        Day day = week.getDay(date);
+        day.setSections(sectionGroups.get("RGB"));
+        day.setClasses(classes);
+        week.loadRequests();
+        String templateName = (String) template.getSelectedItem();
+        if (templateName == null) return;
+
+        day.setTemplate(templateName);
+        day.setEntries(ScheduleBuilder.getScheduleEntries(templateName, day.getRequests(), day.getClasses()));
+        generateDay(day);
+    }
+
     private void generateDay(Day day) {
         dynamicPanel.removeAll();
-        dynamicPanel.setLayout(new GridLayout(0, 1));
+        dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
         currentRows.clear();
 
         template.setSelectedItem(day.getTemplate());
 
+        if (day.getEntries() == null) {
+            day.setEntries(new ArrayList<>(List.of(new AllSchoolBlock(LocalTime.of(7, 45)))));
+        }
         int blocks = day.getEntries().size();
 
         for (int i = 0; i < blocks; i++) {
@@ -113,9 +228,14 @@ public class WeekEdit extends JFrame {
             wrapper.add(row);
             wrapper.add(Box.createVerticalStrut(5));
             wrapper.add(new JSeparator());
+            // Ensure row does not stretch vertically
+            row.setAlignmentX(Component.LEFT_ALIGNMENT);
+            wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, wrapper.getPreferredSize().height));
             dynamicPanel.add(wrapper);
         }
 
+        // Push everything to the top; extra space stays at the bottom.
+        dynamicPanel.add(Box.createVerticalGlue());
         dynamicPanel.revalidate();
         dynamicPanel.repaint();
     }
@@ -177,8 +297,6 @@ public class WeekEdit extends JFrame {
         // 3) Show previewDay in the UI (still not saved anywhere)
         generateDay(previewDay);
     }
-
-    // ----- Insert/Delete helpers -----
 
     private void insertAfter(BlockRow row) {
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
@@ -408,10 +526,16 @@ public class WeekEdit extends JFrame {
                     }
                     add(allSchoolPanel);
                 }
-
+                // Ensure swapped panels are aligned left for BoxLayout
+                if (sectionPanel != null) sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                if (allSchoolPanel != null) allSchoolPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
                 revalidate();
                 repaint();
             });
+            // Keep rows from stretching vertically when the window grows.
+            // Do this AFTER children are added so preferred height is correct.
+            setAlignmentX(Component.LEFT_ALIGNMENT);
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
         }
 
         Day applyToModel(Day baseDay) {
@@ -491,10 +615,11 @@ public class WeekEdit extends JFrame {
 
             for (int i = 0; i < sections.size(); i++) {
                 combos[i] = new JComboBox<>();
+                combos[i].addItem("(Open)");
+
                 for (Assignment assignment : classes) {
                     combos[i].addItem(assignment.getName());
                 }
-                combos[i].addItem("(Open)");
 
                 // Only try to preselect if we actually have a preselected ClassBlock
                 if (preselected != null &&
