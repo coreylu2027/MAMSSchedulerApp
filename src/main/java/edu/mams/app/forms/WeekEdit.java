@@ -543,16 +543,16 @@ public class WeekEdit extends JFrame {
                     }
                     add(allSchoolPanel);
                 }
-                // Ensure swapped panels are aligned left for BoxLayout
+                
+                // Ensure consistency
                 if (sectionPanel != null) sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
                 if (allSchoolPanel != null) allSchoolPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-                
+
                 updateModelFromUI();
                 revalidate();
                 repaint();
             });
-            // Keep rows from stretching vertically when the window grows.
-            // Do this AFTER children are added so preferred height is correct.
+
             setAlignmentX(Component.LEFT_ALIGNMENT);
             setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
         }
@@ -603,10 +603,11 @@ public class WeekEdit extends JFrame {
                 AllSchoolBlock ab = new AllSchoolBlock(newStart);
 
                 if (allSchoolPanel != null) {
-                    String name = (String) allSchoolPanel.getCombo().getSelectedItem();
+                    Object selectedItem = allSchoolPanel.getCombo().getSelectedItem();
+                    String name = selectedItem != null ? selectedItem.toString() : "(Open)";
                     String reason = allSchoolPanel.reason.getText();
                     ab.setReason(reason);
-                    if ("(Open)".equals(name) || name == null) {
+                    if ("(Open)".equals(name) || name.trim().isEmpty()) {
                         ab.setAssignment(null);
                     } else {
                         Assignment selectedAssignment = classes.stream()
@@ -691,9 +692,10 @@ public class WeekEdit extends JFrame {
         };
 
         AllSchoolPanel(AllSchoolBlock preselected) {
-            super(new FlowLayout(FlowLayout.LEFT));
+            super(new FlowLayout(FlowLayout.LEFT)); // Reduced vertical gap
 
             combo = new JComboBox<>();
+            combo.setEditable(true);
 
             // Populate choices
             for (Assignment a : classes) {
@@ -711,38 +713,43 @@ public class WeekEdit extends JFrame {
             }
 
             combo.addActionListener(e -> {
-                Container parent = getParent();
-                while (parent != null && !(parent instanceof WeekEdit)) {
-                    parent = parent.getParent();
-                }
-                if (parent != null) {
-                    ((WeekEdit) parent).updateModelFromUI();
+                // Update model when selection or custom text changes
+                triggerUpdate();
+            });
+
+            // Also update when the editor loses focus (for custom typed text)
+            Component editor = combo.getEditor().getEditorComponent();
+            editor.addFocusListener(new java.awt.event.FocusAdapter() {
+                @Override
+                public void focusLost(java.awt.event.FocusEvent e) {
+                    triggerUpdate();
                 }
             });
 
             add(combo);
 
-
             reason = new JTextField();
-            reason.setColumns(20);
-            reason.setPreferredSize(new Dimension(250, 28));
+            reason.setColumns(15); // Slightly smaller to prevent wrapping
             reason.setToolTipText("Reason (optional)");
             if (preselected != null && preselected.getReason() != null) {
                 reason.setText(preselected.getReason());
             }
 
             reason.addActionListener(e -> {
-                Container parent = getParent();
-                while (parent != null && !(parent instanceof WeekEdit)) {
-                    parent = parent.getParent();
-                }
-                if (parent != null) {
-                    ((WeekEdit) parent).updateModelFromUI();
-                }
+                triggerUpdate();
             });
 
             add(reason);
+        }
 
+        private void triggerUpdate() {
+            Container parent = getParent();
+            while (parent != null && !(parent instanceof WeekEdit)) {
+                parent = parent.getParent();
+            }
+            if (parent != null) {
+                ((WeekEdit) parent).updateModelFromUI();
+            }
         }
 
         public JComboBox<String> getCombo() {
