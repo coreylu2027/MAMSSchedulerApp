@@ -39,7 +39,8 @@ public class WeekEdit extends JFrame {
 
     private final Map<String, List<Section>> sectionGroups = new LinkedHashMap<>();
 
-    public WeekEdit(Week week) {
+    public WeekEdit(Week week, Schedule schedule) {
+        WeekEdit.schedule = schedule;
         classes = new ArrayList<>();
         classes.add(new Course("Math", new Teacher("Durost")));
         classes.add(new Course("Physics", new Teacher("Chase")));
@@ -75,6 +76,20 @@ public class WeekEdit extends JFrame {
         insertTemplateButton.addActionListener(e -> insertTemplate());
         sectionSelect.addActionListener(e -> changeSection());
         editClasses.addActionListener(e -> editClasses());
+    }
+
+    private void updateModelFromUI() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        Day updatedDay = getUpdatedDay(date);
+
+        for (int i = 0; i < week.getDays().size(); i++) {
+            if (week.getDays().get(i).getDate().equals(date)) {
+                week.getDays().set(i, updatedDay);
+                break;
+            }
+        }
     }
 
     private void editClasses() {
@@ -126,6 +141,8 @@ public class WeekEdit extends JFrame {
 
         // Save onto the Day model
         day.setClasses(selected); // <-- assumes you have this setter
+        updateModelFromUI();
+        generateDay();
     }
 
     private void populateSections() {
@@ -166,6 +183,7 @@ public class WeekEdit extends JFrame {
         // Use a copy so you don't accidentally share/mutate the list stored in the map
         day.setSections(new ArrayList<>(chosen));
 
+        updateModelFromUI();
         // Refresh UI to reflect new sections (headers, column structure, etc.)
         generateDay();
     }
@@ -194,6 +212,7 @@ public class WeekEdit extends JFrame {
 
         day.setTemplate(templateName);
         day.setEntries(ScheduleBuilder.getScheduleEntries(templateName, day.getRequests(), day.getClasses()));
+        updateModelFromUI();
         generateDay(day);
     }
 
@@ -248,20 +267,7 @@ public class WeekEdit extends JFrame {
     }
 
     private void onSave() {
-        System.out.println("Saving for day: " + daySelector.getSelectedItem());
-
-        LocalDate date = (LocalDate) daySelector.getSelectedItem();
-        Day updatedDay = getUpdatedDay(date);
-
-        // replace the Day inside the Week (without mutating the old Day instance)
-        for (int i = 0; i < week.getDays().size(); i++) {
-            if (week.getDays().get(i).getDate().equals(date)) {
-                week.getDays().set(i, updatedDay);
-                break;
-            }
-        }
-
-        HtmlOutput.output(week);
+        updateModelFromUI();
         schedule.addWeek(week);
         schedule.saveToFile(file);
     }
@@ -282,6 +288,7 @@ public class WeekEdit extends JFrame {
     }
 
     private void onOpenHTML() {
+        HtmlOutput.output(week);
         try {
             File file = new File("output_java.html");
             Desktop.getDesktop().browse(file.toURI());
@@ -347,6 +354,14 @@ public class WeekEdit extends JFrame {
         Day newDay = updatedDay.copy();
         newDay.setEntries(entries);
         newDay.updateDurations();
+        
+        // Update the main model before re-generating
+        for (int i = 0; i < week.getDays().size(); i++) {
+            if (week.getDays().get(i).getDate().equals(date)) {
+                week.getDays().set(i, newDay);
+                break;
+            }
+        }
         generateDay(newDay);
     }
 
@@ -376,6 +391,14 @@ public class WeekEdit extends JFrame {
         Day newDay = updatedDay.copy();
         newDay.setEntries(entries);
         newDay.updateDurations();
+
+        // Update the main model before re-generating
+        for (int i = 0; i < week.getDays().size(); i++) {
+            if (week.getDays().get(i).getDate().equals(date)) {
+                week.getDays().set(i, newDay);
+                break;
+            }
+        }
         generateDay(newDay);
     }
 
@@ -479,6 +502,8 @@ public class WeekEdit extends JFrame {
             top.add(deleteButton);
             add(top);
 
+            timeSpinner.addChangeListener(e -> updateModelFromUI());
+
             // ----- Initial panel based on preselected type -----
             if (preselected instanceof ClassBlock classBlock) {
                 sectionPanel = new SectionClassPanel(sections, classBlock);
@@ -521,6 +546,8 @@ public class WeekEdit extends JFrame {
                 // Ensure swapped panels are aligned left for BoxLayout
                 if (sectionPanel != null) sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
                 if (allSchoolPanel != null) allSchoolPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                
+                updateModelFromUI();
                 revalidate();
                 repaint();
             });
@@ -630,6 +657,18 @@ public class WeekEdit extends JFrame {
                     combos[i].setSelectedItem(name);
                 }
 
+                combos[i].addActionListener(e -> {
+                    // This finds the WeekEdit instance and triggers the update
+                    SwingUtilities.getAncestorOfClass(WeekEdit.class, this);
+                    Container parent = getParent();
+                    while (parent != null && !(parent instanceof WeekEdit)) {
+                        parent = parent.getParent();
+                    }
+                    if (parent != null) {
+                        ((WeekEdit) parent).updateModelFromUI();
+                    }
+                });
+
                 add(new JLabel(sections.get(i).getName()));
                 add(combos[i]);
             }
@@ -671,6 +710,16 @@ public class WeekEdit extends JFrame {
                 combo.setSelectedItem("(Open)");
             }
 
+            combo.addActionListener(e -> {
+                Container parent = getParent();
+                while (parent != null && !(parent instanceof WeekEdit)) {
+                    parent = parent.getParent();
+                }
+                if (parent != null) {
+                    ((WeekEdit) parent).updateModelFromUI();
+                }
+            });
+
             add(combo);
 
 
@@ -681,6 +730,17 @@ public class WeekEdit extends JFrame {
             if (preselected != null && preselected.getReason() != null) {
                 reason.setText(preselected.getReason());
             }
+
+            reason.addActionListener(e -> {
+                Container parent = getParent();
+                while (parent != null && !(parent instanceof WeekEdit)) {
+                    parent = parent.getParent();
+                }
+                if (parent != null) {
+                    ((WeekEdit) parent).updateModelFromUI();
+                }
+            });
+
             add(reason);
 
         }

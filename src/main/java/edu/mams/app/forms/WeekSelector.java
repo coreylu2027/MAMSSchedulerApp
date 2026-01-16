@@ -113,7 +113,7 @@ public class WeekSelector extends JFrame {
         }
 
         Week week = schedule.getWeek(start);
-        new WeekEdit(week).setVisible(true);
+        new WeekEdit(week, schedule).setVisible(true);
         dispose();
     }
 
