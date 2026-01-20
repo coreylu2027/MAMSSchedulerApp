@@ -12,6 +12,14 @@ import java.util.*;
 public class ScheduleBuilder {
     private static Course splitClass = null;
     private static Section splitSection = null;
+    private static List<HalfSection> halfSections = new ArrayList<>(List.of(
+            new HalfSection("Intermediate", new Section("G")),
+            new HalfSection("Advanced", new Section("G"))
+    ));
+
+    public static void setHalfSections(List<HalfSection> halfSections) {
+        ScheduleBuilder.halfSections = halfSections;
+    }
 
     public static void setSplitClass(Course splitClass) {
         ScheduleBuilder.splitClass = splitClass;
@@ -71,9 +79,9 @@ public class ScheduleBuilder {
                         sectionCourses.put(sections.get(i), splitCourse);
                     } else if (block == partial.length - 2 && i == 1) {
                         SplitCourse splitCourse = new SplitCourse(Map.of(
-                                new HalfSection("Intermediate", sections.get(i)),
+                                halfSections.get(0),
                                 (Course) classes.get(langIndex),
-                                new HalfSection("Advanced", sections.get(i)),
+                                halfSections.get(1),
                                 (Course) classes.get(splitIndex))
                         );
                         sectionCourses.put(sections.get(i), splitCourse);
