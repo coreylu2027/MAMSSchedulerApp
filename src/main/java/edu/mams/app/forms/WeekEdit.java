@@ -90,6 +90,14 @@ public class WeekEdit extends JFrame {
         sectionSelect.addActionListener(e -> changeSection());
         editClasses.addActionListener(e -> editClasses());
         quickGenerate.addActionListener(e -> openQuickGenerateDialog());
+        splitButton.addActionListener(e -> changeSplit());
+    }
+
+    private void changeSplit() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        week.getDay(date).setSplit(splitButton.isSelected());
     }
 
     private void generateTemplate() {
