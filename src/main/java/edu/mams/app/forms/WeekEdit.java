@@ -334,6 +334,9 @@ public class WeekEdit extends JFrame {
     }
 
     private void onCancel() {
+        SwingUtilities.invokeLater(() -> {
+            new WeekSelector(schedule).setVisible(true);
+        });
         dispose();
     }
 
