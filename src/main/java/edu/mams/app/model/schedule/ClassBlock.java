@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class ClassBlock extends ScheduleEntry {
     private Map<Section, Assignment> sectionCourses; // Each section’s assigned course
+    private boolean split;
 
     public ClassBlock(LocalTime start, Map<Section, Assignment> sectionCourses) {
         super(start);
@@ -36,6 +37,25 @@ public class ClassBlock extends ScheduleEntry {
 
     public void setSectionCourse(Section section, Assignment assignment) {
         sectionCourses.put(section, assignment);
+    }
+
+    public boolean isSplit() {
+        return split;
+    }
+
+    public void setSplit(boolean split) {
+        this.split = split;
+    }
+
+    public void setSplit() {
+        if (sectionCourses == null) return;
+        for (Section section : sectionCourses.keySet()) {
+            if (sectionCourses.get(section) instanceof SplitCourse) {
+                split = true;
+                return;
+            }
+        }
+        split = false;
     }
 
     @Override

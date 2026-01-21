@@ -1,5 +1,7 @@
 package edu.mams.app.forms;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import edu.mams.app.model.people.*;
 import edu.mams.app.model.schedule.*;
 import edu.mams.app.model.schedule.Event;
@@ -36,22 +38,27 @@ public class WeekEdit extends JFrame {
     private JButton insertTemplateButton;
     private JComboBox<String> sectionSelect;
     private JButton editClasses;
+    private JCheckBox splitButton;
+    private JComboBox splitClassSelector;
 
-    private static List<Assignment> classes;
+    private static List<Assignment> classes = new ArrayList<>();
+    ;
 
     private List<BlockRow> currentRows = new ArrayList<>();
 
     private final Map<String, List<Section>> sectionGroups = new LinkedHashMap<>();
+    private static List<HalfSection> halfSections = new ArrayList<>();
 
     public WeekEdit(Week week, Schedule schedule) {
         WeekEdit.schedule = schedule;
-        classes = new ArrayList<>();
         classes.add(new Course("Math", new Teacher("Durost")));
         classes.add(new Course("Physics", new Teacher("Chase")));
         classes.add(new Course("CS", new Teacher("Taricco")));
         classes.add(new Course("STEM", new Teacher("Crowthers")));
         classes.add(new Course("Hum", new Teacher("Small")));
         classes.add(new Course("Lang", new Teacher("Wildfong")));
+
+        halfSections = ScheduleBuilder.getHalfSections();
 
         this.week = week;
         setContentPane(contentPane);
@@ -229,6 +236,12 @@ public class WeekEdit extends JFrame {
 
         template.setSelectedItem(day.getTemplate());
 
+        // Ensure we always have sections; prevents empty SectionClassPanel / AIOOBE during updates
+        if (day.getSections() == null || day.getSections().isEmpty()) {
+            List<Section> fallback = sectionGroups.get("RGB");
+            day.setSections(fallback == null ? new ArrayList<>() : new ArrayList<>(fallback));
+        }
+
         if (day.getEntries() == null) {
             day.setEntries(new ArrayList<>(List.of(new AllSchoolBlock(LocalTime.of(7, 45)))));
         }
@@ -244,7 +257,7 @@ public class WeekEdit extends JFrame {
             );
             currentRows.add(row);
 
-            JPanel wrapper = new JPanel();
+            JPanel wrapper = new CardPanel();
             wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
             wrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
             wrapper.setBorder(BorderFactory.createCompoundBorder(
@@ -260,7 +273,7 @@ public class WeekEdit extends JFrame {
             wrapper.add(Box.createVerticalStrut(6));
             // Ensure row does not stretch vertically
             row.setAlignmentX(Component.LEFT_ALIGNMENT);
-            wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, wrapper.getPreferredSize().height));
+//            wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, wrapper.getPreferredSize().height));
             dynamicPanel.add(wrapper);
         }
 
@@ -452,41 +465,47 @@ public class WeekEdit extends JFrame {
      */
     private void $$$setupUI$$$() {
         contentPane = new JPanel();
-        contentPane.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(6, 3, new Insets(0, 0, 0, 0), -1, -1));
+        contentPane.setLayout(new GridLayoutManager(7, 4, new Insets(0, 0, 0, 0), -1, -1));
         titleLabel = new JLabel();
         titleLabel.setText("Label");
-        contentPane.add(titleLabel, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(titleLabel, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         daySelector = new JComboBox();
-        contentPane.add(daySelector, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(daySelector, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         saveButton = new JButton();
         saveButton.setText("Save");
-        contentPane.add(saveButton, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        cancelButton = new JButton();
-        cancelButton.setText("Cancel");
-        contentPane.add(cancelButton, new com.intellij.uiDesigner.core.GridConstraints(5, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(saveButton, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         openHTML = new JButton();
         openHTML.setText("Open HTML");
-        contentPane.add(openHTML, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(openHTML, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         generate = new JButton();
         generate.setText("Generate");
-        contentPane.add(generate, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(generate, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         template = new JComboBox();
-        contentPane.add(template, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(template, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         insertTemplateButton = new JButton();
         insertTemplateButton.setText("Insert Template");
-        contentPane.add(insertTemplateButton, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(insertTemplateButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sectionSelect = new JComboBox();
         sectionSelect.setToolTipText("Section");
-        contentPane.add(sectionSelect, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(sectionSelect, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         editClasses = new JButton();
         editClasses.setText("Edit Classes");
-        contentPane.add(editClasses, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(editClasses, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
-        contentPane.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        contentPane.add(scrollPane1, new GridConstraints(5, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         dynamicPanel = new JPanel();
-        dynamicPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        dynamicPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         scrollPane1.setViewportView(dynamicPanel);
         dynamicPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        splitButton = new JCheckBox();
+        splitButton.setText("Split");
+        contentPane.add(splitButton, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        splitClassSelector = new JComboBox();
+        splitClassSelector.setToolTipText("Select Split Class");
+        contentPane.add(splitClassSelector, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cancelButton = new JButton();
+        cancelButton.setText("Cancel");
+        contentPane.add(cancelButton, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -496,6 +515,14 @@ public class WeekEdit extends JFrame {
         return contentPane;
     }
 
+    private static class CardPanel extends JPanel {
+        @Override
+        public Dimension getMaximumSize() {
+            Dimension pref = getPreferredSize();
+            return new Dimension(Integer.MAX_VALUE, pref.height);
+        }
+    }
+
     private class BlockRow extends JPanel {
         JSpinner timeSpinner;
         JButton insertButton;
@@ -503,6 +530,7 @@ public class WeekEdit extends JFrame {
         JComboBox<String> entryType;
         SectionClassPanel sectionPanel;
         AllSchoolPanel allSchoolPanel;
+        SplitSectionPanel splitSectionPanel;
         ScheduleEntry entry;
 
         private final int blockIndex;
@@ -516,11 +544,17 @@ public class WeekEdit extends JFrame {
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
             JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            entryType = new JComboBox<>(new String[]{"All School", "Sections"});
+            top.setAlignmentX(Component.LEFT_ALIGNMENT);
+            top.setMaximumSize(new Dimension(Integer.MAX_VALUE, top.getPreferredSize().height));
+            entryType = new JComboBox<>(new String[]{"All School", "Sections", "Split Section"});
             if (preselected instanceof AllSchoolBlock) {
                 entryType.setSelectedItem("All School");
-            } else {
-                entryType.setSelectedItem("Sections");
+            } else if (preselected instanceof ClassBlock cb) {
+                if (cb.isSplit()) {
+                    entryType.setSelectedItem("Split Section");
+                } else {
+                    entryType.setSelectedItem("Sections");
+                }
             }
 
             // Convert LocalTime -> java.util.Date (via java.sql.Time)
@@ -570,8 +604,14 @@ public class WeekEdit extends JFrame {
 
             // ----- Initial panel based on preselected type -----
             if (preselected instanceof ClassBlock classBlock) {
-                sectionPanel = new SectionClassPanel(sections, classBlock);
-                add(sectionPanel);
+                if (classBlock.isSplit()) {
+                    splitSectionPanel = new SplitSectionPanel(sections, classBlock);
+                    add(splitSectionPanel);
+                } else {
+                    sectionPanel = new SectionClassPanel(sections, classBlock);
+                    add(sectionPanel);
+                }
+
             } else if (preselected instanceof AllSchoolBlock allSchoolBlock) {
                 allSchoolPanel = new AllSchoolPanel(allSchoolBlock);
                 add(allSchoolPanel);
@@ -585,24 +625,26 @@ public class WeekEdit extends JFrame {
                 if (sectionPanel != null) {
                     remove(sectionPanel);
                 }
+                if (splitSectionPanel != null) {
+                    remove(splitSectionPanel);
+                }
                 if (allSchoolPanel != null) {
                     remove(allSchoolPanel);
                 }
 
                 if ("Sections".equals(selected)) {
-                    // Lazily create if needed; preselected may or may not be a ClassBlock
                     if (sectionPanel == null) {
-                        ClassBlock cb = (preselected instanceof ClassBlock)
-                                ? (ClassBlock) preselected
-                                : null;
-                        sectionPanel = new SectionClassPanel(sections, cb);
+                        sectionPanel = new SectionClassPanel(sections, (preselected instanceof ClassBlock) ? (ClassBlock) preselected : null);
                     }
                     add(sectionPanel);
+                } else if ("Split Section".equals(selected)) {
+                    if (splitSectionPanel == null) {
+                        splitSectionPanel = new SplitSectionPanel(sections, (preselected instanceof ClassBlock) ? (ClassBlock) preselected : null);
+                    }
+                    add(splitSectionPanel);
                 } else { // "All School"
                     if (allSchoolPanel == null) {
-                        AllSchoolBlock ab = (preselected instanceof AllSchoolBlock)
-                                ? (AllSchoolBlock) preselected
-                                : null;
+                        AllSchoolBlock ab = (preselected instanceof AllSchoolBlock) ? (AllSchoolBlock) preselected : null;
                         allSchoolPanel = new AllSchoolPanel(ab);
                     }
                     add(allSchoolPanel);
@@ -610,15 +652,26 @@ public class WeekEdit extends JFrame {
 
                 // Ensure consistency
                 if (sectionPanel != null) sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                if (splitSectionPanel != null) splitSectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
                 if (allSchoolPanel != null) allSchoolPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                 updateModelFromUI();
-                revalidate();
-                repaint();
+                Container card = getParent();          // wrapper
+                if (card != null) {
+                    card.revalidate();
+                    card.repaint();
+                }
+                WeekEdit.this.dynamicPanel.revalidate();
+                WeekEdit.this.dynamicPanel.repaint();
             });
 
             setAlignmentX(Component.LEFT_ALIGNMENT);
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, getPreferredSize().height));
+        }
+
+        @Override
+        public Dimension getMaximumSize() {
+            Dimension pref = getPreferredSize();
+            return new Dimension(Integer.MAX_VALUE, pref.height);
         }
 
         private static void styleMiniButton(JButton b) {
@@ -683,12 +736,181 @@ public class WeekEdit extends JFrame {
                 }
 
                 newEntry = ab;
+            } else if ("Split Section".equals(type)) {
+                ClassBlock cb = new ClassBlock(newStart);
+                // Mark as split (your ClassBlock appears to track this via isSplit())
+                cb.setSplit();
+
+                if (cb.getSectionCourses() == null) {
+                    cb.setSectionCourses(new HashMap<>());
+                }
+
+                // If split UI isn't available or we can't actually split, fall back to treating this as normal Sections
+                if (splitSectionPanel == null || sections == null || sections.isEmpty() || halfSections == null || halfSections.size() < 2) {
+                    if (sectionPanel != null) {
+                        for (int i = 0; i < sections.size(); i++) {
+                            String selectedClassName = sectionPanel.getClassForSection(i);
+                            Section section = sections.get(i);
+
+                            if ("(Open)".equals(selectedClassName)) {
+                                cb.setSectionCourse(section, null);
+                            } else {
+                                Assignment selectedAssignment = classes.stream()
+                                        .filter(a -> a.getName().equals(selectedClassName))
+                                        .findFirst()
+                                        .orElse(null);
+                                cb.setSectionCourse(section, selectedAssignment);
+                            }
+                        }
+                    }
+                    newEntry = cb;
+                } else {
+                    int splitIndex = 1; // split the middle section (G/Y) by default
+
+                    for (int i = 0; i < sections.size(); i++) {
+                        Section section = sections.get(i);
+
+                        if (i == splitIndex) {
+                            String firstSelect = splitSectionPanel.getSplitA();
+                            String secondSelect = splitSectionPanel.getSplitB();
+
+                            Assignment firstCourse = (firstSelect == null || "(Open)".equals(firstSelect))
+                                    ? null
+                                    : classes.stream().filter(a -> a.getName().equals(firstSelect)).findFirst().orElse(null);
+
+                            Assignment secondCourse = (secondSelect == null || "(Open)".equals(secondSelect))
+                                    ? null
+                                    : classes.stream().filter(a -> a.getName().equals(secondSelect)).findFirst().orElse(null);
+
+                            Map<HalfSection, Assignment> splitMap = new HashMap<>();
+                            splitMap.put(halfSections.get(0), firstCourse);
+                            splitMap.put(halfSections.get(1), secondCourse);
+
+                            SplitCourse sc = new SplitCourse(splitMap);
+                            cb.setSectionCourse(section, sc);
+
+                        } else {
+                            String selectedClassName = splitSectionPanel.getClassForSection(i);
+
+                            if (selectedClassName == null || "(Open)".equals(selectedClassName)) {
+                                cb.setSectionCourse(section, null);
+                            } else {
+                                Assignment selectedAssignment = classes.stream()
+                                        .filter(a -> a.getName().equals(selectedClassName))
+                                        .findFirst()
+                                        .orElse(null);
+                                cb.setSectionCourse(section, selectedAssignment);
+                            }
+                        }
+                    }
+
+                    newEntry = cb;
+                }
             } else {
                 throw new IllegalStateException("Unknown entry type: " + type);
             }
 
             // Return a new Day instance rather than mutating the existing one
             return baseDay.withUpdatedEntry(blockIndex, newEntry);
+        }
+    }
+
+    private static class SplitSectionPanel extends JPanel {
+        private JComboBox<String>[] sectionCombos;
+        private JComboBox<String> splitA;
+        private JComboBox<String> splitB;
+
+        // Which section index is split into half-sections (default: middle section)
+        private static final int SPLIT_INDEX = 1;
+
+        @SuppressWarnings("unchecked")
+        SplitSectionPanel(List<Section> sections, ClassBlock preselected) {
+            setLayout(new FlowLayout(FlowLayout.LEFT));
+            setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            sectionCombos = new JComboBox[sections == null ? 0 : sections.size()];
+
+            for (int i = 0; i < sectionCombos.length; i++) {
+                Section sec = sections.get(i);
+                add(new JLabel(sec.getName()));
+
+                // For the split section, show TWO combos (halfSections[0] and halfSections[1])
+                if (i == SPLIT_INDEX && halfSections != null && halfSections.size() >= 2) {
+                    splitA = buildCombo();
+                    splitB = buildCombo();
+
+                    // Preselect if the day already has a SplitCourse stored for this section
+                    if (preselected != null &&
+                            preselected.getSectionCourses() != null &&
+                            preselected.getSectionCourses().get(sec) instanceof SplitCourse sc &&
+                            sc.getHalfSectionCourses() != null) {
+
+                        Assignment a = sc.getHalfSectionCourses().get(halfSections.get(0));
+                        Assignment b = sc.getHalfSectionCourses().get(halfSections.get(1));
+                        if (a != null) splitA.setSelectedItem(a.getName());
+                        if (b != null) splitB.setSelectedItem(b.getName());
+                    }
+
+                    splitA.addActionListener(e -> triggerUpdate());
+                    splitB.addActionListener(e -> triggerUpdate());
+
+                    add(splitA);
+                    add(splitB);
+                    sectionCombos[i] = null; // unused for the split section
+                } else {
+                    JComboBox<String> combo = buildCombo();
+                    sectionCombos[i] = combo;
+
+                    // Preselect existing assignment if present (and not a SplitCourse)
+                    if (preselected != null &&
+                            preselected.getSectionCourses() != null &&
+                            preselected.getSectionCourses().get(sec) != null &&
+                            !(preselected.getSectionCourses().get(sec) instanceof SplitCourse)) {
+                        combo.setSelectedItem(preselected.getSectionCourses().get(sec).getName());
+                    }
+
+                    combo.addActionListener(e -> triggerUpdate());
+                    add(combo);
+                }
+            }
+
+            // If sections are too small / split not possible, ensure split combos exist so callers don't NPE
+            if (splitA == null) splitA = buildCombo();
+            if (splitB == null) splitB = buildCombo();
+        }
+
+        private JComboBox<String> buildCombo() {
+            JComboBox<String> cb = new JComboBox<>();
+            cb.addItem("(Open)");
+            for (Assignment assignment : classes) {
+                cb.addItem(assignment.getName());
+            }
+            return cb;
+        }
+
+        private void triggerUpdate() {
+            WeekEdit we = (WeekEdit) SwingUtilities.getAncestorOfClass(WeekEdit.class, this);
+            if (we != null) {
+                we.updateModelFromUI();
+            }
+        }
+
+        String getClassForSection(int sectionIndex) {
+            if (sectionCombos == null || sectionIndex < 0 || sectionIndex >= sectionCombos.length) return "(Open)";
+            JComboBox<String> cb = sectionCombos[sectionIndex];
+            if (cb == null) return "(Open)"; // split section
+            Object v = cb.getSelectedItem();
+            return v == null ? "(Open)" : v.toString();
+        }
+
+        String getSplitA() {
+            Object v = splitA.getSelectedItem();
+            return v == null ? "(Open)" : v.toString();
+        }
+
+        String getSplitB() {
+            Object v = splitB.getSelectedItem();
+            return v == null ? "(Open)" : v.toString();
         }
     }
 
@@ -699,7 +921,7 @@ public class WeekEdit extends JFrame {
         SectionClassPanel(List<Section> sections,
                           ClassBlock preselected) {
             setLayout(new FlowLayout(FlowLayout.LEFT));
-
+            setAlignmentX(Component.LEFT_ALIGNMENT);
             combos = new JComboBox[sections.size()];
 
             for (int i = 0; i < sections.size(); i++) {
@@ -740,7 +962,9 @@ public class WeekEdit extends JFrame {
         }
 
         String getClassForSection(int sectionIndex) {
-            return (String) combos[sectionIndex].getSelectedItem();
+            if (combos == null || sectionIndex < 0 || sectionIndex >= combos.length) return "(Open)";
+            Object v = combos[sectionIndex].getSelectedItem();
+            return v == null ? "(Open)" : v.toString();
         }
 
         void setClassForSection(int sectionIndex, String className) {
@@ -757,6 +981,7 @@ public class WeekEdit extends JFrame {
 
         AllSchoolPanel(AllSchoolBlock preselected) {
             super(new FlowLayout(FlowLayout.LEFT)); // Reduced vertical gap
+            setAlignmentX(Component.LEFT_ALIGNMENT);
 
             combo = new JComboBox<>();
             combo.setEditable(true);

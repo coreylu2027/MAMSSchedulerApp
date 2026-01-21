@@ -17,6 +17,10 @@ public class ScheduleBuilder {
             new HalfSection("Advanced", new Section("G"))
     ));
 
+    public static List<HalfSection> getHalfSections() {
+        return halfSections;
+    }
+
     public static void setHalfSections(List<HalfSection> halfSections) {
         ScheduleBuilder.halfSections = halfSections;
     }
