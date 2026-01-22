@@ -12,6 +12,7 @@ import java.awt.event.FocusEvent;
 import java.io.File;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -73,6 +74,22 @@ public class WeekEdit extends JFrame {
 
         loadWeekIntoForm();
 
+        daySelector.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+                if (value instanceof LocalDate d) {
+                    setText(fmt(d));
+                } else {
+                    setText(value == null ? "" : value.toString());
+                }
+                return this;
+            }
+        });
+
         for (String templateName : TemplateManager.listTemplateNames()) {
             template.addItem(templateName);
         }
@@ -80,7 +97,7 @@ public class WeekEdit extends JFrame {
         populateSections();
         generateDay();
 
-        titleLabel.setText("Week of " + week.getStartingDate());
+        titleLabel.setText("Week of " + fmt(week.getStartingDate()));
 
         daySelector.addActionListener(e -> generateDay());
         saveButton.addActionListener(e -> onSave());
@@ -195,7 +212,7 @@ public class WeekEdit extends JFrame {
         int result = JOptionPane.showConfirmDialog(
                 this,
                 panel,
-                "Edit Classes – " + date,
+                "Edit Classes – " + fmt(date),
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE
         );
@@ -256,6 +273,13 @@ public class WeekEdit extends JFrame {
         updateModelFromUI();
         // Refresh UI to reflect new sections (headers, column structure, etc.)
         generateDay();
+    }
+
+    private static final DateTimeFormatter DATE_FMT =
+            DateTimeFormatter.ofPattern("EEE, MMM d", Locale.US);
+
+    private static String fmt(LocalDate d) {
+        return d == null ? "" : d.format(DATE_FMT);
     }
 
     private void loadWeekIntoForm() {
@@ -1270,7 +1294,7 @@ public class WeekEdit extends JFrame {
             Day day = week.getDay(date);
 
             // ---- line 0: date label + template combo ----
-            JLabel dayLabel = new JLabel(date.toString());
+            JLabel dayLabel = new JLabel(fmt(date));
             gbc.gridx = 0;
             gbc.gridy = 0;
             gbc.weightx = 0;
