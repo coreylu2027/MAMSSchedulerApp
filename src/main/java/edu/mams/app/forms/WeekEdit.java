@@ -1138,6 +1138,9 @@ public class WeekEdit extends JFrame {
         Map<LocalDate, String> selections = dialog.getSelections();
         Map<LocalDate, List<Assignment>> classSelections = dialog.getClassSelections();
 
+        Map<LocalDate, Boolean> splitSelections = dialog.getSplitSelections();
+        Map<LocalDate, String> splitCourseSelections = dialog.getSplitCourseSelections();
+
         for (Map.Entry<LocalDate, String> entry : selections.entrySet()) {
             LocalDate date = entry.getKey();
             String templateName = entry.getValue();
