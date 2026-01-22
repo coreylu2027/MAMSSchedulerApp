@@ -1201,6 +1201,8 @@ public class WeekEdit extends JFrame {
         private final Map<LocalDate, JComboBox<String>> comboByDate = new LinkedHashMap<>();
         private final Map<LocalDate, List<Assignment>> classesByDate = new LinkedHashMap<>();
         private boolean generated = false;
+        private final Map<LocalDate, JCheckBox> splitByDate = new LinkedHashMap<>();
+        private final Map<LocalDate, JComboBox<String>> splitCourseComboByDate = new LinkedHashMap<>();
 
         QuickGenerateDialog(Window owner, Week week, List<String> templateNames) {
             super(owner, "Quick Generate", ModalityType.APPLICATION_MODAL);
