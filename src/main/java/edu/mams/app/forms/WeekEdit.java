@@ -1309,6 +1309,21 @@ public class WeekEdit extends JFrame {
             // preselect existing template if present
             if (day != null && day.getTemplate() != null) {
                 combo.setSelectedItem(day.getTemplate());
+            } else {
+                switch (date.getDayOfWeek().getValue()) {
+                    case 1, 5 -> {
+                        combo.setSelectedItem("Class Meeting Day");
+                    }
+                    case 2 -> {
+                        combo.setSelectedItem("Homeroom Day");
+                    }
+                    case 3 -> {
+                        combo.setSelectedItem("Flex Day");
+                    }
+                    case 4 -> {
+                        combo.setSelectedItem("PE Day");
+                    }
+                }
             }
 
             gbc.gridx = 1;
