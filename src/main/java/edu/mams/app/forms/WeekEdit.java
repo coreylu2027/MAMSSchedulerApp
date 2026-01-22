@@ -1267,6 +1267,9 @@ public class WeekEdit extends JFrame {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.insets = new Insets(0, 0, 0, 8);
 
+            Day day = week.getDay(date);
+
+            // ---- line 0: date label + template combo ----
             JLabel dayLabel = new JLabel(date.toString());
             gbc.gridx = 0;
             gbc.gridy = 0;
@@ -1279,13 +1282,18 @@ public class WeekEdit extends JFrame {
             combo.setEditable(false);
             if (combo.getItemCount() > 0) combo.setSelectedIndex(0);
 
+            // preselect existing template if present
+            if (day != null && day.getTemplate() != null) {
+                combo.setSelectedItem(day.getTemplate());
+            }
+
             gbc.gridx = 1;
             gbc.gridy = 0;
             gbc.weightx = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             row.add(combo, gbc);
 
-            // Classes picker line
+            // ---- line 1: classes picker ----
             JPanel classesLine = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
             classesLine.setOpaque(false);
 
@@ -1311,9 +1319,60 @@ public class WeekEdit extends JFrame {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             row.add(classesLine, gbc);
 
+            // ---- line 2: split checkbox + partner split class selector ----
+            JPanel splitLine = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+            splitLine.setOpaque(false);
+
+            JCheckBox splitBox = new JCheckBox("Split");
+            splitBox.setOpaque(false);
+
+            JComboBox<String> splitCourseCombo = new JComboBox<>();
+            splitCourseCombo.setToolTipText("Partner split class");
+            splitCourseCombo.addItem("(None)");
+
+            // match your main UI behavior: exclude the primary split class
+            Course primarySplit = ScheduleBuilder.getSplitClass();
+            for (Assignment a : classes) {
+                if (!(a instanceof Course c)) continue;
+                if (primarySplit != null && c.equals(primarySplit)) continue;
+                splitCourseCombo.addItem(c.getName());
+            }
+
+            // preselect from existing day model
+            boolean preSplit = day != null && day.isSplit();
+            splitBox.setSelected(preSplit);
+
+            if (day != null && day.getSplitCourse() != null) {
+                splitCourseCombo.setSelectedItem(day.getSplitCourse().getName());
+            } else {
+                splitCourseCombo.setSelectedItem("(None)");
+            }
+
+            // enable/disable partner selector based on split flag
+            splitCourseCombo.setEnabled(splitBox.isSelected());
+
+            splitBox.addActionListener(e -> {
+                splitCourseCombo.setEnabled(splitBox.isSelected());
+            });
+
+            splitLine.add(splitBox);
+            splitLine.add(new JLabel("Partner:"));
+            splitLine.add(splitCourseCombo);
+
+            gbc.gridx = 1;
+            gbc.gridy = 2;
+            gbc.weightx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            row.add(splitLine, gbc);
+
+            // store per-date components
             comboByDate.put(date, combo);
+            splitByDate.put(date, splitBox);
+            splitCourseComboByDate.put(date, splitCourseCombo);
+
             return row;
         }
+
 
         boolean wasGenerated() {
             return generated;
