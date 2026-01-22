@@ -43,9 +43,9 @@ public class WeekEdit extends JFrame {
     private JButton generateTemplateButton;
     private JButton quickGenerate;
 
-    private static List<Assignment> classes = new ArrayList<>();
+    private final static List<Assignment> classes = new ArrayList<>();
 
-    private List<BlockRow> currentRows = new ArrayList<>();
+    private final List<BlockRow> currentRows = new ArrayList<>();
 
     private final Map<String, List<Section>> sectionGroups = new LinkedHashMap<>();
     private static List<HalfSection> halfSections = new ArrayList<>();
@@ -153,7 +153,7 @@ public class WeekEdit extends JFrame {
         if (day == null) return;
 
         List<Assignment> picked = pickClassesForDate(date, day.getClasses());
-        if (picked == null) return; // should not happen, but keep safe
+        if (picked == null) return;
 
         // Save onto the Day model
         day.setClasses(picked);
@@ -1332,6 +1332,7 @@ public class WeekEdit extends JFrame {
 
             // match your main UI behavior: exclude the primary split class
             Course primarySplit = ScheduleBuilder.getSplitClass();
+            splitCourseCombo.removeAllItems();
             for (Assignment a : classes) {
                 if (!(a instanceof Course c)) continue;
                 if (primarySplit != null && c.equals(primarySplit)) continue;
