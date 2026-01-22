@@ -132,6 +132,22 @@
           <text value="Generate"/>
         </properties>
       </component>
+      <component id="9b5d2" class="javax.swing.JButton" binding="clearClassesButton" default-binding="true">
+        <constraints>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Clear Classes"/>
+        </properties>
+      </component>
+      <component id="22392" class="javax.swing.JButton" binding="clearAllButton" default-binding="true">
+        <constraints>
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Clear All"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

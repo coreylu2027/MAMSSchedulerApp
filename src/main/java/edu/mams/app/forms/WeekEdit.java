@@ -43,6 +43,8 @@ public class WeekEdit extends JFrame {
     private JComboBox<String> splitClassSelector;
     private JButton generateTemplateButton;
     private JButton quickGenerate;
+    private JButton clearClassesButton;
+    private JButton clearAllButton;
 
     private final static List<Assignment> classes = new ArrayList<>();
 
@@ -111,6 +113,33 @@ public class WeekEdit extends JFrame {
         quickGenerate.addActionListener(e -> openQuickGenerateDialog());
         splitButton.addActionListener(e -> changeSplit());
         splitClassSelector.addActionListener(e -> selectPartnerSplit());
+        clearClassesButton.addActionListener(e -> clearClasses());
+        clearAllButton.addActionListener(e -> clearAll());
+    }
+
+    private void clearClasses() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+        Day day = week.getDay(date);
+
+        for (ScheduleEntry entry : day.getEntries()) {
+            if (entry instanceof ClassBlock cb) {
+                for (Section s : cb.getSectionCourses().keySet()) {
+                    cb.getSectionCourses().replace(s, null);
+                }
+            }
+        }
+
+        generateDay();
+    }
+
+    private void clearAll() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+        Day day = week.getDay(date);
+        day.setEntries(new ArrayList<>(List.of(new AllSchoolBlock(LocalTime.of(7, 45)))));
+
+        generateDay();
     }
 
     private void selectPartnerSplit() {
