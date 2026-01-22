@@ -86,5 +86,12 @@ public class TemplateManager {
                         new BlockDefinition("AllSchoolEvent", LocalTime.of(13,30), Duration.ofMinutes(75), "PE")
                 )
         ));
+
+        TemplateManager.addTemplate(new DayTemplate(
+                "No School",
+                List.of(
+                        new BlockDefinition("AllSchoolEvent", LocalTime.of(7, 45), Duration.ofHours(7), "No School")
+                )
+        ));
     }
 }
