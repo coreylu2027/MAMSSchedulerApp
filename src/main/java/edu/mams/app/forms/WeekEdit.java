@@ -1158,7 +1158,23 @@ public class WeekEdit extends JFrame {
 
             day.loadRequests();
             day.setTemplate(templateName);
-            day.setEntries(ScheduleBuilder.buildNewNoSplitSchedule(templateName, day));
+
+            Boolean split = splitSelections.get(date);
+            day.setSplit(split != null && split);
+
+            String splitCourseName = splitCourseSelections.get(date);
+            if (splitCourseName == null || splitCourseName.isBlank() || "(None)".equals(splitCourseName)) {
+                day.setSplitCourse(null);
+            } else {
+                Assignment a = classes.stream()
+                        .filter(x -> x.getName().equals(splitCourseName))
+                        .findFirst()
+                        .orElse(null);
+                day.setSplitCourse(a instanceof Course ? (Course) a : null);
+            }
+
+            day.generateBlocks();
+
         }
 
         // Optional: refresh UI to whichever day is currently selected
