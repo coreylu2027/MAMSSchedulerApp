@@ -1316,6 +1316,24 @@ public class WeekEdit extends JFrame {
             return generated;
         }
 
+        Map<LocalDate, Boolean> getSplitSelections() {
+            Map<LocalDate, Boolean> out = new LinkedHashMap<>();
+            for (Map.Entry<LocalDate, JCheckBox> e : splitByDate.entrySet()) {
+                out.put(e.getKey(), e.getValue() != null && e.getValue().isSelected());
+            }
+            return out;
+        }
+
+        Map<LocalDate, String> getSplitCourseSelections() {
+            Map<LocalDate, String> out = new LinkedHashMap<>();
+            for (Map.Entry<LocalDate, JComboBox<String>> e : splitCourseComboByDate.entrySet()) {
+                Object sel = e.getValue() == null ? null : e.getValue().getSelectedItem();
+                out.put(e.getKey(), sel == null ? null : sel.toString());
+            }
+            return out;
+        }
+
+
         Map<LocalDate, String> getSelections() {
             Map<LocalDate, String> out = new LinkedHashMap<>();
             for (Map.Entry<LocalDate, JComboBox<String>> e : comboByDate.entrySet()) {
