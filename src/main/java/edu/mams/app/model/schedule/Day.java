@@ -91,7 +91,6 @@ public class Day {
     }
 
     public void setSplitCourse(Course course) {
-        this.split = true;
         this.splitCourse = course;
     }
 
@@ -272,6 +271,10 @@ public class Day {
         } else {
             entries = ScheduleBuilder.buildNewNoSplitSchedule(templateName, this);
         }
+    }
+
+    public void generateBlocks() {
+        generateBlocks(template);
     }
 
     /**
