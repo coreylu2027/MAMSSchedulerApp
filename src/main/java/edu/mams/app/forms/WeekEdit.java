@@ -39,7 +39,7 @@ public class WeekEdit extends JFrame {
     private JComboBox<String> sectionSelect;
     private JButton editClasses;
     private JCheckBox splitButton;
-    private JComboBox splitClassSelector;
+    private JComboBox<String> splitClassSelector;
     private JButton generateTemplateButton;
     private JButton quickGenerate;
 
@@ -58,6 +58,8 @@ public class WeekEdit extends JFrame {
         classes.add(new Course("STEM", new Teacher("Crowthers")));
         classes.add(new Course("Hum", new Teacher("Small")));
         classes.add(new Course("Lang", new Teacher("Wildfong")));
+
+        ScheduleBuilder.setSplitClass((Course) classes.get(5));
 
         halfSections = ScheduleBuilder.getHalfSections();
 
@@ -91,6 +93,20 @@ public class WeekEdit extends JFrame {
         editClasses.addActionListener(e -> editClasses());
         quickGenerate.addActionListener(e -> openQuickGenerateDialog());
         splitButton.addActionListener(e -> changeSplit());
+        splitClassSelector.addActionListener(e -> selectPartnerSplit());
+    }
+
+    private void selectPartnerSplit() {
+        LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        String selectedClass = (String) splitClassSelector.getSelectedItem();
+        Assignment selectedAssignment = classes.stream()
+                .filter(a -> a.getName().equals(selectedClass))
+                .findFirst()
+                .orElse(null);
+
+        week.getDay(date).setSplitCourse((Course) selectedAssignment);
     }
 
     private void changeSplit() {
@@ -104,13 +120,13 @@ public class WeekEdit extends JFrame {
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
         Day day = week.getDay(date);
         if (day.getSections() == null) day.setSections(sectionGroups.get("RGB"));
-        if (day.getClasses() == null) day.setClasses(new ArrayList<>(classes));
+        if (day.getClasses() == null || day.getClasses().isEmpty()) day.setClasses(new ArrayList<>(classes));
         day.loadRequests();
         String templateName = (String) template.getSelectedItem();
         if (templateName == null) return;
 
         day.setTemplate(templateName);
-        day.setEntries(ScheduleBuilder.buildNewNoSplitSchedule(templateName, day));
+        day.generateBlocks();
         updateModelFromUI();
         generateDay(day);
     }
@@ -210,6 +226,8 @@ public class WeekEdit extends JFrame {
                 new Section("Z")
         ));
 
+        ScheduleBuilder.setSplitSection(RGB.get(1));
+
         sectionGroups.put("RGB", RGB);
         sectionGroups.put("XYZ", XYZ);
 
@@ -269,6 +287,17 @@ public class WeekEdit extends JFrame {
     }
 
     private void generateDay(Day day) {
+        splitClassSelector.removeAllItems();
+        for (Assignment assignment : classes) {
+            if (!((Course) assignment).equals(ScheduleBuilder.getSplitClass()))
+                splitClassSelector.addItem(assignment.getName());
+        }
+
+        if (day.getSplitCourse() != null) {
+            String name = day.getSplitCourse().getName();
+            splitClassSelector.setSelectedItem(name);
+        }
+
         dynamicPanel.removeAll();
         dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
         dynamicPanel.setBackground(new Color(245, 246, 248));
@@ -654,6 +683,7 @@ public class WeekEdit extends JFrame {
 
             // ----- Initial panel based on preselected type -----
             if (preselected instanceof ClassBlock classBlock) {
+                classBlock.setSplit();
                 if (classBlock.isSplit()) {
                     splitSectionPanel = new SplitSectionPanel(sections, classBlock);
                     add(splitSectionPanel);
