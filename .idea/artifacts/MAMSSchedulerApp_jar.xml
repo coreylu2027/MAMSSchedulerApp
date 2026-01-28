@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MAMSSchedulerApp:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MAMSSchedulerApp_jar</output-path>
+    <root id="archive" name="MAMSSchedulerApp.jar">
+      <element id="module-output" name="MAMSSchedulerApp" />
+    </root>
+  </artifact>
+</component>
