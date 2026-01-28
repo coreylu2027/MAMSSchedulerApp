@@ -55,10 +55,39 @@ public class ScheduleBuilder {
 
 
         int[][] partial = getEmptyPartial(entries);
-        partial[partial.length - 1][1] = langIndex;
-        partial[partial.length - 2][1] = splitIndex;
-        partial[partial.length - 1][3] = splitIndex;
-        partial[partial.length - 2][3] = langIndex;
+        int splitConfig = 5;
+        int splitBlock1, splitBlock2;
+        switch (splitConfig) {
+            case (0) -> {
+                splitBlock1 = partial.length - 1;
+                splitBlock2 = partial.length - 2;
+            }
+            case (1) -> {
+                splitBlock1 = partial.length - 2;
+                splitBlock2 = partial.length - 1;
+            }
+            case (2) -> {
+                splitBlock1 = partial.length - 2;
+                splitBlock2 = partial.length - 3;
+            }
+            case (3) -> {
+                splitBlock1 = partial.length - 3;
+                splitBlock2 = partial.length - 2;
+            }
+            case (4) -> {
+                splitBlock1 = partial.length - 3;
+                splitBlock2 = partial.length - 4;
+            }
+            case (5) -> {
+                splitBlock1 = partial.length - 4;
+                splitBlock2 = partial.length - 3;
+            }
+            default -> {
+                throw new IllegalArgumentException("Unknown split configuration: " + splitConfig);
+            }
+        }
+        setSplitConfig(partial, splitBlock1, langIndex, splitBlock2, splitIndex);
+
 
 //        int freeBlocks = partial.length - 4;
 //        for (int i = 0; i < freeBlocks; i++) {
@@ -73,7 +102,7 @@ public class ScheduleBuilder {
             if (entry instanceof ClassBlock classBlock) {
                 Map<Section, Assignment> sectionCourses = classBlock.getSectionCourses();
                 for (int i = 0; i < sections.size(); i++) {
-                    if (block == partial.length - 1 && i == 1) {
+                    if (block == splitBlock1 && i == 1) {
                         SplitCourse splitCourse = new SplitCourse(Map.of(
                                 new HalfSection("Intermediate", sections.get(i)),
                                 (Course) classes.get(splitIndex),
@@ -81,7 +110,7 @@ public class ScheduleBuilder {
                                 (Course) classes.get(langIndex))
                         );
                         sectionCourses.put(sections.get(i), splitCourse);
-                    } else if (block == partial.length - 2 && i == 1) {
+                    } else if (block == splitBlock2 && i == 1) {
                         SplitCourse splitCourse = new SplitCourse(Map.of(
                                 halfSections.get(0),
                                 (Course) classes.get(langIndex),
@@ -96,6 +125,13 @@ public class ScheduleBuilder {
             }
         }
         return entries;
+    }
+
+    private static void setSplitConfig(int[][] partial, int splitBlock1, int langIndex, int splitBlock2, int splitIndex) {
+        partial[splitBlock1][1] = langIndex;
+        partial[splitBlock2][1] = splitIndex;
+        partial[splitBlock1][3] = splitIndex;
+        partial[splitBlock2][3] = langIndex;
     }
 
     public static List<ScheduleEntry> buildNewNoSplitSchedule(String templateName, Day day) {
