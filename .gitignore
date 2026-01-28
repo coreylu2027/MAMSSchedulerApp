@@ -39,3 +39,4 @@ build/
 .DS_Store
 /output_java.html
 
+/.idea/
