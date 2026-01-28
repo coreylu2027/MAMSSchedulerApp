@@ -106,20 +106,20 @@ public class WeekEdit extends JFrame {
 
         titleLabel.setText("Week of " + fmt(week.getStartingDate()));
 
-        daySelector.addActionListener(e -> generateDay());
-        saveButton.addActionListener(e -> onSave());
-        cancelButton.addActionListener(e -> onCancel());
-        openHTML.addActionListener(e -> onOpenHTML());
-        generate.addActionListener(e -> generate());
-        insertTemplateButton.addActionListener(e -> insertTemplate());
-        generateTemplateButton.addActionListener(e -> generateTemplate());
-        sectionSelect.addActionListener(e -> changeSection());
-        editClasses.addActionListener(e -> editClasses());
-        quickGenerate.addActionListener(e -> openQuickGenerateDialog());
-        splitButton.addActionListener(e -> changeSplit());
-        splitClassSelector.addActionListener(e -> selectPartnerSplit());
-        clearClassesButton.addActionListener(e -> clearClasses());
-        clearAllButton.addActionListener(e -> clearAll());
+        daySelector.addActionListener(_ -> generateDay());
+        saveButton.addActionListener(_ -> onSave());
+        cancelButton.addActionListener(_ -> onCancel());
+        openHTML.addActionListener(_ -> onOpenHTML());
+        generate.addActionListener(_ -> generate());
+        insertTemplateButton.addActionListener(_ -> insertTemplate());
+        generateTemplateButton.addActionListener(_ -> generateTemplate());
+        sectionSelect.addActionListener(_ -> changeSection());
+        editClasses.addActionListener(_ -> editClasses());
+        quickGenerate.addActionListener(_ -> openQuickGenerateDialog());
+        splitButton.addActionListener(_ -> changeSplit());
+        splitClassSelector.addActionListener(_ -> selectPartnerSplit());
+        clearClassesButton.addActionListener(_ -> clearClasses());
+        clearAllButton.addActionListener(_ -> clearAll());
     }
 
     private static String fmt(LocalDate d) {
@@ -289,7 +289,6 @@ public class WeekEdit extends JFrame {
         if (day == null) return;
 
         List<Assignment> picked = pickClassesForDate(date, day.getClasses());
-        if (picked == null) return;
 
         // Save onto the Day model
         day.setClasses(picked);
@@ -397,9 +396,7 @@ public class WeekEdit extends JFrame {
     }
 
     private Day getUpdatedDay(LocalDate date) {
-        Day baseDay = week.getDay(date);
-
-        Day updatedDay = baseDay;
+        Day updatedDay = week.getDay(date);
         for (BlockRow row : currentRows) {
             updatedDay = row.applyToModel(updatedDay);
         }
@@ -450,7 +447,7 @@ public class WeekEdit extends JFrame {
         }
 
         if (!day.getSections().isEmpty()) {
-            if (day.getSections().get(0).getName().equals("X"))
+            if (day.getSections().getFirst().getName().equals("X"))
                 sectionSelect.setSelectedItem("XYZ");
             else sectionSelect.setSelectedItem("RGB");
         }
@@ -463,7 +460,7 @@ public class WeekEdit extends JFrame {
 
         template.setSelectedItem(day.getTemplate());
 
-        // Ensure we always have sections; prevents empty SectionClassPanel / AIOOBE during updates
+        // Ensure we always have sections; prevents empty SectionClassPanel
         if (day.getSections() == null || day.getSections().isEmpty()) {
             List<Section> fallback = sectionGroups.get("RGB");
             day.setSections(fallback == null ? new ArrayList<>() : new ArrayList<>(fallback));
@@ -525,9 +522,7 @@ public class WeekEdit extends JFrame {
     }
 
     private void onCancel() {
-        SwingUtilities.invokeLater(() -> {
-            new WeekSelector(schedule).setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new WeekSelector(schedule).setVisible(true));
         dispose();
     }
 
@@ -730,8 +725,8 @@ public class WeekEdit extends JFrame {
                         if (b != null) splitB.setSelectedItem(b.getName());
                     }
 
-                    splitA.addActionListener(e -> triggerUpdate());
-                    splitB.addActionListener(e -> triggerUpdate());
+                    splitA.addActionListener(_ -> triggerUpdate());
+                    splitB.addActionListener(_ -> triggerUpdate());
 
                     add(splitA);
                     add(splitB);
@@ -745,7 +740,7 @@ public class WeekEdit extends JFrame {
                         combo.setSelectedItem(preselected.getSectionCourses().get(sec).getName());
                     }
 
-                    combo.addActionListener(e -> triggerUpdate());
+                    combo.addActionListener(_ -> triggerUpdate());
                     add(combo);
                 }
             }
@@ -814,7 +809,7 @@ public class WeekEdit extends JFrame {
                     combos[i].setSelectedItem(name);
                 }
 
-                combos[i].addActionListener(e -> {
+                combos[i].addActionListener(_ -> {
                     // This finds the WeekEdit instance and triggers the update
                     SwingUtilities.getAncestorOfClass(WeekEdit.class, this);
                     Container parent = getParent();
@@ -835,10 +830,6 @@ public class WeekEdit extends JFrame {
             if (combos == null || sectionIndex < 0 || sectionIndex >= combos.length) return "(Open)";
             Object v = combos[sectionIndex].getSelectedItem();
             return v == null ? "(Open)" : v.toString();
-        }
-
-        void setClassForSection(int sectionIndex, String className) {
-            combos[sectionIndex].setSelectedItem(className);
         }
     }
 
@@ -869,7 +860,7 @@ public class WeekEdit extends JFrame {
                 combo.setSelectedItem("(Open)");
             }
 
-            combo.addActionListener(e -> {
+            combo.addActionListener(_ -> {
                 // Update model when selection or custom text changes
                 triggerUpdate();
             });
@@ -892,9 +883,7 @@ public class WeekEdit extends JFrame {
                 reason.setText(preselected.getReason());
             }
 
-            reason.addActionListener(e -> {
-                triggerUpdate();
-            });
+            reason.addActionListener(_ -> triggerUpdate());
 
             add(reason);
         }
@@ -947,7 +936,7 @@ public class WeekEdit extends JFrame {
                 }
             }
 
-            // Convert LocalTime -> java.util.Date (via java.sql.Time)
+            // Convert LocalTim_ -> java.util.Date (via java.sql.Time)
             Date initialTime = Time.valueOf(startTime);
 
             // 15-minute step model
@@ -978,8 +967,8 @@ public class WeekEdit extends JFrame {
             insertButton = new JButton("+");
             deleteButton = new JButton("-");
 
-            insertButton.addActionListener(e -> WeekEdit.this.insertAfter(this));
-            deleteButton.addActionListener(e -> WeekEdit.this.deleteRow(this));
+            insertButton.addActionListener(_ -> WeekEdit.this.insertAfter(this));
+            deleteButton.addActionListener(_ -> WeekEdit.this.deleteRow(this));
 
             styleMiniButton(insertButton);
             styleMiniButton(deleteButton);
@@ -990,9 +979,9 @@ public class WeekEdit extends JFrame {
             top.add(deleteButton);
             add(top);
 
-            timeSpinner.addChangeListener(e -> updateModelFromUI());
+            timeSpinner.addChangeListener(_ -> updateModelFromUI());
 
-            // ----- Initial panel based on preselected type -----
+            // ----- Initial panel based on preselected typ_ -----
             if (preselected instanceof ClassBlock classBlock) {
                 classBlock.setSplit();
                 if (classBlock.isSplit()) {
@@ -1009,7 +998,7 @@ public class WeekEdit extends JFrame {
             }
 
             // ----- Swap panels when entryType changes -----
-            entryType.addActionListener(e -> {
+            entryType.addActionListener(_ -> {
                 String selected = (String) entryType.getSelectedItem();
 
                 // Remove whichever detail panel is currently showing
@@ -1071,57 +1060,15 @@ public class WeekEdit extends JFrame {
             String type = (String) entryType.getSelectedItem();
 
             ScheduleEntry newEntry;
-            if ("Sections".equals(type)) {
-                ClassBlock cb = new ClassBlock(newStart);
+            switch (type) {
+                case "Sections" -> {
+                    ClassBlock cb = new ClassBlock(newStart);
 
-                // ensure we have a map to write into
-                if (cb.getSectionCourses() == null) {
-                    cb.setSectionCourses(new HashMap<>());
-                }
-
-                if (sectionPanel != null) {
-                    for (int i = 0; i < sections.size(); i++) {
-                        String selectedClassName = sectionPanel.getClassForSection(i);
-                        Section section = sections.get(i);
-
-                        if ("(Open)".equals(selectedClassName)) {
-                            cb.setSectionCourse(section, null);
-                        } else {
-                            Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(selectedClassName)).findFirst().orElse(null);
-                            cb.setSectionCourse(section, selectedAssignment);
-                        }
+                    // ensure we have a map to write into
+                    if (cb.getSectionCourses() == null) {
+                        cb.setSectionCourses(new HashMap<>());
                     }
-                }
 
-                newEntry = cb;
-            } else if ("All School".equals(type)) {
-                AllSchoolBlock ab = new AllSchoolBlock(newStart);
-
-                if (allSchoolPanel != null) {
-                    Object selectedItem = allSchoolPanel.getCombo().getSelectedItem();
-                    String name = selectedItem != null ? selectedItem.toString() : "(Open)";
-                    String reason = allSchoolPanel.reason.getText();
-                    ab.setReason(reason);
-                    if ("(Open)".equals(name) || name.trim().isEmpty()) {
-                        ab.setAssignment(null);
-                    } else {
-                        Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(name)).findFirst().orElse(new Event(name));
-                        ab.setAssignment(selectedAssignment);
-                    }
-                }
-
-                newEntry = ab;
-            } else if ("Split Section".equals(type)) {
-                ClassBlock cb = new ClassBlock(newStart);
-                // Mark as split (your ClassBlock appears to track this via isSplit())
-                cb.setSplit();
-
-                if (cb.getSectionCourses() == null) {
-                    cb.setSectionCourses(new HashMap<>());
-                }
-
-                // If split UI isn't available or we can't actually split, fall back to treating this as normal Sections
-                if (splitSectionPanel == null || sections == null || sections.isEmpty() || halfSections == null || halfSections.size() < 2) {
                     if (sectionPanel != null) {
                         for (int i = 0; i < sections.size(); i++) {
                             String selectedClassName = sectionPanel.getClassForSection(i);
@@ -1135,44 +1082,88 @@ public class WeekEdit extends JFrame {
                             }
                         }
                     }
-                    newEntry = cb;
-                } else {
-                    int splitIndex = 1; // split the middle section (G/Y) by default
-
-                    for (int i = 0; i < sections.size(); i++) {
-                        Section section = sections.get(i);
-
-                        if (i == splitIndex) {
-                            String firstSelect = splitSectionPanel.getSplitA();
-                            String secondSelect = splitSectionPanel.getSplitB();
-
-                            Assignment firstCourse = (firstSelect == null || "(Open)".equals(firstSelect)) ? null : classes.stream().filter(a -> a.getName().equals(firstSelect)).findFirst().orElse(null);
-
-                            Assignment secondCourse = (secondSelect == null || "(Open)".equals(secondSelect)) ? null : classes.stream().filter(a -> a.getName().equals(secondSelect)).findFirst().orElse(null);
-
-                            Map<HalfSection, Assignment> splitMap = new HashMap<>();
-                            splitMap.put(halfSections.get(0), firstCourse);
-                            splitMap.put(halfSections.get(1), secondCourse);
-
-                            SplitCourse sc = new SplitCourse(splitMap);
-                            cb.setSectionCourse(section, sc);
-
-                        } else {
-                            String selectedClassName = splitSectionPanel.getClassForSection(i);
-
-                            if (selectedClassName == null || "(Open)".equals(selectedClassName)) {
-                                cb.setSectionCourse(section, null);
-                            } else {
-                                Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(selectedClassName)).findFirst().orElse(null);
-                                cb.setSectionCourse(section, selectedAssignment);
-                            }
-                        }
-                    }
 
                     newEntry = cb;
                 }
-            } else {
-                throw new IllegalStateException("Unknown entry type: " + type);
+                case "All School" -> {
+                    AllSchoolBlock ab = new AllSchoolBlock(newStart);
+
+                    if (allSchoolPanel != null) {
+                        Object selectedItem = allSchoolPanel.getCombo().getSelectedItem();
+                        String name = selectedItem != null ? selectedItem.toString() : "(Open)";
+                        String reason = allSchoolPanel.reason.getText();
+                        ab.setReason(reason);
+                        if ("(Open)".equals(name) || name.trim().isEmpty()) {
+                            ab.setAssignment(null);
+                        } else {
+                            Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(name)).findFirst().orElse(new Event(name));
+                            ab.setAssignment(selectedAssignment);
+                        }
+                    }
+
+                    newEntry = ab;
+                }
+                case "Split Section" -> {
+                    ClassBlock cb = new ClassBlock(newStart);
+                    // Mark as split (your ClassBlock appears to track this via isSplit())
+                    cb.setSplit();
+
+                    if (cb.getSectionCourses() == null) {
+                        cb.setSectionCourses(new HashMap<>());
+                    }
+
+                    // If split UI isn't available or we can't actually split, fall back to treating this as normal Sections
+                    if (splitSectionPanel == null || sections == null || sections.isEmpty() || halfSections == null || halfSections.size() < 2) {
+                        if (sectionPanel != null) {
+                            for (int i = 0; i < (sections != null ? sections.size() : 0); i++) {
+                                String selectedClassName = sectionPanel.getClassForSection(i);
+                                Section section = sections.get(i);
+
+                                if ("(Open)".equals(selectedClassName)) {
+                                    cb.setSectionCourse(section, null);
+                                } else {
+                                    Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(selectedClassName)).findFirst().orElse(null);
+                                    cb.setSectionCourse(section, selectedAssignment);
+                                }
+                            }
+                        }
+                    } else {
+                        int splitIndex = 1; // split the middle section (G/Y) by default
+
+                        for (int i = 0; i < sections.size(); i++) {
+                            Section section = sections.get(i);
+
+                            if (i == splitIndex) {
+                                String firstSelect = splitSectionPanel.getSplitA();
+                                String secondSelect = splitSectionPanel.getSplitB();
+
+                                Assignment firstCourse = (firstSelect == null || "(Open)".equals(firstSelect)) ? null : classes.stream().filter(a -> a.getName().equals(firstSelect)).findFirst().orElse(null);
+
+                                Assignment secondCourse = (secondSelect == null || "(Open)".equals(secondSelect)) ? null : classes.stream().filter(a -> a.getName().equals(secondSelect)).findFirst().orElse(null);
+
+                                Map<HalfSection, Assignment> splitMap = new HashMap<>();
+                                splitMap.put(halfSections.get(0), firstCourse);
+                                splitMap.put(halfSections.get(1), secondCourse);
+
+                                SplitCourse sc = new SplitCourse(splitMap);
+                                cb.setSectionCourse(section, sc);
+
+                            } else {
+                                String selectedClassName = splitSectionPanel.getClassForSection(i);
+
+                                if (selectedClassName == null || "(Open)".equals(selectedClassName)) {
+                                    cb.setSectionCourse(section, null);
+                                } else {
+                                    Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(selectedClassName)).findFirst().orElse(null);
+                                    cb.setSectionCourse(section, selectedAssignment);
+                                }
+                            }
+                        }
+
+                    }
+                    newEntry = cb;
+                }
+                case null, default -> throw new IllegalStateException("Unknown entry type: " + type);
             }
 
             // Return a new Day instance rather than mutating the existing one
@@ -1203,7 +1194,7 @@ public class WeekEdit extends JFrame {
             JLabel info = new JLabel("Choose a template for each day, then click Generate.");
             root.add(info, BorderLayout.NORTH);
 
-            // Center: scrollable list of days + comboboxes
+            // Center: scrollable list of days + combo boxes
             JPanel listPanel = new JPanel();
             listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
@@ -1212,7 +1203,6 @@ public class WeekEdit extends JFrame {
             List<LocalDate> dates = getWeekDates(week);
             // Initialize per-day classes (use current day classes or global)
             for (LocalDate d : dates) {
-                Day day = week.getDay(d);
                 classesByDate.put(d, new ArrayList<>(classes));
             }
 
@@ -1227,14 +1217,11 @@ public class WeekEdit extends JFrame {
 
             // Bottom buttons
             JButton cancel = new JButton("Cancel");
-            cancel.addActionListener(e -> dispose());
+            cancel.addActionListener(_ -> dispose());
 
             JButton generate = new JButton("Generate");
-            generate.addActionListener(e -> {
+            generate.addActionListener(_ -> {
                 generated = true;
-//                for (int i = 0; i < week.getDays().size(); i++) {
-//                    week.getDays().set(i, getUpdatedDay(week.getDays().get(i).getDate()));
-//                }
                 dispose();
             });
 
@@ -1282,18 +1269,10 @@ public class WeekEdit extends JFrame {
                 combo.setSelectedItem(day.getTemplate());
             } else {
                 switch (date.getDayOfWeek().getValue()) {
-                    case 1, 5 -> {
-                        combo.setSelectedItem("Class Meeting Day");
-                    }
-                    case 2 -> {
-                        combo.setSelectedItem("Homeroom Day");
-                    }
-                    case 3 -> {
-                        combo.setSelectedItem("Flex Day");
-                    }
-                    case 4 -> {
-                        combo.setSelectedItem("PE Day");
-                    }
+                    case 1, 5 -> combo.setSelectedItem("Class Meeting Day");
+                    case 2 -> combo.setSelectedItem("Homeroom Day");
+                    case 3 -> combo.setSelectedItem("Flex Day");
+                    case 4 -> combo.setSelectedItem("PE Day");
                 }
             }
 
@@ -1313,7 +1292,7 @@ public class WeekEdit extends JFrame {
             classesLabel.setText("Classes: " + count);
 
             JButton pickClasses = new JButton("Select Classes");
-            pickClasses.addActionListener(e -> {
+            pickClasses.addActionListener(_ -> {
                 List<Assignment> existing = classesByDate.get(date);
                 List<Assignment> picked = WeekEdit.this.pickClassesForDate(date, existing);
                 classesByDate.put(date, new ArrayList<>(picked));
@@ -1362,9 +1341,7 @@ public class WeekEdit extends JFrame {
             // enable/disable partner selector based on split flag
             splitCourseCombo.setEnabled(splitBox.isSelected());
 
-            splitBox.addActionListener(e -> {
-                splitCourseCombo.setEnabled(splitBox.isSelected());
-            });
+            splitBox.addActionListener(_ -> splitCourseCombo.setEnabled(splitBox.isSelected()));
 
             splitLine.add(splitBox);
             splitLine.add(new JLabel("Partner:"));
