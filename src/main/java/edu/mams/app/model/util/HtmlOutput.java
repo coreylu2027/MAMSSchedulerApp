@@ -13,6 +13,8 @@ import java.util.ArrayList;
 public class HtmlOutput {
     private static PrintWriter out;
     private static Week week;
+    private static final DateTimeFormatter TIME_FMT =
+            DateTimeFormatter.ofPattern("h:mm");
 
     public static void output(Week setWeek) {
         week = setWeek;
@@ -97,9 +99,6 @@ public class HtmlOutput {
     }
 
     private static void entries() {
-        int[] currentEntry = new int[week.getDays().size()];
-        ArrayList<String> rows = new ArrayList<>();
-        boolean running = true;
         LocalTime currentTime = LocalTime.of(7, 45);
         while (currentTime.isBefore(LocalTime.of(14, 45))) {
             out.print("  <tr class=\"time-row\">");
@@ -112,7 +111,7 @@ public class HtmlOutput {
                             if (allSchoolBlock.getAssignment() instanceof Course course) {
                                 out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                 out.print("<div class=\"slot span " + course.getName() + "\">");
-                                out.print("<div class=\"time\">" + allSchoolBlock.getStart() + "</div>");
+                                out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
                                 out.print("<div class=\"name\">" + course.getName() + "</div>");
                                 if (allSchoolBlock.getReason() != null) {
                                     out.print("<div class=\"reason\">" + allSchoolBlock.getReason() + "</div>");
@@ -122,12 +121,15 @@ public class HtmlOutput {
                                 if (span == 1) {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot span event\">");
-                                    out.print("<div class=\"time\">" + allSchoolBlock.getStart() + " (" + allSchoolBlock.getAssignment().getName() + ")" + "</div>");
+                                    out.print("<div class=\"time\">" +
+                                            allSchoolBlock.getStart().format(TIME_FMT) +
+                                            " (" + allSchoolBlock.getAssignment().getName() + ")" +
+                                            "</div>");
                                     out.print("</div></td>\n");
                                 } else {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot span event\">");
-                                    out.print("<div class=\"time\">" + allSchoolBlock.getStart() + "</div>");
+                                    out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
                                     out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
                                     out.print("</div></td>\n");
                                 }
@@ -141,7 +143,7 @@ public class HtmlOutput {
 
                                     out.print("    <td class=\"slot-cell\" colspan=\"2\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot class " + assignment.getName() + "\">");
-                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"time\">" + classBlock.getStart().format(TIME_FMT) + "</div>");
                                     out.print("<div class=\"name\">" + assignment.getName() + "</div>");
                                     out.print("</div></td>\n");
                                 } else if (assignment instanceof SplitCourse splitCourse) {
@@ -152,13 +154,13 @@ public class HtmlOutput {
 
                                     out.print("    <td class=\"slot-cell\" colspan=\"1\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot class " + firstSplit + "\">");
-                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"time\">" + classBlock.getStart().format(TIME_FMT) + "</div>");
                                     out.print("<div class=\"name\">" + firstSplit + "</div>");
                                     out.print("</div></td>\n");
 
                                     out.print("    <td class=\"slot-cell\" colspan=\"1\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot class " + secondSplit + "\">");
-                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"time\">" + classBlock.getStart().format(TIME_FMT) + "</div>");
                                     out.print("<div class=\"name\">" + secondSplit + "</div>");
                                     out.print("</div></td>\n");
 
@@ -167,7 +169,7 @@ public class HtmlOutput {
 
                                     out.print("    <td class=\"slot-cell\" colspan=\"2\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot class " + "OPEN" + "\">");
-                                    out.print("<div class=\"time\">" + classBlock.getStart() + "</div>");
+                                    out.print("<div class=\"time\">" + classBlock.getStart().format(TIME_FMT) + "</div>");
                                     out.print("<div class=\"name\">" + "OPEN" + "</div>");
                                     out.print("</div></td>\n");
                                 }
