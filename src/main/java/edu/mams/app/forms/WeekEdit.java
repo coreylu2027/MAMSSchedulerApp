@@ -204,10 +204,10 @@ public class WeekEdit extends JFrame {
         List<Section> chosen = sectionGroups.get(selectedGroup);
         if (chosen == null) return;
 
-        // Use a copy so you don't accidentally share/mutate the list stored in the map
-        day.setSections(new ArrayList<>(chosen));
+        day.setSections(chosen);
 
-        updateModelFromUI();
+//        populateSections();
+//        updateModelFromUI();
         // Refresh UI to reflect new sections (headers, column structure, etc.)
         generateDay();
     }
@@ -448,6 +448,10 @@ public class WeekEdit extends JFrame {
             String name = day.getSplitCourse().getName();
             splitClassSelector.setSelectedItem(name);
         }
+
+        if (day.getSections().get(0).getName().equals("X"))
+            sectionSelect.setSelectedItem("XYZ");
+        else sectionSelect.setSelectedItem("RGB");
 
         dynamicPanel.removeAll();
         dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
