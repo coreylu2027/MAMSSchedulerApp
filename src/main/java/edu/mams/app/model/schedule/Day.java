@@ -150,8 +150,18 @@ public class Day {
         return sections;
     }
 
-    public void setSections(List<Section> sections) {
-        this.sections = sections;
+    public void setSections(List<Section> newSections) {
+        if (entries != null && sections != null) {
+            for (ScheduleEntry entry : entries) {
+                if (entry instanceof ClassBlock classBlock) {
+                    Map<Section, Assignment> assignments = classBlock.getSectionCourses();
+                    for (int i = 0; i < sections.size(); i++) {
+                        assignments.put(newSections.get(i), assignments.remove(sections.get(i)));
+                    }
+                }
+            }
+        }
+        this.sections = newSections;
     }
 
     public Assignment getSplitCourse() {
