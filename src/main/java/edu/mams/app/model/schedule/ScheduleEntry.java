@@ -59,33 +59,3 @@ public abstract class ScheduleEntry {
         this.length = length;
     }
 }
-
-/*
-class PEBlock extends ScheduleEntry {
-    private String group1;
-    private String group2;
-
-    public PEBlock(String group1, String group2) {
-        super(LocalTime.of(13,30), Duration.ofMinutes(90));
-        this.group1 = group1;
-        this.group2 = group2;
-    }
-
-    public String getGroup1() {
-        return group1;
-    }
-
-    public String getGroup2() {
-        return group2;
-    }
-
-    @Override
-    public String toString() {
-        return "PE{" +
-                "group1='" + group1 + '\'' +
-                ", group2='" + group2 + '\'' +
-                ", start=" + start +
-                ", length=" + length +
-                '}';
-    }
-}*/
