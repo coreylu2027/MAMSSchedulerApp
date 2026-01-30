@@ -122,7 +122,7 @@ public class WeekEdit extends JFrame {
         clearAllButton.addActionListener(_ -> clearAll());
     }
 
-    private static String fmt(LocalDate d) {
+    static String fmt(LocalDate d) {
         return d == null ? "" : d.format(DATE_FMT);
     }
 
@@ -544,7 +544,13 @@ public class WeekEdit extends JFrame {
 
     private void openQuickGenerateDialog() {
         Window owner = SwingUtilities.getWindowAncestor(savePanel);
-        QuickGenerateDialog dialog = new QuickGenerateDialog(owner, week, getTemplateNames());
+        QuickGenerateDialog dialog = new QuickGenerateDialog(
+                owner,
+                week,
+                getTemplateNames(),
+                classes,
+                this::pickClassesForDate
+        );
         dialog.setLocationRelativeTo(savePanel);
         dialog.setVisible(true);
 
@@ -1176,228 +1182,4 @@ public class WeekEdit extends JFrame {
             return new Dimension(Integer.MAX_VALUE, pref.height);
         }
     }
-
-    private final class QuickGenerateDialog extends JDialog {
-        private final Map<LocalDate, JComboBox<String>> comboByDate = new LinkedHashMap<>();
-        private final Map<LocalDate, List<Assignment>> classesByDate = new LinkedHashMap<>();
-        private final Map<LocalDate, JCheckBox> splitByDate = new LinkedHashMap<>();
-        private final Map<LocalDate, JComboBox<String>> splitCourseComboByDate = new LinkedHashMap<>();
-        private boolean generated = false;
-
-        QuickGenerateDialog(Window owner, Week week, List<String> templateNames) {
-            super(owner, "Quick Generate", ModalityType.APPLICATION_MODAL);
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-            JPanel root = new JPanel(new BorderLayout(10, 10));
-            root.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-
-            JLabel info = new JLabel("Choose a template for each day, then click Generate.");
-            root.add(info, BorderLayout.NORTH);
-
-            // Center: scrollable list of days + combo boxes
-            JPanel listPanel = new JPanel();
-            listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-
-            // Get days from your Week model. Replace week.getDays() accordingly.
-            // Assumption: you can iterate dates in the week.
-            List<LocalDate> dates = getWeekDates(week);
-            // Initialize per-day classes (use current day classes or global)
-            for (LocalDate d : dates) {
-                classesByDate.put(d, new ArrayList<>(classes));
-            }
-
-            for (LocalDate date : dates) {
-                listPanel.add(makeRow(date, templateNames));
-                listPanel.add(Box.createVerticalStrut(6));
-            }
-
-            JScrollPane scroll = new JScrollPane(listPanel);
-            scroll.setBorder(BorderFactory.createEmptyBorder());
-            root.add(scroll, BorderLayout.CENTER);
-
-            // Bottom buttons
-            JButton cancel = new JButton("Cancel");
-            cancel.addActionListener(_ -> dispose());
-
-            JButton generate = new JButton("Generate");
-            generate.addActionListener(_ -> {
-                generated = true;
-                dispose();
-            });
-
-            JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-            buttons.add(cancel);
-            buttons.add(generate);
-            root.add(buttons, BorderLayout.SOUTH);
-
-            setContentPane(root);
-            setPreferredSize(new Dimension(520, 420));
-            pack();
-        }
-
-        private static List<LocalDate> getWeekDates(Week week) {
-            List<LocalDate> dates = new ArrayList<>();
-            for (Day day : week.getDays()) {
-                dates.add(day.getDate());
-            }
-            dates.sort(Comparator.naturalOrder());
-            return dates;
-        }
-
-        private JPanel makeRow(LocalDate date, List<String> templateNames) {
-            JPanel row = new JPanel(new GridBagLayout());
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(0, 0, 0, 8);
-
-            Day day = week.getDay(date);
-
-            // ---- line 0: date label + template combo ----
-            JLabel dayLabel = new JLabel(fmt(date));
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.weightx = 0;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.anchor = GridBagConstraints.WEST;
-            row.add(dayLabel, gbc);
-
-            JComboBox<String> combo = new JComboBox<>(templateNames.toArray(new String[0]));
-            combo.setEditable(false);
-            if (combo.getItemCount() > 0) combo.setSelectedIndex(0);
-
-            // preselect existing template if present
-            if (day != null && day.getTemplate() != null) {
-                combo.setSelectedItem(day.getTemplate());
-            } else {
-                switch (date.getDayOfWeek().getValue()) {
-                    case 1, 5 -> combo.setSelectedItem("Class Meeting Day");
-                    case 2 -> combo.setSelectedItem("Homeroom Day");
-                    case 3 -> combo.setSelectedItem("Flex Day");
-                    case 4 -> combo.setSelectedItem("PE Day");
-                }
-            }
-
-            gbc.gridx = 1;
-            gbc.gridy = 0;
-            gbc.weightx = 1;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            row.add(combo, gbc);
-
-            // ---- line 1: classes picker ----
-            JPanel classesLine = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-            classesLine.setOpaque(false);
-
-            JLabel classesLabel = new JLabel();
-            List<Assignment> current = classesByDate.get(date);
-            int count = current == null ? 0 : current.size();
-            classesLabel.setText("Classes: " + count);
-
-            JButton pickClasses = new JButton("Select Classes");
-            pickClasses.addActionListener(_ -> {
-                List<Assignment> existing = classesByDate.get(date);
-                List<Assignment> picked = WeekEdit.this.pickClassesForDate(date, existing);
-                classesByDate.put(date, new ArrayList<>(picked));
-                classesLabel.setText("Classes: " + picked.size());
-            });
-
-            classesLine.add(pickClasses);
-            classesLine.add(classesLabel);
-
-            gbc.gridx = 1;
-            gbc.gridy = 1;
-            gbc.weightx = 1;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            row.add(classesLine, gbc);
-
-            // ---- line 2: split checkbox + partner split class selector ----
-            JPanel splitLine = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-            splitLine.setOpaque(false);
-
-            JCheckBox splitBox = new JCheckBox("Split");
-            splitBox.setOpaque(false);
-
-            JComboBox<String> splitCourseCombo = new JComboBox<>();
-            splitCourseCombo.setToolTipText("Partner split class");
-            splitCourseCombo.addItem("(None)");
-
-            // match your main UI behavior: exclude the primary split class
-            Course primarySplit = ScheduleBuilder.getSplitClass();
-            splitCourseCombo.removeAllItems();
-            for (Assignment a : classes) {
-                if (!(a instanceof Course c)) continue;
-                if (c.equals(primarySplit)) continue;
-                splitCourseCombo.addItem(c.getName());
-            }
-
-            // preselect from existing day model
-            boolean preSplit = day != null && day.isSplit();
-            splitBox.setSelected(preSplit);
-
-            if (day != null && day.getSplitCourse() != null) {
-                splitCourseCombo.setSelectedItem(day.getSplitCourse().getName());
-            } else {
-                splitCourseCombo.setSelectedItem("(None)");
-            }
-
-            // enable/disable partner selector based on split flag
-            splitCourseCombo.setEnabled(splitBox.isSelected());
-
-            splitBox.addActionListener(_ -> splitCourseCombo.setEnabled(splitBox.isSelected()));
-
-            splitLine.add(splitBox);
-            splitLine.add(new JLabel("Partner:"));
-            splitLine.add(splitCourseCombo);
-
-            gbc.gridx = 1;
-            gbc.gridy = 2;
-            gbc.weightx = 1;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            row.add(splitLine, gbc);
-
-            // store per-date components
-            comboByDate.put(date, combo);
-            splitByDate.put(date, splitBox);
-            splitCourseComboByDate.put(date, splitCourseCombo);
-
-            return row;
-        }
-
-        Map<LocalDate, List<Assignment>> getClassSelections() {
-            Map<LocalDate, List<Assignment>> out = new LinkedHashMap<>();
-            for (Map.Entry<LocalDate, List<Assignment>> e : classesByDate.entrySet()) {
-                out.put(e.getKey(), e.getValue() == null ? null : new ArrayList<>(e.getValue()));
-            }
-            return out;
-        }
-
-        Map<LocalDate, String> getSelections() {
-            Map<LocalDate, String> out = new LinkedHashMap<>();
-            for (Map.Entry<LocalDate, JComboBox<String>> e : comboByDate.entrySet()) {
-                Object sel = e.getValue().getSelectedItem();
-                out.put(e.getKey(), sel == null ? null : sel.toString());
-            }
-            return out;
-        }
-
-        Map<LocalDate, String> getSplitCourseSelections() {
-            Map<LocalDate, String> out = new LinkedHashMap<>();
-            for (Map.Entry<LocalDate, JComboBox<String>> e : splitCourseComboByDate.entrySet()) {
-                Object sel = e.getValue() == null ? null : e.getValue().getSelectedItem();
-                out.put(e.getKey(), sel == null ? null : sel.toString());
-            }
-            return out;
-        }
-
-        Map<LocalDate, Boolean> getSplitSelections() {
-            Map<LocalDate, Boolean> out = new LinkedHashMap<>();
-            for (Map.Entry<LocalDate, JCheckBox> e : splitByDate.entrySet()) {
-                out.put(e.getKey(), e.getValue() != null && e.getValue().isSelected());
-            }
-            return out;
-        }
-
-        boolean wasGenerated() {
-            return generated;
-        }
-    }
-
 }
