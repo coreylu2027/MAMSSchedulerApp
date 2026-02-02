@@ -7,7 +7,7 @@ import edu.mams.app.model.requests.TeacherRequest;
 import edu.mams.app.model.requests.TeacherTimeRequest;
 import edu.mams.app.model.schedule.Assignment;
 import edu.mams.app.model.schedule.Day;
-import edu.mams.app.model.schedule.Week; // adjust if your Week is elsewhere
+import edu.mams.app.model.schedule.Week;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -20,45 +20,62 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class RequestViewerDialog extends JDialog {
+/**
+ * Request viewer/editor for a Week.
+ *
+ * Notes:
+ * - This code assumes Day#getRequests() returns a non-null List (recommended).
+ * - Adjust weekDays(...) to match your Week API.
+ */
+public final class RequestViewerDialog extends JDialog {
+
+    private static final int DEFAULT_WIDTH = 900;
+    private static final int DEFAULT_HEIGHT = 420;
 
     private final Week week;
-    private final List<Teacher> teachers;         // used for pickers (optional but recommended)
-    private final List<Assignment> assignments;   // used for pickers (optional but recommended)
+    private final List<Teacher> teachers;         // used for pickers
+    private final List<Assignment> assignments;   // used for pickers
 
     private final RequestTableModel tableModel;
     private final JTable table;
 
     public RequestViewerDialog(Window owner, Week week, List<Teacher> teachers, List<Assignment> assignments) {
         super(owner, "Requests", ModalityType.APPLICATION_MODAL);
+
         this.week = Objects.requireNonNull(week, "week");
         this.teachers = teachers != null ? teachers : List.of();
         this.assignments = assignments != null ? assignments : List.of();
 
-        this.tableModel = new RequestTableModel(week);
+        this.tableModel = new RequestTableModel(this.week);
         this.table = new JTable(tableModel);
-        this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        buildUi();
-
-        setMinimumSize(new Dimension(900, 420));
-        setLocationRelativeTo(owner);
+        initTable();
+        setContentPane(buildRootPanel());
+        initWindow(owner);
     }
 
-    // Convenience constructor if you don’t have teacher/assignment lists handy
     public RequestViewerDialog(Window owner, Week week) {
         this(owner, week, null, null);
     }
 
-    private void buildUi() {
+    // ---------------- UI setup ----------------
+
+    private void initTable() {
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setAutoCreateRowSorter(true);
+    }
+
+    private JPanel buildRootPanel() {
         JPanel root = new JPanel(new BorderLayout(10, 10));
         root.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Table
-        JScrollPane scroll = new JScrollPane(table);
-        root.add(scroll, BorderLayout.CENTER);
+        root.add(new JScrollPane(table), BorderLayout.CENTER);
+        root.add(buildButtonBar(), BorderLayout.SOUTH);
 
-        // Buttons
+        return root;
+    }
+
+    private JPanel buildButtonBar() {
         JButton addBtn = new JButton("Add");
         JButton editBtn = new JButton("Edit");
         JButton deleteBtn = new JButton("Delete");
@@ -84,33 +101,38 @@ public class RequestViewerDialog extends JDialog {
         btns.add(deleteBtn);
         btns.add(closeBtn);
 
-        root.add(btns, BorderLayout.SOUTH);
-        setContentPane(root);
+        return btns;
     }
 
-    private void onAdd() {
-        RequestEditDialog dlg = new RequestEditDialog(this, weekDays(week), teachers, assignments, null, null);
-        dlg.setVisible(true);
+    private void initWindow(Window owner) {
+        setMinimumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+        setLocationRelativeTo(owner);
+    }
 
+    // ---------------- Actions ----------------
+
+    private void onAdd() {
+        RequestEditDialog dlg = new RequestEditDialog(
+                this,
+                weekDays(week),
+                teachers,
+                assignments,
+                null,
+                null
+        );
+        dlg.setVisible(true);
         if (!dlg.isSaved()) return;
 
         Day targetDay = dlg.getSelectedDay();
         TeacherRequest newReq = dlg.buildRequest();
 
-        if (targetDay.getRequests() == null) {
-            // If your Day constructor always initializes requests, you can remove this.
-            throw new IllegalStateException("Day.getRequests() returned null; initialize requests list in Day.");
-        }
-
-        targetDay.getRequests().add(newReq);
+        requireRequestsList(targetDay).add(newReq);
         tableModel.reload();
     }
 
     private void onEdit() {
-        int row = table.getSelectedRow();
-        if (row < 0) return;
-
-        RequestRow rr = tableModel.getRow(row);
+        RequestRow rr = getSelectedRowOrNull();
+        if (rr == null) return;
 
         RequestEditDialog dlg = new RequestEditDialog(
                 this,
@@ -121,19 +143,16 @@ public class RequestViewerDialog extends JDialog {
                 rr.request
         );
         dlg.setVisible(true);
-
         if (!dlg.isSaved()) return;
 
         Day newDay = dlg.getSelectedDay();
         TeacherRequest replacement = dlg.buildRequest();
 
-        // If day changed: remove from old day, add to new day.
         if (rr.day != newDay) {
-            rr.day.getRequests().remove(rr.request);
-            newDay.getRequests().add(replacement);
+            requireRequestsList(rr.day).remove(rr.request);
+            requireRequestsList(newDay).add(replacement);
         } else {
-            // same day: replace in-place (preserves order)
-            List<TeacherRequest> list = rr.day.getRequests();
+            List<TeacherRequest> list = requireRequestsList(rr.day);
             int idx = list.indexOf(rr.request);
             if (idx >= 0) list.set(idx, replacement);
             else list.add(replacement);
@@ -143,10 +162,8 @@ public class RequestViewerDialog extends JDialog {
     }
 
     private void onDelete() {
-        int row = table.getSelectedRow();
-        if (row < 0) return;
-
-        RequestRow rr = tableModel.getRow(row);
+        RequestRow rr = getSelectedRowOrNull();
+        if (rr == null) return;
 
         int ok = JOptionPane.showConfirmDialog(
                 this,
@@ -157,40 +174,53 @@ public class RequestViewerDialog extends JDialog {
         );
         if (ok != JOptionPane.OK_OPTION) return;
 
-        rr.day.getRequests().remove(rr.request);
+        requireRequestsList(rr.day).remove(rr.request);
         tableModel.reload();
     }
 
-    private static List<Day> weekDays(Week week) {
-        // Adjust depending on your Week API.
-        // Common options:
-        // - week.getDays()
-        // - week.getDay(i) for i=0..n-1
-        if (week.getDays() != null) return week.getDays();
+    private RequestRow getSelectedRowOrNull() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) return null;
 
-        // Fallback if you only have getDay(i)
-        List<Day> out = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            Day d = week.getDays().get(i);
-            if (d != null) out.add(d);
-        }
-        return out;
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        return tableModel.getRow(modelRow);
     }
 
-    // -------- table model + row wrapper --------
+    private static List<TeacherRequest> requireRequestsList(Day day) {
+        List<TeacherRequest> reqs = day.getRequests();
+        if (reqs == null) {
+            throw new IllegalStateException(
+                    "Day.getRequests() returned null. Initialize the list in Day (recommended)."
+            );
+        }
+        return reqs;
+    }
 
-    private static class RequestRow {
+    // ---------------- Week/day helpers ----------------
+
+    private static List<Day> weekDays(Week week) {
+        // Adjust depending on your Week API.
+        // Preferred: Week#getDays() returns a non-null List<Day>.
+        List<Day> days = week.getDays();
+        if (days != null) return days;
+
+        // If you *actually* have week.getDay(i), replace this block accordingly.
+        return List.of();
+    }
+
+    // ---------------- Table model ----------------
+
+    private static final class RequestRow {
         final Day day;
         final TeacherRequest request;
+
         RequestRow(Day day, TeacherRequest request) {
             this.day = day;
             this.request = request;
         }
     }
 
-    private static class RequestTableModel extends AbstractTableModel {
-        private final Week week;
-        private final List<RequestRow> rows = new ArrayList<>();
+    private static final class RequestTableModel extends AbstractTableModel {
 
         private static final String[] COLS = {
                 "Day",
@@ -204,19 +234,27 @@ public class RequestViewerDialog extends JDialog {
 
         private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("H:mm");
 
+        private final Week week;
+        private final List<RequestRow> rows = new ArrayList<>();
+
         RequestTableModel(Week week) {
-            this.week = week;
+            this.week = Objects.requireNonNull(week, "week");
             reload();
         }
 
         void reload() {
             rows.clear();
+
             for (Day d : weekDays(week)) {
-                if (d == null || d.getRequests() == null) continue;
-                for (TeacherRequest r : d.getRequests()) {
-                    rows.add(new RequestRow(d, r));
+                if (d == null) continue;
+                List<TeacherRequest> reqs = d.getRequests();
+                if (reqs == null) continue;
+
+                for (TeacherRequest r : reqs) {
+                    if (r != null) rows.add(new RequestRow(d, r));
                 }
             }
+
             fireTableDataChanged();
         }
 
@@ -225,7 +263,7 @@ public class RequestViewerDialog extends JDialog {
         }
 
         String describe(RequestRow rr) {
-            return rr.getClass().getSimpleName() + ": " + rr.request;
+            return rr.request.getClass().getSimpleName() + ": " + rr.request;
         }
 
         @Override public int getRowCount() { return rows.size(); }
@@ -267,11 +305,11 @@ public class RequestViewerDialog extends JDialog {
             // Adjust to your Day API (date/dayNumber/etc.)
             try {
                 if (d.getDate() != null) return d.getDate().toString();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { }
             try {
                 return "Day " + d.getDayNumber();
-            } catch (Exception ignored) {}
-            return d.toString();
+            } catch (Exception ignored) { }
+            return String.valueOf(d);
         }
 
         private static String prettyDuration(Duration dur) {
@@ -282,15 +320,16 @@ public class RequestViewerDialog extends JDialog {
         }
     }
 
-    // -------- editor dialog --------
+    // ---------------- Editor dialog ----------------
 
-    private static class RequestEditDialog extends JDialog {
+    private static final class RequestEditDialog extends JDialog {
+
         private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("H:mm");
 
         private boolean saved = false;
 
         private final JComboBox<Day> dayBox;
-        private final JComboBox<String> typeBox;
+        private final JComboBox<RequestType> typeBox;
 
         private final JComboBox<Teacher> teacherBox;
         private final JComboBox<Assignment> assignmentBox;
@@ -298,6 +337,20 @@ public class RequestViewerDialog extends JDialog {
         private final JTextField reasonField = new JTextField();
         private final JTextField startTimeField = new JTextField("8:00");
         private final JTextField lengthMinField = new JTextField("30");
+
+        private enum RequestType {
+            AVOID_TIME("AvoidTimeRequest"),
+            ALL_SCHOOL("AllSchoolRequest");
+
+            final String label;
+            RequestType(String label) { this.label = label; }
+            @Override public String toString() { return label; }
+
+            static RequestType from(TeacherRequest r) {
+                if (r instanceof AllSchoolRequest) return ALL_SCHOOL;
+                return AVOID_TIME;
+            }
+        }
 
         RequestEditDialog(
                 Window owner,
@@ -310,14 +363,14 @@ public class RequestViewerDialog extends JDialog {
             super(owner, initialRequest == null ? "Add Request" : "Edit Request", ModalityType.APPLICATION_MODAL);
 
             dayBox = new JComboBox<>(days.toArray(new Day[0]));
-            typeBox = new JComboBox<>(new String[] { "AvoidTimeRequest", "AllSchoolRequest" });
+            typeBox = new JComboBox<>(RequestType.values());
 
             teacherBox = new JComboBox<>(teachers.toArray(new Teacher[0]));
             assignmentBox = new JComboBox<>(assignments.toArray(new Assignment[0]));
 
-            // Renderers so combo boxes look nice even if toString() is meh
             dayBox.setRenderer(new DefaultListCellRenderer() {
-                @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                     super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                     if (value instanceof Day d) setText(RequestTableModel.safeDayLabel(d));
                     return this;
@@ -325,8 +378,7 @@ public class RequestViewerDialog extends JDialog {
             });
 
             initFromExisting(initialDay, initialRequest);
-
-            buildUi();
+            setContentPane(buildRootPanel());
 
             setMinimumSize(new Dimension(520, 320));
             setLocationRelativeTo(owner);
@@ -334,11 +386,9 @@ public class RequestViewerDialog extends JDialog {
 
         private void initFromExisting(Day initialDay, TeacherRequest initialRequest) {
             if (initialDay != null) dayBox.setSelectedItem(initialDay);
-
             if (initialRequest == null) return;
 
-            if (initialRequest instanceof AllSchoolRequest) typeBox.setSelectedItem("AllSchoolRequest");
-            else typeBox.setSelectedItem("AvoidTimeRequest");
+            typeBox.setSelectedItem(RequestType.from(initialRequest));
 
             if (initialRequest.getTeacher() != null) teacherBox.setSelectedItem(initialRequest.getTeacher());
             if (initialRequest.getAssignment() != null) assignmentBox.setSelectedItem(initialRequest.getAssignment());
@@ -350,7 +400,17 @@ public class RequestViewerDialog extends JDialog {
             }
         }
 
-        private void buildUi() {
+        private JPanel buildRootPanel() {
+            JPanel root = new JPanel(new BorderLayout(10, 10));
+            root.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            root.add(buildFormPanel(), BorderLayout.CENTER);
+            root.add(buildButtonBar(), BorderLayout.SOUTH);
+
+            return root;
+        }
+
+        private JPanel buildFormPanel() {
             JPanel form = new JPanel(new GridBagLayout());
             GridBagConstraints c = new GridBagConstraints();
             c.insets = new Insets(6, 6, 6, 6);
@@ -366,6 +426,10 @@ public class RequestViewerDialog extends JDialog {
             addRow(form, c, y++, "Start time (H:mm):", startTimeField);
             addRow(form, c, y++, "Length (minutes):", lengthMinField);
 
+            return form;
+        }
+
+        private JPanel buildButtonBar() {
             JButton saveBtn = new JButton("Save");
             JButton cancelBtn = new JButton("Cancel");
 
@@ -385,17 +449,13 @@ public class RequestViewerDialog extends JDialog {
             btns.add(saveBtn);
             btns.add(cancelBtn);
 
-            JPanel root = new JPanel(new BorderLayout(10, 10));
-            root.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            root.add(form, BorderLayout.CENTER);
-            root.add(btns, BorderLayout.SOUTH);
-
-            setContentPane(root);
+            return btns;
         }
 
         private static void addRow(JPanel form, GridBagConstraints c, int row, String label, JComponent field) {
             c.gridx = 0; c.gridy = row; c.weightx = 0;
             form.add(new JLabel(label), c);
+
             c.gridx = 1; c.gridy = row; c.weightx = 1;
             form.add(field, c);
         }
@@ -403,9 +463,7 @@ public class RequestViewerDialog extends JDialog {
         private void validateInputs() {
             if (dayBox.getSelectedItem() == null) throw new IllegalArgumentException("Pick a day.");
             if (typeBox.getSelectedItem() == null) throw new IllegalArgumentException("Pick a request type.");
-            if (teacherBox.getSelectedItem() == null) {
-                throw new IllegalArgumentException("Pick a teacher.");
-            }
+            if (teacherBox.getSelectedItem() == null) throw new IllegalArgumentException("Pick a teacher.");
 
             // start time parse
             parseTime(startTimeField.getText());
@@ -431,42 +489,49 @@ public class RequestViewerDialog extends JDialog {
             }
         }
 
-        boolean isSaved() { return saved; }
+        boolean isSaved() {
+            return saved;
+        }
 
         Day getSelectedDay() {
             return (Day) dayBox.getSelectedItem();
         }
 
         TeacherRequest buildRequest() {
-            Day day = getSelectedDay();
             Teacher teacher = (Teacher) teacherBox.getSelectedItem();
             Assignment assignment = (Assignment) assignmentBox.getSelectedItem();
             String reason = reasonField.getText() != null ? reasonField.getText().trim() : "";
 
             LocalTime start = parseTime(startTimeField.getText());
-            long mins = parseMinutes(lengthMinField.getText());
-            Duration len = Duration.ofMinutes(mins);
+            Duration len = Duration.ofMinutes(parseMinutes(lengthMinField.getText()));
 
-            String type = (String) typeBox.getSelectedItem();
+            RequestType type = (RequestType) typeBox.getSelectedItem();
+            if (type == null) throw new IllegalStateException("Request type not selected.");
 
-            // Build your existing model types (both extend TeacherTimeRequest)
-            if ("AllSchoolRequest".equals(type)) {
-                AllSchoolRequest r = new AllSchoolRequest();
-                r.setTeacher(teacher);
-                r.setAssignment(assignment);
-                r.setReason(reason);
-                r.setStartTime(start);
-                r.setLength(len);
-                return r;
-            } else {
-                AvoidTimeRequest r = new AvoidTimeRequest();
-                r.setTeacher(teacher);
-                r.setAssignment(assignment);
-                r.setReason(reason);
-                r.setStartTime(start);
-                r.setLength(len);
-                return r;
-            }
+            return switch (type) {
+                case ALL_SCHOOL -> buildAllSchool(teacher, assignment, reason, start, len);
+                case AVOID_TIME -> buildAvoidTime(teacher, assignment, reason, start, len);
+            };
+        }
+
+        private static AllSchoolRequest buildAllSchool(Teacher teacher, Assignment assignment, String reason, LocalTime start, Duration len) {
+            AllSchoolRequest r = new AllSchoolRequest();
+            r.setTeacher(teacher);
+            r.setAssignment(assignment);
+            r.setReason(reason);
+            r.setStartTime(start);
+            r.setLength(len);
+            return r;
+        }
+
+        private static AvoidTimeRequest buildAvoidTime(Teacher teacher, Assignment assignment, String reason, LocalTime start, Duration len) {
+            AvoidTimeRequest r = new AvoidTimeRequest();
+            r.setTeacher(teacher);
+            r.setAssignment(assignment);
+            r.setReason(reason);
+            r.setStartTime(start);
+            r.setLength(len);
+            return r;
         }
     }
 }
