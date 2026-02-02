@@ -422,7 +422,7 @@ public final class RequestViewerDialog extends JDialog {
             initFromExisting(initialDay, initialRequest);
             setContentPane(buildRootPanel());
 
-            setMinimumSize(new Dimension(520, 320));
+            setMinimumSize(new Dimension(520, 520));
             setLocationRelativeTo(owner);
         }
 
