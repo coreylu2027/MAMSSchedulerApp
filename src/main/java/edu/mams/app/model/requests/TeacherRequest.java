@@ -9,6 +9,7 @@ import edu.mams.app.model.schedule.ClassBlock;
 import edu.mams.app.model.schedule.Course;
 
 import java.util.List;
+import java.util.Objects;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -74,18 +75,17 @@ public abstract class TeacherRequest {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof TeacherRequest that)) return false;
-
-        return teacher.equals(that.teacher) && assignment.equals(that.assignment) && reason.equals(that.reason);
+        return Objects.equals(teacher, that.teacher)
+                && Objects.equals(assignment, that.assignment)
+                && Objects.equals(reason, that.reason);
     }
 
     @Override
     public int hashCode() {
-        int result = teacher.hashCode();
-        result = 31 * result + assignment.hashCode();
-        result = 31 * result + reason.hashCode();
-        return result;
+        return Objects.hash(teacher, assignment, reason);
     }
 }
 
