@@ -11,10 +11,7 @@ import edu.mams.app.model.util.ScheduleBuilder;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a single day that includes various scheduling information such as date, day number,
@@ -212,11 +209,16 @@ public class Day {
      * - The `classes` list is updated to exclude assignments referenced by any `AllSchoolRequest`.
      */
     public void loadRequests() {
-        requests = RequestLoader.loadRequests(date);
-        for (int i = 0; i < requests.size(); i++) {
-            requests.get(i).setAssignmentFromList(classes);
-        }
+        List<TeacherRequest> loaded = RequestLoader.loadRequests(date);
+
+        Set<TeacherRequest> merged = new LinkedHashSet<>(requests);
+        merged.addAll(loaded);
+
+        requests.clear();
+        requests.addAll(merged);
+
         for (TeacherRequest request : requests) {
+            request.setAssignmentFromList(classes);
             if (request instanceof AllSchoolRequest allSchoolRequest) {
                 classes.remove(allSchoolRequest.getAssignment());
             }
