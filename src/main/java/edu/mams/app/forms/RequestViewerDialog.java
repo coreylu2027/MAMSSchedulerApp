@@ -6,6 +6,7 @@ import edu.mams.app.model.requests.AvoidTimeRequest;
 import edu.mams.app.model.requests.TeacherRequest;
 import edu.mams.app.model.requests.TeacherTimeRequest;
 import edu.mams.app.model.schedule.Assignment;
+import edu.mams.app.model.schedule.Course;
 import edu.mams.app.model.schedule.Day;
 import edu.mams.app.model.schedule.Week;
 
@@ -16,9 +17,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Request viewer/editor for a Week.
@@ -36,26 +36,68 @@ public final class RequestViewerDialog extends JDialog {
     private final List<Teacher> teachers;         // used for pickers
     private final List<Assignment> assignments;   // used for pickers
 
-    private final RequestTableModel tableModel;
-    private final JTable table;
+    private RequestTableModel tableModel;
+    private JTable table;
+    private JPanel rootPanel;
+    private JScrollPane tableScroll;
+    private JPanel btns;
+    private JButton closeButton;
+    private JButton deleteButton;
+    private JButton editButton;
+    private JButton addButton;
 
     public RequestViewerDialog(Window owner, Week week, List<Teacher> teachers, List<Assignment> assignments) {
         super(owner, "Requests", ModalityType.APPLICATION_MODAL);
+
+        this.tableModel = new RequestTableModel(week);
 
         this.week = Objects.requireNonNull(week, "week");
         this.teachers = teachers != null ? teachers : List.of();
         this.assignments = assignments != null ? assignments : List.of();
 
-        this.tableModel = new RequestTableModel(this.week);
-        this.table = new JTable(tableModel);
+        table.setModel(tableModel);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setAutoCreateRowSorter(true);
 
-        initTable();
-        setContentPane(buildRootPanel());
-        initWindow(owner);
+        editButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+            boolean selected = table.getSelectedRow() >= 0;
+            editButton.setEnabled(selected);
+            deleteButton.setEnabled(selected);
+        });
+
+        addButton.addActionListener(e -> onAdd());
+        editButton.addActionListener(e -> onEdit());
+        deleteButton.addActionListener(e -> onDelete());
+        closeButton.addActionListener(e -> dispose());
+
+        setContentPane(rootPanel);
+        setMinimumSize(new Dimension(900, 420));
+        setLocationRelativeTo(owner);
     }
+
 
     public RequestViewerDialog(Window owner, Week week) {
         this(owner, week, null, null);
+    }
+
+    public RequestViewerDialog(Window owner, Week week, List<Assignment> assignments) {
+        this(owner, week, deriveTeachers(assignments), assignments);
+    }
+
+    private static List<Teacher> deriveTeachers(List<Assignment> assignments) {
+        if (assignments == null) return List.of();
+
+        // avoid duplicates + null teachers
+        Set<Teacher> teachers = new LinkedHashSet<>();
+        for (Assignment a : assignments) {
+            if (a instanceof Course c && c.getTeacher() != null) {
+                teachers.add(c.getTeacher());
+            }
+        }
+        return new ArrayList<>(teachers);
     }
 
     // ---------------- UI setup ----------------
