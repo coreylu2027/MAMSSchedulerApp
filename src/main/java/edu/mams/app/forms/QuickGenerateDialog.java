@@ -68,8 +68,8 @@ public class QuickGenerateDialog extends JDialog {
 
         buildRows();
 
-        cancelButton.addActionListener(e -> dispose());
-        generateButton.addActionListener(e -> {
+        cancelButton.addActionListener(_ -> dispose());
+        generateButton.addActionListener(_ -> {
             generated = true;
             dispose();
         });
@@ -146,7 +146,7 @@ public class QuickGenerateDialog extends JDialog {
         classesLabel.setText("Classes: " + count);
 
         JButton pickClasses = new JButton("Select Classes");
-        pickClasses.addActionListener(e -> {
+        pickClasses.addActionListener(_ -> {
             List<Assignment> existing = classesByDate.get(date);
             List<Assignment> picked = pickClassesForDate.apply(date, existing);
             classesByDate.put(date, new ArrayList<>(picked));
@@ -194,7 +194,7 @@ public class QuickGenerateDialog extends JDialog {
 
         // enable/disable partner selector based on split flag
         splitCourseCombo.setEnabled(splitBox.isSelected());
-        splitBox.addActionListener(e -> splitCourseCombo.setEnabled(splitBox.isSelected()));
+        splitBox.addActionListener(_ -> splitCourseCombo.setEnabled(splitBox.isSelected()));
 
         splitLine.add(splitBox);
         splitLine.add(new JLabel("Partner:"));
