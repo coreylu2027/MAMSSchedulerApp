@@ -211,11 +211,14 @@ public class Day {
     public void loadRequests() {
         List<TeacherRequest> loaded = RequestLoader.loadRequests(date);
 
-        Set<TeacherRequest> merged = new LinkedHashSet<>(requests);
-        merged.addAll(loaded);
-
-        requests.clear();
-        requests.addAll(merged);
+        if (requests == null) {
+            requests = loaded;
+        } else {
+            Set<TeacherRequest> merged = new LinkedHashSet<>(requests);
+            merged.addAll(loaded);
+            requests.clear();
+            requests.addAll(merged);
+        }
 
         for (TeacherRequest request : requests) {
             request.setAssignmentFromList(classes);
