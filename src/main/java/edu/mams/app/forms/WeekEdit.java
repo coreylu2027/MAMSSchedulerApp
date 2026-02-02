@@ -127,7 +127,11 @@ public class WeekEdit extends JFrame {
     }
 
     private void viewRequests() {
-        return;
+        Window owner = SwingUtilities.getWindowAncestor(this); // or your root panel
+        // If you have teacher/assignment lists available, pass them in:
+        // new RequestViewerDialog(owner, week, teacherList, assignmentList).setVisible(true);
+
+        new RequestViewerDialog(owner, week).setVisible(true);
     }
 
     private static String fmt(LocalDate d) {
