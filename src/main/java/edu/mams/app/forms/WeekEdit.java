@@ -131,7 +131,7 @@ public class WeekEdit extends JFrame {
         // If you have teacher/assignment lists available, pass them in:
         // new RequestViewerDialog(owner, week, teacherList, assignmentList).setVisible(true);
 
-        new RequestViewerDialog(owner, week).setVisible(true);
+        new RequestViewerDialog(owner, week, classes).setVisible(true);
     }
 
     private static String fmt(LocalDate d) {
