@@ -74,7 +74,7 @@ public class QuickGenerateDialog extends JDialog {
             dispose();
         });
 
-        setPreferredSize(new Dimension(520, 420));
+        setPreferredSize(new Dimension(520, 640));
         pack();
         setLocationRelativeTo(owner);
     }
