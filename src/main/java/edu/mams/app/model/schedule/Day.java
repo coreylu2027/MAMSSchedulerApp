@@ -148,6 +148,9 @@ public class Day {
     }
 
     public void setSections(List<Section> newSections) {
+        if (sections != null && newSections != null && sections.size() != newSections.size()) {
+            throw new IllegalArgumentException("New sections list must match current size (current=" + sections.size() + ", new=" + newSections.size() + ")");
+        }
         if (entries != null && sections != null) {
             for (ScheduleEntry entry : entries) {
                 if (entry instanceof ClassBlock classBlock) {
@@ -193,11 +196,8 @@ public class Day {
      * matching the current instance's date.
      * 2. Iterates through the loaded requests, invoking the {@link TeacherRequest#setAssignmentFromList(List)}
      * method for each request to assign corresponding assignments from the `classes` list.
-     * 3. Processes all instances of {@link AllSchoolRequest} within the list of loaded requests:
-     * - The assignment associated with the {@link AllSchoolRequest} is removed from the `classes` list.
-     * <p>
      * The method updates the `requests` field with the list of loaded requests and modifies the
-     * `classes` list by removing assignments referenced by `AllSchoolRequest` objects.
+     * `classes` list by assigning requests to matching assignments.
      * <p>
      * Preconditions:
      * - The `date` field must be initialized to define the load criteria for requests.
@@ -206,7 +206,7 @@ public class Day {
      * Postconditions:
      * - The `requests` list is populated with teacher requests that match the current instance's date.
      * - Assignments for the loaded requests are set using the `classes` list.
-     * - The `classes` list is updated to exclude assignments referenced by any `AllSchoolRequest`.
+     * - Assignments for the loaded requests are set using the `classes` list.
      */
     public void loadRequests() {
         List<TeacherRequest> loaded = RequestLoader.loadRequests(date);
@@ -222,9 +222,6 @@ public class Day {
 
         for (TeacherRequest request : requests) {
             request.setAssignmentFromList(classes);
-            if (request instanceof AllSchoolRequest allSchoolRequest) {
-                classes.remove(allSchoolRequest.getAssignment());
-            }
         }
     }
 
