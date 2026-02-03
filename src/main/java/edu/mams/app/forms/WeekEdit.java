@@ -607,7 +607,16 @@ public class WeekEdit extends JFrame {
                 day.setSplitCourse(a instanceof Course ? (Course) a : null);
             }
 
-            day.generateBlocks();
+            try {
+                day.generateBlocks();
+            } catch (IllegalStateException e) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Error generating schedule for " + fmt(date) + ": " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
 
         }
 
