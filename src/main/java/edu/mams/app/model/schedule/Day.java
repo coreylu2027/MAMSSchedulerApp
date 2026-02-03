@@ -148,13 +148,28 @@ public class Day {
     }
 
     public void setSections(List<Section> newSections) {
-        if (sections != null && newSections != null && sections.size() != newSections.size()) {
+        if (newSections == null) {
+            this.sections = null;
+            return;
+        }
+
+        // Treat empty/undefined sections as "not initialized" so first real set works.
+        if (sections == null || sections.isEmpty()) {
+            this.sections = newSections;
+            return;
+        }
+
+        if (sections.size() != newSections.size()) {
             throw new IllegalArgumentException("New sections list must match current size (current=" + sections.size() + ", new=" + newSections.size() + ")");
         }
-        if (entries != null && sections != null) {
+        if (entries != null) {
             for (ScheduleEntry entry : entries) {
                 if (entry instanceof ClassBlock classBlock) {
                     Map<Section, Assignment> assignments = classBlock.getSectionCourses();
+                    if (assignments == null) {
+                        assignments = new HashMap<>();
+                        classBlock.setSectionCourses(assignments);
+                    }
                     for (int i = 0; i < sections.size(); i++) {
                         assignments.put(newSections.get(i), assignments.remove(sections.get(i)));
                     }
