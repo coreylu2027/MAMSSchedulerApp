@@ -253,6 +253,15 @@ public class ScheduleBuilder {
                         } else if (assignment instanceof SplitCourse splitCourse) {
                             splitSlots.add(new int[]{block, sectionCounter});
                             splitCourses.add(splitCourse);
+                            Map<HalfSection, Assignment> halves = splitCourse.getHalfSectionCourses();
+                            if (halves != null) {
+                                Assignment firstCourse = halves.get(halfSections.get(0));
+                                Assignment secondCourse = halves.get(halfSections.get(1));
+                                int firstIndex = classes.indexOf(firstCourse);
+                                int secondIndex = classes.indexOf(secondCourse);
+                                partial[block][sectionCounter] = secondIndex;
+                                partial[block][sectionCounter + 2] = firstIndex;
+                            }
                         }
                     }
                     sectionCounter++;

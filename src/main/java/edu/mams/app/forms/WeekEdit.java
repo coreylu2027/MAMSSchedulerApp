@@ -947,6 +947,7 @@ public class WeekEdit extends JFrame {
             if (preselected instanceof AllSchoolBlock) {
                 entryType.setSelectedItem("All School");
             } else if (preselected instanceof ClassBlock cb) {
+                cb.setSplit();
                 if (cb.isSplit()) {
                     entryType.setSelectedItem("Split Section");
                 } else {
@@ -1001,7 +1002,6 @@ public class WeekEdit extends JFrame {
 
             // ----- Initial panel based on preselected typ_ -----
             if (preselected instanceof ClassBlock classBlock) {
-                classBlock.setSplit();
                 if (classBlock.isSplit()) {
                     splitSectionPanel = new SplitSectionPanel(sections, classBlock);
                     add(splitSectionPanel);
