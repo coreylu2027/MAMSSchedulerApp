@@ -90,56 +90,108 @@ public class LatinFill {
         }
         checkArgs(n, n, forbidden);
 
+        int[][] grid = new int[n][n];
+        boolean[][] rowUsed = new boolean[n][n];
+        boolean[][] colUsed = new boolean[n][n];
+        int emptyCount = 0;
+
+        for (int r = 0; r < n; r++) {
+            for (int c = 0; c < n; c++) {
+                int v = partial[r][c];
+                if (v == -1) {
+                    grid[r][c] = -1;
+                    emptyCount++;
+                    continue;
+                }
+                if (v < 0 || v >= n) {
+                    throw new IllegalArgumentException("partial contains out-of-range value at (" + r + "," + c + ")");
+                }
+                if (rowUsed[r][v] || colUsed[c][v]) {
+                    throw new IllegalArgumentException("partial violates Latin constraints at (" + r + "," + c + ")");
+                }
+                if (forbidden != null && forbidden[r][v]) {
+                    throw new IllegalArgumentException("partial violates forbidden constraint at (" + r + "," + c + ")");
+                }
+                grid[r][c] = v;
+                rowUsed[r][v] = true;
+                colUsed[c][v] = true;
+            }
+        }
+
+        if (emptyCount == 0) return grid;
+
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
-        final int MAX_TRIES = 20000;
-
-        for (int attempt = 0; attempt < MAX_TRIES; attempt++) {
-            int[] symPerm = identity(n);
-            int[] rowPerm = identity(n);
-            int[] colPerm = identity(n);
-
-            shuffle(symPerm, rnd);
-            shuffle(rowPerm, rnd);
-            shuffle(colPerm, rnd);
-
-            boolean ok = true;
-            outer:
-            for (int r = 0; r < n; r++) {
-                for (int c = 0; c < n; c++) {
-                    int given = partial[r][c];
-                    if (given != -1) {
-                        int rr = rowPerm[r];
-                        int cc = colPerm[c];
-                        int val = symPerm[(rr + cc) % n];
-                        if (val != given) {
-                            ok = false;
-                            break outer;
-                        }
-                        if (forbidden != null && forbidden[r][val]) {
-                            ok = false;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
-            if (!ok) continue;
-
-            int[][] out = new int[n][n];
-            for (int r = 0; r < n; r++) {
-                int rr = rowPerm[r];
-                for (int c = 0; c < n; c++) {
-                    int cc = colPerm[c];
-                    out[r][c] = symPerm[(rr + cc) % n];
-                }
-            }
-
-            sanityCheckColumns(out, n, n);
-            return out;
+        if (fillLatinSquare(grid, rowUsed, colUsed, forbidden, rnd)) {
+            sanityCheckColumns(grid, n, n);
+            return grid;
         }
 
         throw new IllegalStateException(
-                "Could not extend partial square after many tries. Constraints may be incompatible.");
+                "Could not extend partial square. Constraints may be incompatible.");
+    }
+
+    private static boolean fillLatinSquare(int[][] grid,
+                                           boolean[][] rowUsed,
+                                           boolean[][] colUsed,
+                                           boolean[][] forbidden,
+                                           ThreadLocalRandom rnd) {
+        int n = grid.length;
+        int bestR = -1;
+        int bestC = -1;
+        int bestCount = Integer.MAX_VALUE;
+
+        // Choose the next empty cell with the fewest candidates (MRV)
+        for (int r = 0; r < n; r++) {
+            for (int c = 0; c < n; c++) {
+                if (grid[r][c] != -1) continue;
+                int count = 0;
+                for (int v = 0; v < n; v++) {
+                    if (!rowUsed[r][v] && !colUsed[c][v] && (forbidden == null || !forbidden[r][v])) {
+                        count++;
+                    }
+                }
+                if (count == 0) return false;
+                if (count < bestCount) {
+                    bestCount = count;
+                    bestR = r;
+                    bestC = c;
+                    if (bestCount == 1) break;
+                }
+            }
+            if (bestCount == 1) break;
+        }
+
+        if (bestR == -1) return true; // no empty cells
+
+        int[] candidates = new int[bestCount];
+        int idx = 0;
+        for (int v = 0; v < n; v++) {
+            if (!rowUsed[bestR][v] && !colUsed[bestC][v] && (forbidden == null || !forbidden[bestR][v])) {
+                candidates[idx++] = v;
+            }
+        }
+
+        // Randomize candidate order for variety
+        for (int i = candidates.length - 1; i > 0; i--) {
+            int j = rnd.nextInt(i + 1);
+            int t = candidates[i];
+            candidates[i] = candidates[j];
+            candidates[j] = t;
+        }
+
+        for (int v : candidates) {
+            grid[bestR][bestC] = v;
+            rowUsed[bestR][v] = true;
+            colUsed[bestC][v] = true;
+
+            if (fillLatinSquare(grid, rowUsed, colUsed, forbidden, rnd)) return true;
+
+            grid[bestR][bestC] = -1;
+            rowUsed[bestR][v] = false;
+            colUsed[bestC][v] = false;
+        }
+
+        return false;
     }
 
 
