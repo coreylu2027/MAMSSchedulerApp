@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.List;
 
 public class HtmlOutput {
     private static PrintWriter out;
@@ -25,6 +25,7 @@ public class HtmlOutput {
             dayHeader();
             sectionHeader();
             entries();
+            dayFooter();
             close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -179,9 +180,42 @@ public class HtmlOutput {
                 }
             }
 
-            out.print("  </tr>\n");
-            currentTime = currentTime.plusMinutes(15);
+        out.print("  </tr>\n");
+        currentTime = currentTime.plusMinutes(15);
+    }
+}
+
+    private static void dayFooter() {
+        out.println("  <tr class=\"day-footer\">");
+        for (Day day : week.getDays()) {
+            out.print("    <td class=\"day-footer\" colspan=\"6\">");
+            boolean hasContent = false;
+            List<String> notes = day.getNotes();
+            if (notes != null) {
+                for (String note : notes) {
+                    if (note == null || note.isBlank()) {
+                        continue;
+                    }
+                    out.print("<div class=\"note\">" + note + "</div>");
+                    hasContent = true;
+                }
+            }
+            List<String> clubs = day.getClubs();
+            if (clubs != null) {
+                for (String club : clubs) {
+                    if (club == null || club.isBlank()) {
+                        continue;
+                    }
+                    out.print("<div class=\"club\">" + club + "</div>");
+                    hasContent = true;
+                }
+            }
+            if (!hasContent) {
+                out.print("&nbsp;");
+            }
+            out.println("</td>");
         }
+        out.println("  </tr>");
     }
 
     private static void close() {

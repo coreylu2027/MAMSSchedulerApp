@@ -76,6 +76,10 @@ public class Day {
         return clubs;
     }
 
+    public void setClubs(List<String> clubs) {
+        this.clubs = clubs;
+    }
+
     public LocalDate getDate() {
         return date;
     }
@@ -98,6 +102,10 @@ public class Day {
 
     public List<String> getNotes() {
         return notes;
+    }
+
+    public void setNotes(List<String> notes) {
+        this.notes = notes;
     }
 
     public List<TeacherRequest> getRequests() {

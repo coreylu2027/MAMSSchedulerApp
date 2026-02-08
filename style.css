@@ -129,12 +129,21 @@
 .slot.event   { background:#fbe7c6;}
 
 /* after-school / footer notes if you choose to make them table rows */
-.schedule .footer-note {
+.schedule tr.day-footer > td {
     border: none;
-    padding-top: 8px;
+    padding: 8px 4px 10px;
     font-style: italic;
     font-size: 11px;
     text-align: center;
+}
+
+.schedule .day-footer .note {
+    color: #d7261f;
+    font-weight: bold;
+}
+
+.schedule .day-footer .club {
+    color: #2da3d8;
 }
 
 /* Optional: make whole table a bit smaller on narrow screens */
