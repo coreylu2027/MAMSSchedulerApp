@@ -17,6 +17,7 @@ public class WeekSelector extends JFrame {
     private final Schedule schedule;
     private JButton cancelButton;
     private JPanel contentPane;
+    private JButton deleteButton;
     private JButton newWeekButton;
     private JButton openButton;
     private JList<LocalDate> weekList;
@@ -42,7 +43,6 @@ public class WeekSelector extends JFrame {
         initActions();
     }
 
-    // ===== Initialize list =====
     private void initWeekList() {
         DefaultListModel<LocalDate> model = new DefaultListModel<>();
 
@@ -66,10 +66,10 @@ public class WeekSelector extends JFrame {
         }
     }
 
-    // ===== Button actions =====
     private void initActions() {
 
         openButton.addActionListener(e -> openSelectedWeek());
+        deleteButton.addActionListener(e -> deleteSelectedWeek());
 
         newWeekButton.addActionListener(e -> {
             LocalDate newStart = schedule.getWeekStartDates().stream().max(LocalDate::compareTo).orElse(LocalDate.of(2025, 12, 1).minusWeeks(1)).plusWeeks(1);
@@ -107,7 +107,34 @@ public class WeekSelector extends JFrame {
         dispose();
     }
 
-    // ===== Helpers =====
+    private void deleteSelectedWeek() {
+        LocalDate start = weekList.getSelectedValue();
+        if (start == null) {
+            JOptionPane.showMessageDialog(this, "Select a week first.");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Delete the week starting " + start.format(DISPLAY_FMT) + "?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        schedule.getWeeks().remove(start);
+        schedule.saveToFile(FILE);
+
+        int priorIndex = weekList.getSelectedIndex();
+        refreshList();
+
+        DefaultListModel<LocalDate> model = (DefaultListModel<LocalDate>) weekList.getModel();
+        if (!model.isEmpty()) {
+            int nextIndex = Math.min(priorIndex, model.size() - 1);
+            weekList.setSelectedIndex(nextIndex);
+        }
+    }
+
     private void refreshList() {
         DefaultListModel<LocalDate> model = (DefaultListModel<LocalDate>) weekList.getModel();
 
@@ -136,17 +163,20 @@ public class WeekSelector extends JFrame {
      */
     private void $$$setupUI$$$() {
         contentPane = new JPanel();
-        contentPane.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+        contentPane.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
         weekList = new JList();
-        contentPane.add(weekList, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        contentPane.add(weekList, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 4, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         cancelButton = new JButton();
         cancelButton.setText("Cancel");
-        contentPane.add(cancelButton, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPane.add(cancelButton, new com.intellij.uiDesigner.core.GridConstraints(1, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         newWeekButton = new JButton();
         newWeekButton.setText("New");
         contentPane.add(newWeekButton, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         openButton = new JButton();
         openButton.setText("Open");
         contentPane.add(openButton, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        deleteButton = new JButton();
+        deleteButton.setText("Delete");
+        contentPane.add(deleteButton, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_EAST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 }
