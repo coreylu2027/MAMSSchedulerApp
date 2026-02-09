@@ -72,9 +72,18 @@ public class WeekSelector extends JFrame {
         deleteButton.addActionListener(e -> deleteSelectedWeek());
 
         newWeekButton.addActionListener(e -> {
-            LocalDate newStart = schedule.getWeekStartDates().stream().max(LocalDate::compareTo).orElse(LocalDate.of(2025, 12, 1).minusWeeks(1)).plusWeeks(1);
+            LocalDate lastStart = schedule.getWeekStartDates().stream().max(LocalDate::compareTo).orElse(null);
+            LocalDate newStart = (lastStart == null ? LocalDate.of(2025, 12, 1).minusWeeks(1) : lastStart).plusWeeks(1);
 
-            Week newWeek = new Week(newStart);
+            int startingDayNumber = 0;
+            if (lastStart != null) {
+                Week previousWeek = schedule.getWeek(lastStart);
+                if (previousWeek != null && previousWeek.getDays() != null && !previousWeek.getDays().isEmpty()) {
+                    startingDayNumber = previousWeek.getEndingDayNumber() + 1;
+                }
+            }
+
+            Week newWeek = new Week(newStart, startingDayNumber);
             schedule.addWeek(newWeek);
             schedule.saveToFile(FILE);
 

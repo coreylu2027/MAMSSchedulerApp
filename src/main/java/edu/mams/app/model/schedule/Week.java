@@ -15,9 +15,13 @@ public class Week {
     }
 
     public Week(LocalDate startingDate) {
+        this(startingDate, 0);
+    }
+
+    public Week(LocalDate startingDate, int startingDayNumber) {
         days = new ArrayList<>();
         for (int d = 0; d < 5; d++) {
-            days.add(new Day(startingDate.plusDays(d), d, new ArrayList<>(), new ArrayList<>()));
+            days.add(new Day(startingDate.plusDays(d), startingDayNumber + d, new ArrayList<>(), new ArrayList<>()));
         }
         loadRequests();
     }
