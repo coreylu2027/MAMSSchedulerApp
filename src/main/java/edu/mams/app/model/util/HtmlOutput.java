@@ -119,9 +119,10 @@ public class HtmlOutput {
                                 }
                                 out.print("</div></td>\n");
                             } else {
+                                String eventClass = allSchoolCssClass(allSchoolBlock.getAssignment());
                                 if (span == 1) {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
-                                    out.print("<div class=\"slot span event\">");
+                                    out.print("<div class=\"slot span " + eventClass + "\">");
                                     out.print("<div class=\"time\">" +
                                             allSchoolBlock.getStart().format(TIME_FMT) +
                                             " (" + allSchoolBlock.getAssignment().getName() + ")" +
@@ -129,7 +130,7 @@ public class HtmlOutput {
                                     out.print("</div></td>\n");
                                 } else {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
-                                    out.print("<div class=\"slot span event\">");
+                                    out.print("<div class=\"slot span " + eventClass + "\">");
                                     out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
                                     out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
                                     out.print("</div></td>\n");
@@ -221,5 +222,19 @@ public class HtmlOutput {
     private static void close() {
         out.print("</table>");
         out.print("</body>");
+    }
+
+    private static String allSchoolCssClass(Assignment assignment) {
+        if (assignment == null || assignment.getName() == null) {
+            return "event";
+        }
+        String name = assignment.getName().trim().toLowerCase();
+        if (name.startsWith("lunch")) {
+            return "lunch";
+        }
+        if (name.startsWith("flex")) {
+            return "flex-block";
+        }
+        return "event";
     }
 }
