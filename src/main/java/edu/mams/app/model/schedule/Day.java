@@ -132,9 +132,9 @@ public class Day {
             if (entry instanceof ClassBlock classBlock) {
                 Assignment assignment = classBlock.getSectionCourses().get(masterSection);
 
-                if (assignment instanceof SplitCourse splitCourse && halfSection != null) {
+                if (assignment instanceof SplitCourse splitAssignment && halfSection != null) {
                     // If it’s a split course and the group is a half section
-                    Assignment halfAssignment = splitCourse.getHalfSectionCourses().get(halfSection);
+                    Assignment halfAssignment = splitAssignment.getHalfSectionCourses().get(halfSection);
                     if (halfAssignment != null) {
                         sb.append(" - ").append(halfAssignment.getName()).append(" at ").append(entry.getStart()).append(" for ").append(entry.getLength()).append(" (Half Section)\n");
                     }

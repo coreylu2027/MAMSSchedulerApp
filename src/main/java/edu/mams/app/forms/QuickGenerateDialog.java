@@ -177,7 +177,7 @@ public class QuickGenerateDialog extends JDialog {
         Course primarySplit = ScheduleBuilder.getSplitClass();
         for (Assignment a : allClasses) {
             if (a instanceof Course c) {
-                if (primarySplit != null && c.equals(primarySplit)) continue;
+                if (c.equals(primarySplit)) continue;
                 splitCourseCombo.addItem(c.getName());
             }
         }
