@@ -37,12 +37,17 @@ public class HtmlOutput {
     }
 
     private static void header() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d");
         out.print("""
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>
                   <meta charset="UTF-8">
-                  <title>Title</title>
+                """);
+        out.print("  <title>Week of ");
+        out.print(week.getStartingDate().format(formatter));
+        out.println("</title>");
+        out.print("""
                   <link rel="stylesheet" href="style.css">
                 </head>
                 <body>
