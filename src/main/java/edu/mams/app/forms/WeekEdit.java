@@ -317,16 +317,22 @@ public class WeekEdit extends JFrame {
     private void generate() {
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
 
-        // 1) Build "what the user currently has in the UI" as a Day (still not saved to week)
+        // 1) Build "what the user currently has in the UI" as a Day
         Day updatedDay = getUpdatedDay(date);
 
-        // 2) Generate a preview Day WITHOUT mutating week
-        Day previewDay = updatedDay.copy();
-        previewDay.setEntries(ScheduleBuilder.buildAroundSchedule(previewDay));
-        previewDay.updateDurations();
+        // 2) Generate schedule entries and persist to the in-memory model
+        updatedDay.setEntries(ScheduleBuilder.buildAroundSchedule(updatedDay));
+        updatedDay.updateDurations();
 
-        // 3) Show previewDay in the UI (still not saved anywhere)
-        generateDay(previewDay);
+        for (int i = 0; i < week.getDays().size(); i++) {
+            if (week.getDays().get(i).getDate().equals(date)) {
+                week.getDays().set(i, updatedDay);
+                break;
+            }
+        }
+
+        // 3) Refresh UI from the saved Day
+        generateDay(updatedDay);
     }
 
     private void generateDay() {
