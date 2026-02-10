@@ -11,7 +11,7 @@
 
 /* ====== Fixed 15-min grid rows ====== */
 .schedule {
-    --row-h: 20px;
+    --row-h: 19px;
 }
 
 .schedule tr.time-row {
