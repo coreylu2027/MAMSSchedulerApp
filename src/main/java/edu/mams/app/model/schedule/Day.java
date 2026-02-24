@@ -145,6 +145,20 @@ public class Day {
             } else if (entry instanceof AllSchoolBlock allSchoolBlock) {
                 Assignment assignment = allSchoolBlock.getAssignment();
                 sb.append(" - ").append(assignment.getName()).append(" at ").append(entry.getStart()).append(" for ").append(entry.getLength()).append(" (All School Block)\n");
+            } else if (entry instanceof PEBlock peBlock) {
+                sb.append(" - PE at ")
+                        .append(entry.getStart())
+                        .append(" for ")
+                        .append(entry.getLength())
+                        .append(" (")
+                        .append(peBlock.getGroupAName())
+                        .append(": ")
+                        .append(peBlock.getGroupAActivity())
+                        .append(", ")
+                        .append(peBlock.getGroupBName())
+                        .append(": ")
+                        .append(peBlock.getGroupBActivity())
+                        .append(")\n");
             }
         }
 
@@ -345,6 +359,17 @@ public class Day {
 
         if (e instanceof AllSchoolBlock ab) {
             return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment(), ab.getReason());
+        }
+
+        if (e instanceof PEBlock pe) {
+            return new PEBlock(
+                    pe.getStart(),
+                    pe.getLength(),
+                    pe.getGroupAName(),
+                    pe.getGroupAActivity(),
+                    pe.getGroupBName(),
+                    pe.getGroupBActivity()
+            );
         }
 
         // If you add more ScheduleEntry subclasses later, extend this copier.
