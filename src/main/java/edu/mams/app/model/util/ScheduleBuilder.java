@@ -2,19 +2,21 @@ package edu.mams.app.model.util;
 
 import edu.mams.app.model.people.HalfSection;
 import edu.mams.app.model.people.Section;
-import edu.mams.app.model.requests.*;
+import edu.mams.app.model.requests.AllSchoolRequest;
+import edu.mams.app.model.requests.AvoidTimeRequest;
+import edu.mams.app.model.requests.TeacherRequest;
 import edu.mams.app.model.schedule.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ScheduleBuilder {
     private static Course splitClass = null;
     private static Section splitSection = null;
-    private static List<HalfSection> halfSections = new ArrayList<>(List.of(
-            new HalfSection("Intermediate", new Section("G")),
-            new HalfSection("Advanced", new Section("G"))
-    ));
+    private static List<HalfSection> halfSections = new ArrayList<>(List.of(new HalfSection("Intermediate", new Section("G")), new HalfSection("Advanced", new Section("G"))));
 
     public static List<HalfSection> getHalfSections() {
         return halfSections;
@@ -24,20 +26,20 @@ public class ScheduleBuilder {
         ScheduleBuilder.halfSections = halfSections;
     }
 
-    public static void setSplitClass(Course splitClass) {
-        ScheduleBuilder.splitClass = splitClass;
+    public static Section getSplitSection() {
+        return splitSection;
     }
 
     public static void setSplitSection(Section splitSection) {
         ScheduleBuilder.splitSection = splitSection;
     }
 
-    public static Section getSplitSection() {
-        return splitSection;
-    }
-
     public static Course getSplitClass() {
         return splitClass;
+    }
+
+    public static void setSplitClass(Course splitClass) {
+        ScheduleBuilder.splitClass = splitClass;
     }
 
     public static List<ScheduleEntry> buildNewSplitSchedule(String templateName, Day day) {
@@ -102,20 +104,10 @@ public class ScheduleBuilder {
                 Map<Section, Assignment> sectionCourses = classBlock.getSectionCourses();
                 for (int i = 0; i < sections.size(); i++) {
                     if (block == splitBlock1 && i == 1) {
-                        SplitCourse splitCourse = new SplitCourse(Map.of(
-                                new HalfSection("Intermediate", sections.get(i)),
-                                (Course) classes.get(splitIndex),
-                                new HalfSection("Advanced", sections.get(i)),
-                                (Course) classes.get(langIndex))
-                        );
+                        SplitCourse splitCourse = new SplitCourse(Map.of(new HalfSection("Intermediate", sections.get(i)), classes.get(splitIndex), new HalfSection("Advanced", sections.get(i)), classes.get(langIndex)));
                         sectionCourses.put(sections.get(i), splitCourse);
                     } else if (block == splitBlock2 && i == 1) {
-                        SplitCourse splitCourse = new SplitCourse(Map.of(
-                                halfSections.get(0),
-                                (Course) classes.get(langIndex),
-                                halfSections.get(1),
-                                (Course) classes.get(splitIndex))
-                        );
+                        SplitCourse splitCourse = new SplitCourse(Map.of(halfSections.get(0), classes.get(langIndex), halfSections.get(1), classes.get(splitIndex)));
                         sectionCourses.put(sections.get(i), splitCourse);
                     }
                 }
@@ -123,42 +115,6 @@ public class ScheduleBuilder {
                 block++;
             }
         }
-        return entries;
-    }
-
-    private static int pickSplitConfig(int numClassBlocks) {
-        List<Integer> configs = new ArrayList<>();
-        configs.add(0);
-        configs.add(1);
-        if (numClassBlocks > 2) {
-            configs.add(2);
-            configs.add(3);
-        }
-        if (numClassBlocks > 3) {
-            configs.add(4);
-            configs.add(5);
-        }
-        return configs.get(ThreadLocalRandom.current().nextInt(configs.size()));
-    }
-
-    private static void setSplitConfig(int[][] partial, int splitBlock1, int langIndex, int splitBlock2, int splitIndex) {
-        partial[splitBlock1][1] = langIndex;
-        partial[splitBlock2][1] = splitIndex;
-        partial[splitBlock1][3] = splitIndex;
-        partial[splitBlock2][3] = langIndex;
-    }
-
-    public static List<ScheduleEntry> buildNewNoSplitSchedule(String templateName, Day day) {
-        List<TeacherRequest> requests = day.getRequests();
-        List<Assignment> classes = day.getClasses();
-        List<Section> sections = day.getSections();
-        List<ScheduleEntry> entries = getScheduleEntries(templateName, requests, classes);
-
-        boolean[][] forbidden = getForbidden(entries, classes, requests);
-
-        int[][] grid = LatinFill.generate(classes.size(), sections.size(), forbidden);
-
-        fillEntries(entries, sections, classes, grid);
         return entries;
     }
 
@@ -218,6 +174,53 @@ public class ScheduleBuilder {
         return forbidden;
     }
 
+    private static int[][] getEmptyPartial(List<ScheduleEntry> entries) {
+        int numClassBlocks = getNumClassBlocks(entries);
+        int[][] partial = new int[numClassBlocks][numClassBlocks];
+        for (int i = 0; i < numClassBlocks; i++) {
+            for (int j = 0; j < numClassBlocks; j++) {
+                partial[i][j] = -1;
+            }
+        }
+        return partial;
+    }
+
+    private static int pickSplitConfig(int numClassBlocks) {
+        List<Integer> configs = new ArrayList<>();
+        configs.add(0);
+        configs.add(1);
+        if (numClassBlocks > 2) {
+            configs.add(2);
+            configs.add(3);
+        }
+        if (numClassBlocks > 3) {
+            configs.add(4);
+            configs.add(5);
+        }
+        return configs.get(ThreadLocalRandom.current().nextInt(configs.size()));
+    }
+
+    private static void setSplitConfig(int[][] partial, int splitBlock1, int langIndex, int splitBlock2, int splitIndex) {
+        partial[splitBlock1][1] = langIndex;
+        partial[splitBlock2][1] = splitIndex;
+        partial[splitBlock1][3] = splitIndex;
+        partial[splitBlock2][3] = langIndex;
+    }
+
+    private static void fillEntries(List<ScheduleEntry> entries, List<Section> sections, List<Assignment> classes, int[][] grid) {
+        int block = 0;
+        for (ScheduleEntry entry : entries) {
+            if (entry instanceof ClassBlock classBlock) {
+                Map<Section, Assignment> sectionCourses = new HashMap<>();
+                for (int i = 0; i < sections.size(); i++) {
+                    sectionCourses.put(sections.get(i), classes.get(grid[block][i]));
+                }
+                classBlock.setSectionCourses(sectionCourses);
+                block++;
+            }
+        }
+    }
+
     private static int getNumClassBlocks(List<ScheduleEntry> entries) {
         int numClassBlocks = 0;
         for (ScheduleEntry entry : entries) {
@@ -226,6 +229,20 @@ public class ScheduleBuilder {
             }
         }
         return numClassBlocks;
+    }
+
+    public static List<ScheduleEntry> buildNewNoSplitSchedule(String templateName, Day day) {
+        List<TeacherRequest> requests = day.getRequests();
+        List<Assignment> classes = day.getClasses();
+        List<Section> sections = day.getSections();
+        List<ScheduleEntry> entries = getScheduleEntries(templateName, requests, classes);
+
+        boolean[][] forbidden = getForbidden(entries, classes, requests);
+
+        int[][] grid = LatinFill.generate(classes.size(), sections.size(), forbidden);
+
+        fillEntries(entries, sections, classes, grid);
+        return entries;
     }
 
     public static List<ScheduleEntry> buildAroundSchedule(Day day) {
@@ -292,30 +309,5 @@ public class ScheduleBuilder {
                 block++;
             }
         }
-    }
-
-    private static void fillEntries(List<ScheduleEntry> entries, List<Section> sections, List<Assignment> classes, int[][] grid) {
-        int block = 0;
-        for (ScheduleEntry entry : entries) {
-            if (entry instanceof ClassBlock classBlock) {
-                Map<Section, Assignment> sectionCourses = new HashMap<>();
-                for (int i = 0; i < sections.size(); i++) {
-                    sectionCourses.put(sections.get(i), classes.get(grid[block][i]));
-                }
-                classBlock.setSectionCourses(sectionCourses);
-                block++;
-            }
-        }
-    }
-
-    private static int[][] getEmptyPartial(List<ScheduleEntry> entries) {
-        int numClassBlocks = getNumClassBlocks(entries);
-        int[][] partial = new int[numClassBlocks][numClassBlocks];
-        for (int i = 0; i < numClassBlocks; i++) {
-            for (int j = 0; j < numClassBlocks; j++) {
-                partial[i][j] = -1;
-            }
-        }
-        return partial;
     }
 }
