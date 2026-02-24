@@ -40,3 +40,5 @@ build/
 /output_java.html
 
 /.idea/
+/qodana.sarif.json
+/qodana.yaml
