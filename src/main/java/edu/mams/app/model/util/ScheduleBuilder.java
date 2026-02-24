@@ -7,6 +7,8 @@ import edu.mams.app.model.requests.AvoidTimeRequest;
 import edu.mams.app.model.requests.TeacherRequest;
 import edu.mams.app.model.schedule.*;
 
+import java.time.LocalDate;
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,10 @@ public class ScheduleBuilder {
     private static Course splitClass = null;
     private static Section splitSection = null;
     private static List<HalfSection> halfSections = new ArrayList<>(List.of(new HalfSection("Intermediate", new Section("G")), new HalfSection("Advanced", new Section("G"))));
+    private static String peGroupAName = "Group A";
+    private static String peGroupBName = "Group B";
+    private static String peActivityOne = "Gym";
+    private static String peActivityTwo = "Zumba";
 
     public static List<HalfSection> getHalfSections() {
         return halfSections;
@@ -42,11 +48,42 @@ public class ScheduleBuilder {
         ScheduleBuilder.splitClass = splitClass;
     }
 
+    public static String getPeGroupAName() {
+        return peGroupAName;
+    }
+
+    public static String getPeGroupBName() {
+        return peGroupBName;
+    }
+
+    public static String getPeActivityOne() {
+        return peActivityOne;
+    }
+
+    public static String getPeActivityTwo() {
+        return peActivityTwo;
+    }
+
+    public static void setPeDefaults(String groupAName, String groupBName, String activityOne, String activityTwo) {
+        if (groupAName != null && !groupAName.isBlank()) {
+            peGroupAName = groupAName.trim();
+        }
+        if (groupBName != null && !groupBName.isBlank()) {
+            peGroupBName = groupBName.trim();
+        }
+        if (activityOne != null && !activityOne.isBlank()) {
+            peActivityOne = activityOne.trim();
+        }
+        if (activityTwo != null && !activityTwo.isBlank()) {
+            peActivityTwo = activityTwo.trim();
+        }
+    }
+
     public static List<ScheduleEntry> buildNewSplitSchedule(String templateName, Day day) {
         List<TeacherRequest> requests = day.getRequests();
         List<Assignment> classes = day.getClasses();
         List<Section> sections = day.getSections();
-        List<ScheduleEntry> entries = getScheduleEntries(templateName, requests, classes);
+        List<ScheduleEntry> entries = getScheduleEntries(templateName, day);
         Course partnerSplit = (Course) day.getSplitCourse();
 
         boolean[][] forbidden = getForbidden(entries, classes, requests);
@@ -119,16 +156,37 @@ public class ScheduleBuilder {
     }
 
     public static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes) {
+        return getScheduleEntries(templateName, requests, classes, null);
+    }
+
+    public static List<ScheduleEntry> getScheduleEntries(String templateName, Day day) {
+        return getScheduleEntries(templateName, day.getRequests(), day.getClasses(), day.getDate());
+    }
+
+    public static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes, LocalDate date) {
         List<ScheduleEntry> entries = new ArrayList<>();
 
         DayTemplate template = TemplateManager.getTemplate(templateName);
+        if (template == null) {
+            return entries;
+        }
 
         for (BlockDefinition def : template.getBlocks()) {
             switch (def.getType()) {
                 case "ClassBlock" -> entries.add(new ClassBlock(def.getStart(), def.getLength(), new HashMap<>()));
-                case "AllSchoolEvent" ->
+                case "PEBlock" -> entries.add(buildDefaultPEBlock(def, date));
+                case "AllSchoolEvent" -> {
+                    if (isPEDefinition(def)) {
+                        entries.add(buildDefaultPEBlock(def, date));
+                    } else {
                         entries.add(new AllSchoolBlock(def.getStart(), def.getLength(), new Event(def.getLabel())));
+                    }
+                }
             }
+        }
+
+        if (requests == null) {
+            return entries;
         }
 
         for (TeacherRequest request : requests) {
@@ -152,6 +210,10 @@ public class ScheduleBuilder {
 
         if (classes.size() != numClassBlocks) {
             throw new IllegalStateException("classes does not match available class blocks");
+        }
+
+        if (requests == null) {
+            return forbidden;
         }
 
         for (TeacherRequest request : requests) {
@@ -235,7 +297,7 @@ public class ScheduleBuilder {
         List<TeacherRequest> requests = day.getRequests();
         List<Assignment> classes = day.getClasses();
         List<Section> sections = day.getSections();
-        List<ScheduleEntry> entries = getScheduleEntries(templateName, requests, classes);
+        List<ScheduleEntry> entries = getScheduleEntries(templateName, day);
 
         boolean[][] forbidden = getForbidden(entries, classes, requests);
 
@@ -309,5 +371,32 @@ public class ScheduleBuilder {
                 block++;
             }
         }
+    }
+
+    private static PEBlock buildDefaultPEBlock(BlockDefinition def, LocalDate date) {
+        boolean swap = isSwapWeek(date);
+        String groupAActivity = swap ? peActivityTwo : peActivityOne;
+        String groupBActivity = swap ? peActivityOne : peActivityTwo;
+        return new PEBlock(
+                def.getStart(),
+                def.getLength(),
+                peGroupAName,
+                groupAActivity,
+                peGroupBName,
+                groupBActivity
+        );
+    }
+
+    private static boolean isPEDefinition(BlockDefinition def) {
+        return def.getLabel() != null && "PE".equalsIgnoreCase(def.getLabel().trim());
+    }
+
+    private static boolean isSwapWeek(LocalDate date) {
+        if (date == null) {
+            return false;
+        }
+        int week = date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        int year = date.get(IsoFields.WEEK_BASED_YEAR);
+        return Math.floorMod((year * 53) + week, 2) == 1;
     }
 }
