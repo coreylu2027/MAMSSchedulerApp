@@ -113,8 +113,10 @@ public class HtmlOutput {
                     if (entry.getStart().equals(currentTime)) {
                         if (entry instanceof AllSchoolBlock allSchoolBlock) {
                             int span = (int) (allSchoolBlock.getLength().toMinutes() / 15);
+                            Assignment assignment = allSchoolBlock.getAssignment();
+                            String assignmentName = assignment == null ? "OPEN" : assignment.getName();
 
-                            if (allSchoolBlock.getAssignment() instanceof Course course) {
+                            if (assignment instanceof Course course) {
                                 out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                 out.print("<div class=\"slot span " + course.getName() + "\">");
                                 out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
@@ -124,24 +126,37 @@ public class HtmlOutput {
                                 }
                                 out.print("</div></td>\n");
                             } else {
-                                String eventClass = allSchoolCssClass(allSchoolBlock.getAssignment());
+                                String eventClass = allSchoolCssClass(assignment);
                                 if (span == 1) {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot span " + eventClass + "\">");
                                     out.print("<div class=\"time\">" +
                                             allSchoolBlock.getStart().format(TIME_FMT) +
-                                            " (" + allSchoolBlock.getAssignment().getName() + ")" +
+                                            " (" + assignmentName + ")" +
                                             "</div>");
                                     out.print("</div></td>\n");
                                 } else {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                     out.print("<div class=\"slot span " + eventClass + "\">");
                                     out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
-                                    out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
+                                    out.print("<div class=\"name\">" + assignmentName + "</div>");
                                     out.print("</div></td>\n");
                                 }
 
                             }
+                        } else if (entry instanceof PEBlock peBlock) {
+                            int span = (int) (peBlock.getLength().toMinutes() / 15);
+                            out.print("    <td class=\"slot-cell\" colspan=\"3\" rowspan=\"" + span + "\">");
+                            out.print("<div class=\"slot pe-block\">");
+                            out.print("<div class=\"time\">" + peBlock.getStart().format(TIME_FMT) + "</div>");
+                            out.print("<div class=\"name\">" + peBlock.getGroupAName() + ": " + peBlock.getGroupAActivity() + "</div>");
+                            out.print("</div></td>\n");
+
+                            out.print("    <td class=\"slot-cell\" colspan=\"3\" rowspan=\"" + span + "\">");
+                            out.print("<div class=\"slot pe-block\">");
+                            out.print("<div class=\"time\">" + peBlock.getStart().format(TIME_FMT) + "</div>");
+                            out.print("<div class=\"name\">" + peBlock.getGroupBName() + ": " + peBlock.getGroupBActivity() + "</div>");
+                            out.print("</div></td>\n");
                         } else if (entry instanceof ClassBlock classBlock) {
                             for (Section section : day.getSections()) {
                                 Assignment assignment = classBlock.getSectionCourses().get(section);

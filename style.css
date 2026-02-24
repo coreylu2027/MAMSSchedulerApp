@@ -137,6 +137,7 @@
 .slot.lunch      { background:#f6c56b; font-weight:bold; }
 .slot.flex-block { background:#f5ead8; font-size:13px; }
 .slot.event   { background:#fbe7c6;}
+.slot.pe-block { background:#8fda9b; }
 
 /* after-school / footer notes if you choose to make them table rows */
 .schedule tr.day-footer > td {
