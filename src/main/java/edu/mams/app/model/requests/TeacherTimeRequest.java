@@ -41,4 +41,20 @@ public class TeacherTimeRequest extends TeacherRequest {
     public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof TeacherTimeRequest that)) return false;
+        if (!super.equals(o)) return false;
+
+        return length.equals(that.length) && startTime.equals(that.startTime);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + length.hashCode();
+        result = 31 * result + startTime.hashCode();
+        return result;
+    }
 }
