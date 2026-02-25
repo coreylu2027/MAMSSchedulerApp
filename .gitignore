@@ -42,3 +42,5 @@ build/
 /.idea/
 /qodana.sarif.json
 /qodana.yaml
+/output/
+/tmp/
