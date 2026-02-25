@@ -533,7 +533,7 @@ public final class RequestViewerDialog extends JDialog {
             addRow(form, c, y++, "Assignment:", assignmentBox);
             addRow(form, c, y++, "Reason:", reasonField);
             addRow(form, c, y++, "Start time (H:mm):", startTimeField);
-            addRow(form, c, y++, "Length (minutes):", lengthMinField);
+            addRow(form, c, y, "Length (minutes):", lengthMinField);
 
             return form;
         }
