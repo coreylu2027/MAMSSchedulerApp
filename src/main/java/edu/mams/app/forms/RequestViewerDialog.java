@@ -30,15 +30,11 @@ import java.util.List;
  * - Adjust weekDays(...) to match your Week API.
  */
 public final class RequestViewerDialog extends JDialog {
-
-    private static final int DEFAULT_WIDTH = 900;
-    private static final int DEFAULT_HEIGHT = 420;
-
     private final Week week;
     private final List<Teacher> teachers;         // used for pickers
     private final List<Assignment> assignments;   // used for pickers
 
-    private RequestTableModel tableModel;
+    private final RequestTableModel tableModel;
     private JTable table;
     private JPanel rootPanel;
     private JScrollPane tableScroll;
@@ -64,16 +60,16 @@ public final class RequestViewerDialog extends JDialog {
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
 
-        table.getSelectionModel().addListSelectionListener(e -> {
+        table.getSelectionModel().addListSelectionListener(_ -> {
             boolean selected = table.getSelectedRow() >= 0;
             editButton.setEnabled(selected);
             deleteButton.setEnabled(selected);
         });
 
-        addButton.addActionListener(e -> onAdd());
-        editButton.addActionListener(e -> onEdit());
-        deleteButton.addActionListener(e -> onDelete());
-        closeButton.addActionListener(e -> dispose());
+        addButton.addActionListener(_ -> onAdd());
+        editButton.addActionListener(_ -> onEdit());
+        deleteButton.addActionListener(_ -> onDelete());
+        closeButton.addActionListener(_ -> dispose());
 
         setContentPane(rootPanel);
         setMinimumSize(new Dimension(900, 420));
@@ -147,59 +143,6 @@ public final class RequestViewerDialog extends JDialog {
         return rootPanel;
     }
 
-    // ---------------- UI setup ----------------
-
-    private void initTable() {
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setAutoCreateRowSorter(true);
-    }
-
-    private JPanel buildRootPanel() {
-        JPanel root = new JPanel(new BorderLayout(10, 10));
-        root.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        root.add(new JScrollPane(table), BorderLayout.CENTER);
-        root.add(buildButtonBar(), BorderLayout.SOUTH);
-
-        return root;
-    }
-
-    private JPanel buildButtonBar() {
-        JButton addBtn = new JButton("Add");
-        JButton editBtn = new JButton("Edit");
-        JButton deleteBtn = new JButton("Delete");
-        JButton closeBtn = new JButton("Close");
-
-        editBtn.setEnabled(false);
-        deleteBtn.setEnabled(false);
-
-        table.getSelectionModel().addListSelectionListener(e -> {
-            boolean selected = table.getSelectedRow() >= 0;
-            editBtn.setEnabled(selected);
-            deleteBtn.setEnabled(selected);
-        });
-
-        addBtn.addActionListener(e -> onAdd());
-        editBtn.addActionListener(e -> onEdit());
-        deleteBtn.addActionListener(e -> onDelete());
-        closeBtn.addActionListener(e -> dispose());
-
-        JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btns.add(addBtn);
-        btns.add(editBtn);
-        btns.add(deleteBtn);
-        btns.add(closeBtn);
-
-        return btns;
-    }
-
-    private void initWindow(Window owner) {
-        setMinimumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-        setLocationRelativeTo(owner);
-    }
-
-    // ---------------- Actions ----------------
-
     private void onAdd() {
         RequestEditDialog dlg = new RequestEditDialog(
                 this,
@@ -210,7 +153,7 @@ public final class RequestViewerDialog extends JDialog {
                 null
         );
         dlg.setVisible(true);
-        if (!dlg.isSaved()) return;
+        if (dlg.notSaved()) return;
 
         Day targetDay = dlg.getSelectedDay();
         TeacherRequest newReq = dlg.buildRequest();
@@ -232,7 +175,7 @@ public final class RequestViewerDialog extends JDialog {
                 rr.request
         );
         dlg.setVisible(true);
-        if (!dlg.isSaved()) return;
+        if (dlg.notSaved()) return;
 
         Day newDay = dlg.getSelectedDay();
         TeacherRequest replacement = dlg.buildRequest();
@@ -542,7 +485,7 @@ public final class RequestViewerDialog extends JDialog {
             JButton saveBtn = new JButton("Save");
             JButton cancelBtn = new JButton("Cancel");
 
-            saveBtn.addActionListener(e -> {
+            saveBtn.addActionListener(_ -> {
                 try {
                     validateInputs();
                     saved = true;
@@ -552,7 +495,7 @@ public final class RequestViewerDialog extends JDialog {
                 }
             });
 
-            cancelBtn.addActionListener(e -> dispose());
+            cancelBtn.addActionListener(_ -> dispose());
 
             JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             btns.add(saveBtn);
@@ -602,8 +545,8 @@ public final class RequestViewerDialog extends JDialog {
             }
         }
 
-        boolean isSaved() {
-            return saved;
+        boolean notSaved() {
+            return !saved;
         }
 
         Day getSelectedDay() {
