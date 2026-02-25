@@ -84,12 +84,21 @@ public class ScheduleBuilder {
         List<Assignment> classes = day.getClasses();
         List<Section> sections = day.getSections();
         List<ScheduleEntry> entries = getScheduleEntries(templateName, day);
-        Course partnerSplit = (Course) day.getSplitCourse();
+        Assignment partnerAssignment = day.getSplitCourse();
+        if (!(partnerAssignment instanceof Course partnerSplit)) {
+            throw new IllegalStateException("Split mode requires a valid partner split course.");
+        }
 
         boolean[][] forbidden = getForbidden(entries, classes, requests);
 
         int splitIndex = classes.indexOf(partnerSplit);
         int langIndex = classes.indexOf(splitClass);
+        if (splitIndex < 0) {
+            throw new IllegalStateException("Partner split course must be included in the selected classes for the day.");
+        }
+        if (langIndex < 0) {
+            throw new IllegalStateException("Primary split course must be included in the selected classes for the day.");
+        }
 
 
         int[][] partial = getEmptyPartial(entries);

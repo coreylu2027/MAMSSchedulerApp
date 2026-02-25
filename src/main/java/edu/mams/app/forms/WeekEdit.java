@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WeekEdit extends JFrame {
     private static final File file = new File("schedule.json");
@@ -627,6 +628,7 @@ public class WeekEdit extends JFrame {
 
         Map<LocalDate, Boolean> splitSelections = dialog.getSplitSelections();
         Map<LocalDate, String> splitCourseSelections = dialog.getSplitCourseSelections();
+        List<LocalDate> splitDisabledDates = new ArrayList<>();
 
         for (Map.Entry<LocalDate, String> entry : selections.entrySet()) {
             LocalDate date = entry.getKey();
@@ -649,15 +651,30 @@ public class WeekEdit extends JFrame {
             day.loadRequests();
             day.setTemplate(templateName);
 
-            Boolean split = splitSelections.get(date);
-            day.setSplit(split != null && split);
-
+            Boolean splitRequested = splitSelections.get(date);
+            boolean wantsSplit = splitRequested != null && splitRequested;
             String splitCourseName = splitCourseSelections.get(date);
-            if (splitCourseName == null || splitCourseName.isBlank() || "(None)".equals(splitCourseName)) {
-                day.setSplitCourse(null);
+
+            Course validPartner = null;
+            if (wantsSplit && splitCourseName != null && !splitCourseName.isBlank() && !"(None)".equals(splitCourseName)) {
+                Assignment a = picked.stream()
+                        .filter(x -> splitCourseName.equals(x.getName()))
+                        .findFirst()
+                        .orElse(null);
+                if (a instanceof Course c) {
+                    validPartner = c;
+                }
+            }
+
+            if (wantsSplit && validPartner != null) {
+                day.setSplit(true);
+                day.setSplitCourse(validPartner);
             } else {
-                Assignment a = classes.stream().filter(x -> x.getName().equals(splitCourseName)).findFirst().orElse(null);
-                day.setSplitCourse(a instanceof Course ? (Course) a : null);
+                if (wantsSplit) {
+                    splitDisabledDates.add(date);
+                }
+                day.setSplit(false);
+                day.setSplitCourse(null);
             }
 
             try {
@@ -669,8 +686,25 @@ public class WeekEdit extends JFrame {
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
+            } catch (RuntimeException e) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Error generating schedule for " + fmt(date) + ": " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
 
+        }
+
+        if (!splitDisabledDates.isEmpty()) {
+            String joinedDates = splitDisabledDates.stream().map(WeekEdit::fmt).collect(Collectors.joining(", "));
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Split was disabled for day(s) without a valid partner split class in that day's selected classes: " + joinedDates,
+                    "Quick Generate",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
 
         // Optional: refresh UI to whichever day is currently selected
