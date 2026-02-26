@@ -3,9 +3,7 @@ package edu.mams.app.model.requests;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.mams.app.model.people.Teacher;
-import edu.mams.app.model.schedule.AllSchoolBlock;
 import edu.mams.app.model.schedule.Assignment;
-import edu.mams.app.model.schedule.ClassBlock;
 import edu.mams.app.model.schedule.Course;
 
 import java.util.List;
@@ -77,7 +75,8 @@ public abstract class TeacherRequest {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TeacherRequest that)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+        TeacherRequest that = (TeacherRequest) o;
         return Objects.equals(teacher, that.teacher)
                 && Objects.equals(assignment, that.assignment)
                 && Objects.equals(reason, that.reason);
@@ -85,7 +84,6 @@ public abstract class TeacherRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(teacher, assignment, reason);
+        return Objects.hash(getClass(), teacher, assignment, reason);
     }
 }
-
