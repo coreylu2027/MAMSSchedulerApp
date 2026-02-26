@@ -44,3 +44,13 @@ build/
 /qodana.yaml
 /output/
 /tmp/
+/src/main/resources/macos/AppIcon.png
+/src/main/resources/macos/AppIcon.iconset/icon_16x16.png
+/src/main/resources/macos/AppIcon.iconset/icon_16x16@2x.png
+/src/main/resources/macos/AppIcon.iconset/icon_32x32.png
+/src/main/resources/macos/AppIcon.iconset/icon_32x32@2x.png
+/src/main/resources/macos/AppIcon.iconset/icon_128x128.png
+/src/main/resources/macos/AppIcon.iconset/icon_128x128@2x.png
+/src/main/resources/macos/AppIcon.iconset/icon_256x256.png
+/src/main/resources/macos/AppIcon.iconset/icon_256x256@2x.png
+/src/main/resources/macos/AppIcon.iconset/icon_512x512@2x.png
