@@ -54,8 +54,12 @@ public class RequestLoader {
     }
 
     public static List<TeacherRequest> loadRequests(LocalDate loadDate) {
+        return loadRequest(new File(FILE_NAME), loadDate);
+    }
+
+    public static List<TeacherRequest> loadRequest(File requestFile, LocalDate loadDate) {
         List<TeacherRequest> requests = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(requestFile))) {
             String line;
             boolean header = true;
             int lineNum = 0;
@@ -96,7 +100,7 @@ public class RequestLoader {
                 requests.add(request);
             }
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Request file not found: " + requestFile.getAbsolutePath(), e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
