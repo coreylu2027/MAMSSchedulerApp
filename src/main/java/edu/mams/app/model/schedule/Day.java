@@ -354,27 +354,30 @@ public class Day {
     }
 
     private static ScheduleEntry copyEntry(ScheduleEntry e) {
-        if (e == null) return null;
-
-        if (e instanceof ClassBlock cb) {
-            Map<Section, Assignment> original = cb.getSectionCourses();
-            Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
-            return new ClassBlock(cb.getStart(), cb.getLength(), copied);
-        }
-
-        if (e instanceof AllSchoolBlock ab) {
-            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment(), ab.getReason());
-        }
-
-        if (e instanceof PEBlock pe) {
-            return new PEBlock(
-                    pe.getStart(),
-                    pe.getLength(),
-                    pe.getGroupAName(),
-                    pe.getGroupAActivity(),
-                    pe.getGroupBName(),
-                    pe.getGroupBActivity()
-            );
+        switch (e) {
+            case null -> {
+                return null;
+            }
+            case ClassBlock cb -> {
+                Map<Section, Assignment> original = cb.getSectionCourses();
+                Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
+                return new ClassBlock(cb.getStart(), cb.getLength(), copied);
+            }
+            case AllSchoolBlock ab -> {
+                return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment(), ab.getReason());
+            }
+            case PEBlock pe -> {
+                return new PEBlock(
+                        pe.getStart(),
+                        pe.getLength(),
+                        pe.getGroupAName(),
+                        pe.getGroupAActivity(),
+                        pe.getGroupBName(),
+                        pe.getGroupBActivity()
+                );
+            }
+            default -> {
+            }
         }
 
         // If you add more ScheduleEntry subclasses later, extend this copier.
