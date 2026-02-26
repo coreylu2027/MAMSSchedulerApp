@@ -66,14 +66,14 @@ public class Week {
     }
 
     public void loadRequests() {
-        for (int d = 0; d < days.size(); d++) {
-            days.get(d).loadRequests();
+        for (Day day : days) {
+            day.loadRequests();
         }
     }
 
     public void loadRequests(File requestFile) {
-        for (int d = 0; d < days.size(); d++) {
-            days.get(d).loadRequests(requestFile);
+        for (Day day : days) {
+            day.loadRequests(requestFile);
         }
     }
 
