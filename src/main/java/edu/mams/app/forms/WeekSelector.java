@@ -86,7 +86,7 @@ public class WeekSelector extends JFrame {
             weekList.setSelectedValue(newStart, true);
         });
 
-        cancelButton.addActionListener(e -> dispose());
+        cancelButton.addActionListener(e -> System.exit(0));
 
         // Double-click to open
         weekList.addMouseListener(new MouseAdapter() {
@@ -190,4 +190,5 @@ public class WeekSelector extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
     }
+
 }
