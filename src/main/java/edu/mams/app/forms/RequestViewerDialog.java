@@ -13,8 +13,10 @@ import edu.mams.app.model.schedule.Day;
 import edu.mams.app.model.schedule.Week;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -43,6 +45,7 @@ public final class RequestViewerDialog extends JDialog {
     private JButton deleteButton;
     private JButton editButton;
     private JButton addButton;
+    private JButton loadRequests;
 
     public RequestViewerDialog(Window owner, Week week, List<Teacher> teachers, List<Assignment> assignments) {
         super(owner, "Requests", ModalityType.APPLICATION_MODAL);
@@ -69,6 +72,13 @@ public final class RequestViewerDialog extends JDialog {
         addButton.addActionListener(_ -> onAdd());
         editButton.addActionListener(_ -> onEdit());
         deleteButton.addActionListener(_ -> onDelete());
+        if (loadRequests == null) {
+            loadRequests = new JButton("Load Requests");
+            btns.add(loadRequests, 0);
+        } else {
+            loadRequests.setText("Load Requests");
+        }
+        loadRequests.addActionListener(_ -> onLoadRequests());
         closeButton.addActionListener(_ -> dispose());
 
         setContentPane(rootPanel);
@@ -122,6 +132,9 @@ public final class RequestViewerDialog extends JDialog {
         btns = new JPanel();
         btns.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         rootPanel.add(btns, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        loadRequests = new JButton();
+        loadRequests.setText("Load Requests");
+        btns.add(loadRequests);
         addButton = new JButton();
         addButton.setText("Add");
         btns.add(addButton);
@@ -208,6 +221,31 @@ public final class RequestViewerDialog extends JDialog {
 
         requireRequestsList(rr.day).remove(rr.request);
         tableModel.reload();
+    }
+
+    private void onLoadRequests() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select request CSV file");
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setFileFilter(new FileNameExtensionFilter("CSV Files (*.csv)", "csv"));
+
+        int result = chooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) return;
+
+        File selectedFile = chooser.getSelectedFile();
+        if (selectedFile == null) return;
+
+        try {
+            week.loadRequests(selectedFile);
+            tableModel.reload();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to load requests from:\n" + selectedFile.getAbsolutePath() + "\n\n" + ex.getMessage(),
+                    "Load Requests Failed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private RequestRow getSelectedRowOrNull() {

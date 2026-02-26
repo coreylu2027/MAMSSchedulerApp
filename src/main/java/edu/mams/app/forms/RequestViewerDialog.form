@@ -28,6 +28,12 @@
         <properties/>
         <border type="none"/>
         <children>
+          <component id="aa4e7" class="javax.swing.JButton" binding="loadRequests">
+            <constraints/>
+            <properties>
+              <text value="Load Requests"/>
+            </properties>
+          </component>
           <component id="a8f3a" class="javax.swing.JButton" binding="addButton">
             <constraints/>
             <properties>
