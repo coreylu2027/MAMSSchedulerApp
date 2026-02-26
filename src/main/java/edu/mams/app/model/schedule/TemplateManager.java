@@ -83,7 +83,7 @@ public class TemplateManager {
                         new BlockDefinition("ClassBlock", LocalTime.of(11,0), Duration.ofMinutes(60), "Block 4"),
                         new BlockDefinition("AllSchoolEvent", LocalTime.of(12,0), Duration.ofMinutes(30), "Lunch"),
                         new BlockDefinition("ClassBlock", LocalTime.of(12,30), Duration.ofMinutes(60), "Block 5"),
-                        new BlockDefinition("AllSchoolEvent", LocalTime.of(13,30), Duration.ofMinutes(75), "PE")
+                        new BlockDefinition("PEBlock", LocalTime.of(13,30), Duration.ofMinutes(75), "PE")
                 )
         ));
 

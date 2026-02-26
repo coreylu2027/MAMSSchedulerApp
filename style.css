@@ -3,7 +3,7 @@
 .schedule {
     width: 100%;
     border-collapse: collapse;
-    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-family: "Times New Roman", Times, serif;
     font-size: 12px;
     table-layout: fixed;
     /* Remove overflow: hidden if it prevents the table from rendering correctly */
@@ -11,7 +11,7 @@
 
 /* ====== Fixed 15-min grid rows ====== */
 .schedule {
-    --row-h: 20px;
+    --row-h: 19px;
 }
 
 .schedule tr.time-row {
@@ -97,6 +97,16 @@
     overflow: hidden;
 }
 
+/* Rotate split-class names (split blocks use colspan=1) */
+.schedule td.slot-cell[colspan="1"] .slot .name {
+    margin-top: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    transform-origin: center;
+}
+
 .schedule .slot .reason {
     margin-top: 6px;         /* reduced margin to save space */
     white-space: nowrap;
@@ -117,7 +127,7 @@
 /* classes/subjects */
 .slot.Physics { background:#b7db69; }        /* light green */
 .slot.Math    { background:#e74c3c; } /* red */
-.slot.STEM    { background:#4b4a73; } /* dark purple */
+.slot.STEM    { background:#4b4a73; color: #fff; } /* dark purple */
 .slot.Hum     { background:#ffe95a; }        /* yellow */
 .slot.Lang    { background:#84e5fb; }        /* light cyan */
 .slot.CS      { background:#d2d3de; }        /* light gray */
@@ -125,16 +135,26 @@
 
 /* structural blocks */
 .slot.lunch      { background:#f6c56b; font-weight:bold; }
-.slot.flex-block { background:#f1e0c8; font-size:13px; }
+.slot.flex-block { background:#f5ead8; font-size:13px; }
 .slot.event   { background:#fbe7c6;}
+.slot.pe-block { background:#8fda9b; }
 
 /* after-school / footer notes if you choose to make them table rows */
-.schedule .footer-note {
+.schedule tr.day-footer > td {
     border: none;
-    padding-top: 8px;
+    padding: 8px 4px 10px;
     font-style: italic;
     font-size: 11px;
     text-align: center;
+}
+
+.schedule .day-footer .note {
+    color: #d7261f;
+    font-weight: bold;
+}
+
+.schedule .day-footer .club {
+    color: #2da3d8;
 }
 
 /* Optional: make whole table a bit smaller on narrow screens */

@@ -2,6 +2,7 @@ package edu.mams.app.model.schedule;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,11 +16,14 @@ public class Week {
     }
 
     public Week(LocalDate startingDate) {
+        this(startingDate, 0);
+    }
+
+    public Week(LocalDate startingDate, int startingDayNumber) {
         days = new ArrayList<>();
         for (int d = 0; d < 5; d++) {
-            days.add(new Day(startingDate.plusDays(d), d, new ArrayList<>(), new ArrayList<>()));
+            days.add(new Day(startingDate.plusDays(d), startingDayNumber + d, new ArrayList<>(), new ArrayList<>()));
         }
-        loadRequests();
     }
 
     public Week() {
@@ -62,8 +66,14 @@ public class Week {
     }
 
     public void loadRequests() {
-        for (int d = 0; d < days.size(); d++) {
-            days.get(d).loadRequests();
+        for (Day day : days) {
+            day.loadRequests();
+        }
+    }
+
+    public void loadRequests(File requestFile) {
+        for (Day day : days) {
+            day.loadRequests(requestFile);
         }
     }
 

@@ -3,12 +3,11 @@ package edu.mams.app.model.requests;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.mams.app.model.people.Teacher;
-import edu.mams.app.model.schedule.AllSchoolBlock;
 import edu.mams.app.model.schedule.Assignment;
-import edu.mams.app.model.schedule.ClassBlock;
 import edu.mams.app.model.schedule.Course;
 
 import java.util.List;
+import java.util.Objects;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -72,5 +71,19 @@ public abstract class TeacherRequest {
             }
         }
     }
-}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TeacherRequest that = (TeacherRequest) o;
+        return Objects.equals(teacher, that.teacher)
+                && Objects.equals(assignment, that.assignment)
+                && Objects.equals(reason, that.reason);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass(), teacher, assignment, reason);
+    }
+}

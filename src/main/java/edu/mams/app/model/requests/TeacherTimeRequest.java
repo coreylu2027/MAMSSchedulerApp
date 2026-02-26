@@ -5,6 +5,7 @@ import edu.mams.app.model.schedule.Assignment;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Objects;
 
 
 public class TeacherTimeRequest extends TeacherRequest {
@@ -40,5 +41,19 @@ public class TeacherTimeRequest extends TeacherRequest {
 
     public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TeacherTimeRequest that)) return false;
+        if (!super.equals(o)) return false;
+
+        return Objects.equals(length, that.length) && Objects.equals(startTime, that.startTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), length, startTime);
     }
 }

@@ -8,13 +8,11 @@ import edu.mams.app.model.requests.RequestLoader;
 import edu.mams.app.model.requests.TeacherRequest;
 import edu.mams.app.model.util.ScheduleBuilder;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a single day that includes various scheduling information such as date, day number,
@@ -79,6 +77,10 @@ public class Day {
         return clubs;
     }
 
+    public void setClubs(List<String> clubs) {
+        this.clubs = clubs;
+    }
+
     public LocalDate getDate() {
         return date;
     }
@@ -101,6 +103,10 @@ public class Day {
 
     public List<String> getNotes() {
         return notes;
+    }
+
+    public void setNotes(List<String> notes) {
+        this.notes = notes;
     }
 
     public List<TeacherRequest> getRequests() {
@@ -127,9 +133,9 @@ public class Day {
             if (entry instanceof ClassBlock classBlock) {
                 Assignment assignment = classBlock.getSectionCourses().get(masterSection);
 
-                if (assignment instanceof SplitCourse splitCourse && halfSection != null) {
+                if (assignment instanceof SplitCourse splitAssignment && halfSection != null) {
                     // If it’s a split course and the group is a half section
-                    Assignment halfAssignment = splitCourse.getHalfSectionCourses().get(halfSection);
+                    Assignment halfAssignment = splitAssignment.getHalfSectionCourses().get(halfSection);
                     if (halfAssignment != null) {
                         sb.append(" - ").append(halfAssignment.getName()).append(" at ").append(entry.getStart()).append(" for ").append(entry.getLength()).append(" (Half Section)\n");
                     }
@@ -140,6 +146,20 @@ public class Day {
             } else if (entry instanceof AllSchoolBlock allSchoolBlock) {
                 Assignment assignment = allSchoolBlock.getAssignment();
                 sb.append(" - ").append(assignment.getName()).append(" at ").append(entry.getStart()).append(" for ").append(entry.getLength()).append(" (All School Block)\n");
+            } else if (entry instanceof PEBlock peBlock) {
+                sb.append(" - PE at ")
+                        .append(entry.getStart())
+                        .append(" for ")
+                        .append(entry.getLength())
+                        .append(" (")
+                        .append(peBlock.getGroupAName())
+                        .append(": ")
+                        .append(peBlock.getGroupAActivity())
+                        .append(", ")
+                        .append(peBlock.getGroupBName())
+                        .append(": ")
+                        .append(peBlock.getGroupBActivity())
+                        .append(")\n");
             }
         }
 
@@ -151,10 +171,28 @@ public class Day {
     }
 
     public void setSections(List<Section> newSections) {
-        if (entries != null && sections != null) {
+        if (newSections == null) {
+            this.sections = null;
+            return;
+        }
+
+        // Treat empty/undefined sections as "not initialized" so first real set works.
+        if (sections == null || sections.isEmpty()) {
+            this.sections = newSections;
+            return;
+        }
+
+        if (sections.size() != newSections.size()) {
+            throw new IllegalArgumentException("New sections list must match current size (current=" + sections.size() + ", new=" + newSections.size() + ")");
+        }
+        if (entries != null) {
             for (ScheduleEntry entry : entries) {
                 if (entry instanceof ClassBlock classBlock) {
                     Map<Section, Assignment> assignments = classBlock.getSectionCourses();
+                    if (assignments == null) {
+                        assignments = new HashMap<>();
+                        classBlock.setSectionCourses(assignments);
+                    }
                     for (int i = 0; i < sections.size(); i++) {
                         assignments.put(newSections.get(i), assignments.remove(sections.get(i)));
                     }
@@ -196,11 +234,8 @@ public class Day {
      * matching the current instance's date.
      * 2. Iterates through the loaded requests, invoking the {@link TeacherRequest#setAssignmentFromList(List)}
      * method for each request to assign corresponding assignments from the `classes` list.
-     * 3. Processes all instances of {@link AllSchoolRequest} within the list of loaded requests:
-     * - The assignment associated with the {@link AllSchoolRequest} is removed from the `classes` list.
-     * <p>
      * The method updates the `requests` field with the list of loaded requests and modifies the
-     * `classes` list by removing assignments referenced by `AllSchoolRequest` objects.
+     * `classes` list by assigning requests to matching assignments.
      * <p>
      * Preconditions:
      * - The `date` field must be initialized to define the load criteria for requests.
@@ -209,17 +244,26 @@ public class Day {
      * Postconditions:
      * - The `requests` list is populated with teacher requests that match the current instance's date.
      * - Assignments for the loaded requests are set using the `classes` list.
-     * - The `classes` list is updated to exclude assignments referenced by any `AllSchoolRequest`.
+     * - Assignments for the loaded requests are set using the `classes` list.
      */
     public void loadRequests() {
-        requests = RequestLoader.loadRequests(date);
-        for (int i = 0; i < requests.size(); i++) {
-            requests.get(i).setAssignmentFromList(classes);
+        loadRequests(new File(RequestLoader.FILE_NAME));
+    }
+
+    public void loadRequests(File requestFile) {
+        List<TeacherRequest> loaded = RequestLoader.loadRequest(requestFile, date);
+
+        if (requests == null) {
+            requests = loaded;
+        } else {
+            Set<TeacherRequest> merged = new LinkedHashSet<>(requests);
+            merged.addAll(loaded);
+            requests.clear();
+            requests.addAll(merged);
         }
+
         for (TeacherRequest request : requests) {
-            if (request instanceof AllSchoolRequest allSchoolRequest) {
-                classes.remove(allSchoolRequest.getAssignment());
-            }
+            request.setAssignmentFromList(classes);
         }
     }
 
@@ -310,16 +354,30 @@ public class Day {
     }
 
     private static ScheduleEntry copyEntry(ScheduleEntry e) {
-        if (e == null) return null;
-
-        if (e instanceof ClassBlock cb) {
-            Map<Section, Assignment> original = cb.getSectionCourses();
-            Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
-            return new ClassBlock(cb.getStart(), cb.getLength(), copied);
-        }
-
-        if (e instanceof AllSchoolBlock ab) {
-            return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment(), ab.getReason());
+        switch (e) {
+            case null -> {
+                return null;
+            }
+            case ClassBlock cb -> {
+                Map<Section, Assignment> original = cb.getSectionCourses();
+                Map<Section, Assignment> copied = (original == null) ? null : new HashMap<>(original);
+                return new ClassBlock(cb.getStart(), cb.getLength(), copied);
+            }
+            case AllSchoolBlock ab -> {
+                return new AllSchoolBlock(ab.getStart(), ab.getLength(), ab.getAssignment(), ab.getReason());
+            }
+            case PEBlock pe -> {
+                return new PEBlock(
+                        pe.getStart(),
+                        pe.getLength(),
+                        pe.getGroupAName(),
+                        pe.getGroupAActivity(),
+                        pe.getGroupBName(),
+                        pe.getGroupBActivity()
+                );
+            }
+            default -> {
+            }
         }
 
         // If you add more ScheduleEntry subclasses later, extend this copier.

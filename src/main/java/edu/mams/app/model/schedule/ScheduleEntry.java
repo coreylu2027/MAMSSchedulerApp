@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ClassBlock.class, name = "class"),
         @JsonSubTypes.Type(value = AllSchoolBlock.class, name = "allSchool"),
+        @JsonSubTypes.Type(value = PEBlock.class, name = "pe"),
 })
 public abstract class ScheduleEntry {
     protected LocalTime start;
