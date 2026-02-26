@@ -8,6 +8,7 @@ import edu.mams.app.model.requests.RequestLoader;
 import edu.mams.app.model.requests.TeacherRequest;
 import edu.mams.app.model.util.ScheduleBuilder;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -246,7 +247,11 @@ public class Day {
      * - Assignments for the loaded requests are set using the `classes` list.
      */
     public void loadRequests() {
-        List<TeacherRequest> loaded = RequestLoader.loadRequests(date);
+        loadRequests(new File(RequestLoader.FILE_NAME));
+    }
+
+    public void loadRequests(File requestFile) {
+        List<TeacherRequest> loaded = RequestLoader.loadRequest(requestFile, date);
 
         if (requests == null) {
             requests = loaded;
