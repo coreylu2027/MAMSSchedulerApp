@@ -63,10 +63,10 @@ public class WeekSelector extends JFrame {
 
     private void initActions() {
 
-        openButton.addActionListener(e -> openSelectedWeek());
-        deleteButton.addActionListener(e -> deleteSelectedWeek());
+        openButton.addActionListener(_ -> openSelectedWeek());
+        deleteButton.addActionListener(_ -> deleteSelectedWeek());
 
-        newWeekButton.addActionListener(e -> {
+        newWeekButton.addActionListener(_ -> {
             LocalDate lastStart = schedule.getWeekStartDates().stream().max(LocalDate::compareTo).orElse(null);
             LocalDate newStart = (lastStart == null ? LocalDate.of(2025, 12, 1).minusWeeks(1) : lastStart).plusWeeks(1);
 
@@ -86,7 +86,7 @@ public class WeekSelector extends JFrame {
             weekList.setSelectedValue(newStart, true);
         });
 
-        cancelButton.addActionListener(e -> System.exit(0));
+        cancelButton.addActionListener(_ -> System.exit(0));
 
         // Double-click to open
         weekList.addMouseListener(new MouseAdapter() {
