@@ -17,6 +17,8 @@
 
         <!-- Centralize versions -->
         <jackson.version>2.17.2</jackson.version>
+        <jpackage.maven.plugin.version>1.7.3</jpackage.maven.plugin.version>
+        <jpackage.app.version>1.0.0</jpackage.app.version>
     </properties>
 
     <dependencies>
@@ -74,16 +76,45 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
+                        <goals><goal>shade</goal></goals>
                         <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>edu.mams.app.forms.WeekSelector</mainClass>
                                 </transformer>
                             </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.7.3</version>
+
+                <executions>
+                    <execution>
+                        <id>build-macos-app</id>
+                        <phase>package</phase>   <!-- THIS IS IMPORTANT -->
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+
+                        <configuration>
+                            <name>${project.artifactId}</name>
+                            <appVersion>1.0.0</appVersion>
+                            <input>${project.build.directory}</input>
+                            <destination>${project.basedir}/dist</destination>
+                            <mainJar>${project.build.finalName}.jar</mainJar>
+                            <mainClass>edu.mams.app.forms.WeekSelector</mainClass>
+                            <type>APP_IMAGE</type>
+                            <icon>${project.basedir}/src/main/resources/macos/AppIcon.icns</icon>
+
+                            <javaOptions>
+                                <javaOption>-XstartOnFirstThread</javaOption>
+                            </javaOptions>
                         </configuration>
                     </execution>
                 </executions>
