@@ -44,6 +44,7 @@ public class QuickGenerateDialog extends JDialog {
             BiFunction<LocalDate, List<Assignment>, List<Assignment>> pickClassesForDate
     ) {
         super(owner, "Quick Generate", ModalityType.APPLICATION_MODAL);
+        AppTheme.install();
 
         this.week = Objects.requireNonNull(week);
         this.templateNames = Objects.requireNonNull(templateNames);
@@ -52,6 +53,11 @@ public class QuickGenerateDialog extends JDialog {
 
         setContentPane(rootPanel);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        AppTheme.styleWindow(this, rootPanel);
+        rootPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        listPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        AppTheme.styleButtons(generateButton, cancelButton);
 
         infoLabel.setText("Choose a template for each day, then click Generate.");
 

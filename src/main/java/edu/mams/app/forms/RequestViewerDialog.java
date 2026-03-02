@@ -49,6 +49,7 @@ public final class RequestViewerDialog extends JDialog {
 
     public RequestViewerDialog(Window owner, Week week, List<Teacher> teachers, List<Assignment> assignments) {
         super(owner, "Requests", ModalityType.APPLICATION_MODAL);
+        AppTheme.install();
 
         this.tableModel = new RequestTableModel(week);
 
@@ -59,6 +60,7 @@ public final class RequestViewerDialog extends JDialog {
         table.setModel(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoCreateRowSorter(true);
+        AppTheme.styleTable(table);
 
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
@@ -82,6 +84,8 @@ public final class RequestViewerDialog extends JDialog {
         closeButton.addActionListener(_ -> dispose());
 
         setContentPane(rootPanel);
+        AppTheme.styleWindow(this, rootPanel);
+        AppTheme.styleButtons(loadRequests, addButton, editButton, deleteButton, closeButton);
         setMinimumSize(new Dimension(900, 420));
         setLocationRelativeTo(owner);
     }
@@ -451,6 +455,7 @@ public final class RequestViewerDialog extends JDialog {
                 TeacherRequest initialRequest
         ) {
             super(owner, initialRequest == null ? "Add Request" : "Edit Request", ModalityType.APPLICATION_MODAL);
+            AppTheme.install();
 
             dayBox = new JComboBox<>(days.toArray(new Day[0]));
             typeBox = new JComboBox<>(RequestType.values());
@@ -469,6 +474,7 @@ public final class RequestViewerDialog extends JDialog {
 
             initFromExisting(initialDay, initialRequest);
             setContentPane(buildRootPanel());
+            AppTheme.styleWindow(this, (JComponent) getContentPane());
 
             setMinimumSize(new Dimension(520, 520));
             setLocationRelativeTo(owner);
@@ -522,6 +528,7 @@ public final class RequestViewerDialog extends JDialog {
         private JPanel buildButtonBar() {
             JButton saveBtn = new JButton("Save");
             JButton cancelBtn = new JButton("Cancel");
+            AppTheme.styleButtons(saveBtn, cancelBtn);
 
             saveBtn.addActionListener(_ -> {
                 try {

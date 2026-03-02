@@ -25,17 +25,22 @@ public class WeekSelector extends JFrame {
     private JList<LocalDate> weekList;
 
     public WeekSelector(Schedule schedule) {
+        AppTheme.install();
         this.schedule = schedule;
 
         // GUI setup
         setContentPane(contentPane);
         setTitle("Week Selector");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 650);
+        setSize(560, 700);
+        setMinimumSize(new Dimension(500, 600));
         setLocationRelativeTo(null);
+        AppTheme.styleWindow(this, contentPane);
 
         initWeekList();
         initActions();
+        AppTheme.styleButtons(openButton, newWeekButton, deleteButton, cancelButton);
+        getRootPane().setDefaultButton(openButton);
     }
 
     private void initWeekList() {
@@ -45,12 +50,12 @@ public class WeekSelector extends JFrame {
 
         weekList.setModel(model);
         weekList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        weekList.setFixedCellHeight(34);
+        weekList.setFixedCellHeight(36);
 
         weekList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel lbl = new JLabel(value.format(DISPLAY_FMT));
             lbl.setOpaque(true);
-            lbl.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+            lbl.setBorder(BorderFactory.createEmptyBorder(7, 12, 7, 12));
             lbl.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
             lbl.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
             return lbl;
@@ -148,7 +153,10 @@ public class WeekSelector extends JFrame {
 
     public static void main(String[] args) {
         Schedule schedule = Schedule.loadFromFile(FILE);
-        SwingUtilities.invokeLater(() -> new WeekSelector(schedule).setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            AppTheme.install();
+            new WeekSelector(schedule).setVisible(true);
+        });
     }
 
     {

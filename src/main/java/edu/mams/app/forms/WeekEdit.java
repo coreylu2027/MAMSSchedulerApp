@@ -38,7 +38,7 @@ public class WeekEdit extends JFrame {
     private JButton cancelButton;
     private JButton clearAllButton;
     private JButton clearClassesButton;
-    private JPanel savePanel;
+    private JPanel mainPanel;
     private JComboBox<LocalDate> daySelector;
     private JPanel dynamicPanel;
     private JButton editClasses;
@@ -54,11 +54,13 @@ public class WeekEdit extends JFrame {
     private JComboBox<String> template;
     private JLabel titleLabel;
     private JButton viewRequestButton;
+    private JPanel savePanel;
     private JTextArea notesArea;
     private JTextArea clubsArea;
     private LocalDate activeDate;
 
     public WeekEdit(Week week, Schedule schedule) {
+        AppTheme.install();
         WeekEdit.schedule = schedule;
         classes.clear();
         classes.add(new Course("Math", new Teacher("Durost")));
@@ -73,12 +75,29 @@ public class WeekEdit extends JFrame {
         halfSections = ScheduleBuilder.getHalfSections();
 
         this.week = week;
-        setContentPane(savePanel);
+        setContentPane(mainPanel);
         setTitle("Week Editor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        setSize(800, 1200);
+        setSize(1100, 920);
+        setMinimumSize(new Dimension(980, 760));
         setLocationRelativeTo(null);
+        AppTheme.styleWindow(this, mainPanel);
+        dynamicPanel.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
+        AppTheme.styleButtons(
+                openHTML,
+                editClasses,
+                insertTemplateButton,
+                generateTemplateButton,
+                quickGenerate,
+                generate,
+                clearClassesButton,
+                clearAllButton,
+                viewRequestButton,
+                saveButton,
+                cancelButton
+        );
+        getRootPane().setDefaultButton(generate);
 
         loadWeekIntoForm();
 
@@ -153,73 +172,73 @@ public class WeekEdit extends JFrame {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        savePanel = new JPanel();
-        savePanel.setLayout(new GridLayoutManager(8, 3, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new GridLayoutManager(8, 3, new Insets(0, 0, 0, 0), -1, -1));
         titleLabel = new JLabel();
         titleLabel.setText("Label");
-        savePanel.add(titleLabel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        openHTML = new JButton();
-        openHTML.setText("Open HTML");
-        savePanel.add(openHTML, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        sectionSelect = new JComboBox();
-        sectionSelect.setToolTipText("Section");
-        savePanel.add(sectionSelect, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        editClasses = new JButton();
-        editClasses.setText("Edit Classes");
-        savePanel.add(editClasses, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(titleLabel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
-        savePanel.add(scrollPane1, new GridConstraints(6, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mainPanel.add(scrollPane1, new GridConstraints(6, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         dynamicPanel = new JPanel();
         dynamicPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         scrollPane1.setViewportView(dynamicPanel);
         dynamicPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        splitButton = new JCheckBox();
-        splitButton.setText("Split");
-        savePanel.add(splitButton, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        splitClassSelector = new JComboBox();
-        splitClassSelector.setToolTipText("Select Split Class");
-        savePanel.add(splitClassSelector, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        insertTemplateButton = new JButton();
-        insertTemplateButton.setText("Insert Blank Template");
-        savePanel.add(insertTemplateButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         generateTemplateButton = new JButton();
         generateTemplateButton.setText("Generate Template");
-        savePanel.add(generateTemplateButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(generateTemplateButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         template = new JComboBox();
-        savePanel.add(template, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(template, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         quickGenerate = new JButton();
         quickGenerate.setText("Quick Generate");
-        savePanel.add(quickGenerate, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(quickGenerate, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         daySelector = new JComboBox();
-        savePanel.add(daySelector, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        generate = new JButton();
-        generate.setText("Generate");
-        savePanel.add(generate, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        clearClassesButton = new JButton();
-        clearClassesButton.setText("Clear Classes");
-        savePanel.add(clearClassesButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        clearAllButton = new JButton();
-        clearAllButton.setText("Clear All");
-        savePanel.add(clearAllButton, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        savePanel.add(panel1, new GridConstraints(7, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainPanel.add(daySelector, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        savePanel = new JPanel();
+        savePanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.add(savePanel, new GridConstraints(7, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         saveButton = new JButton();
         saveButton.setText("Save");
-        panel1.add(saveButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        savePanel.add(saveButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cancelButton = new JButton();
         cancelButton.setText("Cancel");
-        panel1.add(cancelButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        savePanel.add(cancelButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         viewRequestButton = new JButton();
         viewRequestButton.setText("View Requests");
-        savePanel.add(viewRequestButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(viewRequestButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        sectionSelect = new JComboBox();
+        sectionSelect.setToolTipText("Section");
+        mainPanel.add(sectionSelect, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        splitButton = new JCheckBox();
+        splitButton.setText("Split");
+        mainPanel.add(splitButton, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        splitClassSelector = new JComboBox();
+        splitClassSelector.setToolTipText("Select Split Class");
+        mainPanel.add(splitClassSelector, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        insertTemplateButton = new JButton();
+        insertTemplateButton.setText("Insert Blank Template");
+        mainPanel.add(insertTemplateButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        editClasses = new JButton();
+        editClasses.setText("Edit Classes");
+        mainPanel.add(editClasses, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        clearAllButton = new JButton();
+        clearAllButton.setText("Clear All");
+        mainPanel.add(clearAllButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        clearClassesButton = new JButton();
+        clearClassesButton.setText("Clear Classes");
+        mainPanel.add(clearClassesButton, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        generate = new JButton();
+        generate.setText("Generate");
+        mainPanel.add(generate, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        openHTML = new JButton();
+        openHTML.setText("Open HTML");
+        mainPanel.add(openHTML, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
      * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
-        return savePanel;
+        return mainPanel;
     }
 
     private void changeSection() {
@@ -515,7 +534,8 @@ public class WeekEdit extends JFrame {
 
         dynamicPanel.removeAll();
         dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
-        dynamicPanel.setBackground(new Color(245, 246, 248));
+        Color panelBackground = UIManager.getColor("Panel.background");
+        dynamicPanel.setBackground(panelBackground == null ? new Color(245, 246, 248) : panelBackground);
         dynamicPanel.setOpaque(true);
         currentRows.clear();
 
@@ -541,8 +561,12 @@ public class WeekEdit extends JFrame {
             JPanel wrapper = new CardPanel();
             wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
             wrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
-            wrapper.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-            wrapper.setBackground(Color.WHITE);
+            wrapper.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(217, 222, 229)),
+                    BorderFactory.createEmptyBorder(10, 10, 10, 10)
+            ));
+            Color cardBackground = UIManager.getColor("Panel.background");
+            wrapper.setBackground(cardBackground == null ? Color.WHITE : cardBackground);
             wrapper.setOpaque(true);
 
             row.setOpaque(false); // let wrapper show the white card background
@@ -609,7 +633,7 @@ public class WeekEdit extends JFrame {
     }
 
     private void openQuickGenerateDialog() {
-        Window owner = SwingUtilities.getWindowAncestor(savePanel);
+        Window owner = SwingUtilities.getWindowAncestor(mainPanel);
         QuickGenerateDialog dialog = new QuickGenerateDialog(
                 owner,
                 week,
@@ -617,7 +641,7 @@ public class WeekEdit extends JFrame {
                 classes,
                 this::pickClassesForDate
         );
-        dialog.setLocationRelativeTo(savePanel);
+        dialog.setLocationRelativeTo(mainPanel);
         dialog.setVisible(true);
 
         if (!dialog.wasGenerated()) return;
@@ -806,10 +830,11 @@ public class WeekEdit extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                BorderFactory.createLineBorder(new Color(217, 222, 229)),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
-        panel.setBackground(Color.WHITE);
+        Color cardBackground = UIManager.getColor("Panel.background");
+        panel.setBackground(cardBackground == null ? Color.WHITE : cardBackground);
         panel.setOpaque(true);
 
         JLabel notesLabel = new JLabel("Notes (one per line)");
@@ -1375,7 +1400,7 @@ public class WeekEdit extends JFrame {
         }
 
         private static void styleMiniButton(JButton b) {
-            b.setFocusPainted(false);
+            AppTheme.styleMiniButton(b);
             b.setMargin(new Insets(2, 10, 2, 10));
         }
 
