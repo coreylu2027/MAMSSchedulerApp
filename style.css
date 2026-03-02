@@ -68,6 +68,11 @@
     font-weight: bold;
 }
 
+.schedule .section-header.section-header-xyz {
+    background: #000;
+    color: #fff;
+}
+
 /* shared styles for all blocks */
 .schedule .slot {
     position: relative;   /* <-- REQUIRED */

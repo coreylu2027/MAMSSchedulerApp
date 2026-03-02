@@ -96,8 +96,13 @@ public class HtmlOutput {
         out.println("  <tr>");
         for (Day day : week.getDays()) {
             for (Section section : day.getSections()) {
-                out.print("    <th class=\"section-header\" colspan=\"2\">");
-                out.print(section.getName());
+                String sectionName = section.getName();
+                String sectionHeaderClass = "section-header";
+                if (isXyzSection(sectionName)) {
+                    sectionHeaderClass += " section-header-xyz";
+                }
+                out.print("    <th class=\"" + sectionHeaderClass + "\" colspan=\"2\">");
+                out.print(sectionName);
                 out.println("</th>");
             }
         }
@@ -242,6 +247,17 @@ public class HtmlOutput {
     private static void close() {
         out.print("</table>");
         out.print("</body>");
+    }
+
+    private static boolean isXyzSection(String sectionName) {
+        if (sectionName == null) {
+            return false;
+        }
+        String normalized = sectionName.trim().toUpperCase();
+        return normalized.equals("XYZ")
+                || normalized.equals("X")
+                || normalized.equals("Y")
+                || normalized.equals("Z");
     }
 
     private static String allSchoolCssClass(Assignment assignment) {
