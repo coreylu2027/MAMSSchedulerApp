@@ -152,9 +152,10 @@ public class WeekSelector extends JFrame {
     }
 
     public static void main(String[] args) {
+        AppTheme.install();
+        UiExceptionHandler.install();
         Schedule schedule = Schedule.loadFromFile(FILE);
         SwingUtilities.invokeLater(() -> {
-            AppTheme.install();
             new WeekSelector(schedule).setVisible(true);
         });
     }

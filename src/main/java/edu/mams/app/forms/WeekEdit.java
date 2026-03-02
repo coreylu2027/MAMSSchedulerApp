@@ -622,7 +622,7 @@ public class WeekEdit extends JFrame {
             File file = new File("output_java.html");
             Desktop.getDesktop().browse(file.toURI());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            UiExceptionHandler.showUnexpectedError(ex);
         }
     }
 
