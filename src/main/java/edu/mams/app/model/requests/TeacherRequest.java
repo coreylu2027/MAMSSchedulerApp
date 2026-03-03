@@ -9,6 +9,9 @@ import edu.mams.app.model.schedule.Course;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Base type for teacher-submitted scheduling requests.
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -23,44 +26,95 @@ public abstract class TeacherRequest {
     private Assignment assignment;
     private String reason;
 
+    /**
+     * Creates an empty request for serialization frameworks.
+     */
     public TeacherRequest() {
     }
 
+    /**
+     * Creates a request with teacher, assignment and reason.
+     *
+     * @param teacher requesting teacher
+     * @param assignment assignment involved in the request
+     * @param reason reason text
+     */
     public TeacherRequest(Teacher teacher, Assignment assignment, String reason) {
         this.teacher = teacher;
         this.assignment = assignment;
         this.reason = reason;
     }
 
+    /**
+     * Creates a request without a pre-linked assignment.
+     *
+     * @param teacher requesting teacher
+     * @param reason reason text
+     */
     public TeacherRequest(Teacher teacher, String reason) {
         this.teacher = teacher;
         this.reason = reason;
     }
 
+    /**
+     * Returns the requesting teacher.
+     *
+     * @return teacher
+     */
     public Teacher getTeacher() {
         return teacher;
     }
 
+    /**
+     * Sets the requesting teacher.
+     *
+     * @param teacher teacher to assign
+     */
     public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
     }
 
+    /**
+     * Returns the associated assignment.
+     *
+     * @return assignment, possibly {@code null}
+     */
     public Assignment getAssignment() {
         return assignment;
     }
 
+    /**
+     * Sets the associated assignment.
+     *
+     * @param assignment assignment to assign
+     */
     public void setAssignment(Assignment assignment) {
         this.assignment = assignment;
     }
 
+    /**
+     * Returns the reason text.
+     *
+     * @return reason text, possibly {@code null}
+     */
     public String getReason() {
         return reason;
     }
 
+    /**
+     * Sets the reason text.
+     *
+     * @param reason reason text
+     */
     public void setReason(String reason) {
         this.reason = reason;
     }
 
+    /**
+     * Links this request to a matching teacher-owned course from a list.
+     *
+     * @param assignmentList candidate assignments
+     */
     public void setAssignmentFromList(List<Assignment> assignmentList) {
         for (Assignment otherAssignment : assignmentList) {
             if (otherAssignment instanceof Course otherCourse) {

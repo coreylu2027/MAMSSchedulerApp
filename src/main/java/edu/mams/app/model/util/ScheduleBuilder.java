@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Builds schedules from templates, class lists, and teacher requests.
+ * <p>
+ * Supports both standard schedules and split-course layouts.
+ */
 public class ScheduleBuilder {
     private static Course splitClass = null;
     private static Section splitSection = null;
@@ -24,46 +29,104 @@ public class ScheduleBuilder {
     private static String peActivityOne = "Gym";
     private static String peActivityTwo = "Zumba";
 
+    /**
+     * Returns the configured half-section pairing used for split courses.
+     *
+     * @return half-section definitions
+     */
     public static List<HalfSection> getHalfSections() {
         return halfSections;
     }
 
+    /**
+     * Replaces the half-section pairing used for split courses.
+     *
+     * @param halfSections half-section definitions
+     */
     public static void setHalfSections(List<HalfSection> halfSections) {
         ScheduleBuilder.halfSections = halfSections;
     }
 
+    /**
+     * Returns the section configured for split-course behavior.
+     *
+     * @return split section
+     */
     public static Section getSplitSection() {
         return splitSection;
     }
 
+    /**
+     * Sets the section configured for split-course behavior.
+     *
+     * @param splitSection split section
+     */
     public static void setSplitSection(Section splitSection) {
         ScheduleBuilder.splitSection = splitSection;
     }
 
+    /**
+     * Returns the primary split course.
+     *
+     * @return configured split course
+     */
     public static Course getSplitClass() {
         return splitClass;
     }
 
+    /**
+     * Sets the primary split course.
+     *
+     * @param splitClass split course
+     */
     public static void setSplitClass(Course splitClass) {
         ScheduleBuilder.splitClass = splitClass;
     }
 
+    /**
+     * Returns the PE group A display name.
+     *
+     * @return group A name
+     */
     public static String getPeGroupAName() {
         return peGroupAName;
     }
 
+    /**
+     * Returns the PE group B display name.
+     *
+     * @return group B name
+     */
     public static String getPeGroupBName() {
         return peGroupBName;
     }
 
+    /**
+     * Returns the first PE activity label.
+     *
+     * @return primary PE activity
+     */
     public static String getPeActivityOne() {
         return peActivityOne;
     }
 
+    /**
+     * Returns the second PE activity label.
+     *
+     * @return secondary PE activity
+     */
     public static String getPeActivityTwo() {
         return peActivityTwo;
     }
 
+    /**
+     * Updates default PE group labels and activities.
+     *
+     * @param groupAName group A name
+     * @param groupBName group B name
+     * @param activityOne activity used on non-swap weeks
+     * @param activityTwo activity used on swap weeks
+     */
     public static void setPeDefaults(String groupAName, String groupBName, String activityOne, String activityTwo) {
         if (groupAName != null && !groupAName.isBlank()) {
             peGroupAName = groupAName.trim();
@@ -79,6 +142,13 @@ public class ScheduleBuilder {
         }
     }
 
+    /**
+     * Builds a schedule where one section contains a two-block split course.
+     *
+     * @param templateName name of day template to expand
+     * @param day day context including classes, sections and requests
+     * @return generated entries for the day
+     */
     public static List<ScheduleEntry> buildNewSplitSchedule(String templateName, Day day) {
         List<TeacherRequest> requests = day.getRequests();
         List<Assignment> classes = day.getClasses();
@@ -164,14 +234,38 @@ public class ScheduleBuilder {
         return entries;
     }
 
+    /**
+     * Expands a template and applies requests without date-dependent PE swap logic.
+     *
+     * @param templateName day template name
+     * @param requests teacher requests to apply
+     * @param classes assignments available for class blocks
+     * @return generated entries
+     */
     public static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes) {
         return getScheduleEntries(templateName, requests, classes, null);
     }
 
+    /**
+     * Expands a template for a specific day and applies requests.
+     *
+     * @param templateName day template name
+     * @param day day context
+     * @return generated entries
+     */
     public static List<ScheduleEntry> getScheduleEntries(String templateName, Day day) {
         return getScheduleEntries(templateName, day.getRequests(), day.getClasses(), day.getDate());
     }
 
+    /**
+     * Expands a template and applies all-school requests into the nearest class blocks.
+     *
+     * @param templateName day template name
+     * @param requests teacher requests to apply
+     * @param classes assignments available for class blocks
+     * @param date day date used for PE swap behavior
+     * @return generated entries
+     */
     public static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes, LocalDate date) {
         List<ScheduleEntry> entries = new ArrayList<>();
 
@@ -320,6 +414,13 @@ public class ScheduleBuilder {
         return numClassBlocks;
     }
 
+    /**
+     * Builds a schedule without split courses using Latin-square assignment.
+     *
+     * @param templateName day template name
+     * @param day day context
+     * @return generated entries
+     */
     public static List<ScheduleEntry> buildNewNoSplitSchedule(String templateName, Day day) {
         List<TeacherRequest> requests = day.getRequests();
         List<Assignment> classes = day.getClasses();
@@ -334,6 +435,12 @@ public class ScheduleBuilder {
         return entries;
     }
 
+    /**
+     * Rebuilds a day around partially pre-filled entries.
+     *
+     * @param day day with existing entries to preserve where possible
+     * @return rebuilt entries
+     */
     public static List<ScheduleEntry> buildAroundSchedule(Day day) {
         List<ScheduleEntry> entries = day.getEntries();
         List<Assignment> classes = day.getClasses();

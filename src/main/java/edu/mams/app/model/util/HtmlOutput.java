@@ -10,12 +10,20 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Renders a {@link Week} into an HTML schedule table.
+ */
 public class HtmlOutput {
     private static PrintWriter out;
     private static Week week;
     private static final DateTimeFormatter TIME_FMT =
             DateTimeFormatter.ofPattern("h:mm");
 
+    /**
+     * Writes the provided week to {@code output_java.html}.
+     *
+     * @param setWeek week to render
+     */
     public static void output(Week setWeek) {
         week = setWeek;
         try {

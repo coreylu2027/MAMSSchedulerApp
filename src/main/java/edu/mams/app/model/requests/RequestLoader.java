@@ -11,6 +11,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parses teacher-request CSV exports into request model objects.
+ */
 public class RequestLoader {
     private static final DateTimeFormatter[] FORMATTERS = {
             DateTimeFormatter.ISO_LOCAL_DATE,          // yyyy-MM-dd
@@ -20,6 +23,13 @@ public class RequestLoader {
 
     public static final String FILE_NAME = "Teacher Request Form.csv";
 
+    /**
+     * Parses a date from supported request-form formats.
+     *
+     * @param s date text
+     * @return parsed local date
+     * @throws IllegalArgumentException when the value cannot be parsed
+     */
     public static LocalDate parseDate(String s) {
         if (s == null) throw new IllegalArgumentException("Date is null");
 
@@ -47,16 +57,35 @@ public class RequestLoader {
     }
 
 
+    /**
+     * Parses a local time string in hour-minute format.
+     *
+     * @param s time text
+     * @return parsed local time
+     */
     public static LocalTime parseLocalTime(String s) {
         String cleaned = getCleaned(s);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
         return LocalTime.parse(cleaned.trim(), formatter);
     }
 
+    /**
+     * Loads requests for a date from the default CSV filename.
+     *
+     * @param loadDate date to filter for
+     * @return matching requests
+     */
     public static List<TeacherRequest> loadRequests(LocalDate loadDate) {
         return loadRequest(new File(FILE_NAME), loadDate);
     }
 
+    /**
+     * Loads requests for a date from the given CSV file.
+     *
+     * @param requestFile CSV file to read
+     * @param loadDate date to filter for
+     * @return matching requests
+     */
     public static List<TeacherRequest> loadRequest(File requestFile, LocalDate loadDate) {
         List<TeacherRequest> requests = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(requestFile))) {

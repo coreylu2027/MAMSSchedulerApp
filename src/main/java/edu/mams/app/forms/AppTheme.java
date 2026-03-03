@@ -9,6 +9,9 @@ import java.awt.*;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Centralizes look-and-feel setup and shared Swing styling helpers.
+ */
 final class AppTheme {
     private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
     private static final Insets CONTENT_PADDING = new Insets(14, 14, 14, 14);
@@ -16,6 +19,9 @@ final class AppTheme {
     private AppTheme() {
     }
 
+    /**
+     * Installs the application theme and global UI defaults.
+     */
     static void install() {
         if (!INSTALLED.compareAndSet(false, true)) {
             return;
@@ -40,6 +46,12 @@ final class AppTheme {
         configureDefaults();
     }
 
+    /**
+     * Applies window-level styling and content padding.
+     *
+     * @param window top-level window to refresh
+     * @param root root component that receives padding
+     */
     static void styleWindow(Window window, JComponent root) {
         if (window != null) {
             if (SwingUtilities.isEventDispatchThread()) {
@@ -67,6 +79,11 @@ final class AppTheme {
         }
     }
 
+    /**
+     * Applies default rounded button styling.
+     *
+     * @param buttons buttons to style
+     */
     static void styleButtons(AbstractButton... buttons) {
         for (AbstractButton button : buttons) {
             if (button == null) continue;
@@ -75,6 +92,11 @@ final class AppTheme {
         }
     }
 
+    /**
+     * Styles a compact utility button.
+     *
+     * @param button button to style
+     */
     static void styleMiniButton(AbstractButton button) {
         if (button == null) return;
         button.putClientProperty("JButton.buttonType", "roundRect");
@@ -83,6 +105,11 @@ final class AppTheme {
         button.setFocusable(false);
     }
 
+    /**
+     * Applies common table styling used across the UI.
+     *
+     * @param table table to style
+     */
     static void styleTable(JTable table) {
         if (table == null) return;
         table.setRowHeight(30);

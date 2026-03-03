@@ -4,6 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Installs global exception handling hooks for Swing UI code.
+ * <p>
+ * Unexpected exceptions are printed and surfaced to users in a guarded
+ * error dialog to avoid repeated dialog storms.
+ */
 final class UiExceptionHandler {
     private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
     private static final AtomicBoolean SHOWING_DIALOG = new AtomicBoolean(false);
@@ -11,6 +17,9 @@ final class UiExceptionHandler {
     private UiExceptionHandler() {
     }
 
+    /**
+     * Installs global uncaught exception handlers once per process.
+     */
     static void install() {
         if (!INSTALLED.compareAndSet(false, true)) {
             return;
@@ -36,6 +45,11 @@ final class UiExceptionHandler {
         });
     }
 
+    /**
+     * Displays an error dialog for an unexpected throwable.
+     *
+     * @param throwable throwable to surface to the user
+     */
     static void showUnexpectedError(Throwable throwable) {
         if (throwable == null) {
             return;

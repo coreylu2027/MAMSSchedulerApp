@@ -16,16 +16,32 @@ import java.util.Objects;
         @JsonSubTypes.Type(value = SplitCourse.class, name = "splitCourse"),
         @JsonSubTypes.Type(value = Event.class, name = "event"),
 })
+/**
+ * Base polymorphic assignment type used by schedule entries.
+ */
 public abstract class Assignment {
     protected String name;
 
+    /**
+     * Creates an assignment with a name.
+     *
+     * @param name assignment name
+     */
     protected Assignment(String name) {
         this.name = name;
     }
 
+    /**
+     * Creates an empty assignment for serialization frameworks.
+     */
     public Assignment() {
     }
 
+    /**
+     * Returns the assignment name.
+     *
+     * @return assignment name
+     */
     public String getName() {
         return name;
     }
