@@ -200,12 +200,30 @@ public class ScheduleBuilder {
 
         for (TeacherRequest request : requests) {
             if (request instanceof AllSchoolRequest allSchoolRequest) {
+                int bestIndex = -1;
+                long bestDistance = Long.MAX_VALUE;
+
                 for (int i = 0; i < entries.size(); i++) {
                     ScheduleEntry entry = entries.get(i);
-                    if (entry.getStart().equals(allSchoolRequest.getStartTime())) {
-                        entries.set(i, new AllSchoolBlock(allSchoolRequest));
-                        classes.remove(allSchoolRequest.getAssignment());
+                    if (!(entry instanceof ClassBlock)) {
+                        continue;
                     }
+
+                    if (entry.getStart().equals(allSchoolRequest.getStartTime())) {
+                        bestIndex = i;
+                        break;
+                    }
+
+                    long distance = Math.abs(entry.getStart().toSecondOfDay() - allSchoolRequest.getStartTime().toSecondOfDay());
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestIndex = i;
+                    }
+                }
+
+                if (bestIndex >= 0) {
+                    entries.set(bestIndex, new AllSchoolBlock(allSchoolRequest));
+                    classes.remove(allSchoolRequest.getAssignment());
                 }
             }
         }
