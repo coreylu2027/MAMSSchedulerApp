@@ -422,8 +422,8 @@ public final class RequestViewerDialog extends JDialog {
         private final JComboBox<Assignment> assignmentBox;
 
         private final JTextField reasonField = new JTextField();
-        private final JTextField startTimeField = new JTextField("8:00");
-        private final JTextField lengthMinField = new JTextField("30");
+        private final JTextField startTimeField = new JTextField("7:45");
+        private final JTextField lengthMinField = new JTextField("60");
 
         private enum RequestType {
             AVOID_TIME("AvoidTimeRequest"),
