@@ -113,6 +113,10 @@ public class Day {
         return requests;
     }
 
+    public void setRequests(List<TeacherRequest> requests) {
+        this.requests = requests;
+    }
+
     public String getSectionSchedule(Group group) {
         StringBuilder sb = new StringBuilder();
         sb.append("Schedule for Section ").append(group.getName()).append(":\n");

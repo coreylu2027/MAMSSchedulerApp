@@ -38,6 +38,13 @@ class RequestLoaderTest {
     }
 
     @Test
+    void parseLocalTimeSupportsSecondsAndMeridiem() {
+        assertEquals(LocalTime.of(8, 45), RequestLoader.parseLocalTime("8:45:00 AM"));
+        assertEquals(LocalTime.of(13, 5), RequestLoader.parseLocalTime("1:05:00 PM"));
+        assertEquals(LocalTime.of(20, 30), RequestLoader.parseLocalTime("\"8:30 PM\""));
+    }
+
+    @Test
     void loadRequestParsesCsvRowsAndFiltersByDate() throws Exception {
         Path csvPath = tempDir.resolve("requests.csv");
         Files.writeString(csvPath, String.join("\n",

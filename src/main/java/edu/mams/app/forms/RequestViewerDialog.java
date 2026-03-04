@@ -26,9 +26,6 @@ import java.util.List;
 
 /**
  * Request viewer/editor for a Week.
- * <p>
- * Notes:
- * - This code assumes Day#getRequests() returns a non-null List (recommended).
  * - Adjust weekDays(...) to match your Week API.
  */
 public final class RequestViewerDialog extends JDialog {
@@ -263,9 +260,8 @@ public final class RequestViewerDialog extends JDialog {
     private static List<TeacherRequest> requireRequestsList(Day day) {
         List<TeacherRequest> reqs = day.getRequests();
         if (reqs == null) {
-            throw new IllegalStateException(
-                    "Day.getRequests() returned null. Initialize the list in Day (recommended)."
-            );
+            reqs = new ArrayList<>();
+            day.setRequests(reqs);
         }
         return reqs;
     }

@@ -20,6 +20,11 @@ public class RequestLoader {
             DateTimeFormatter.ofPattern("M/d/yyyy"),
             DateTimeFormatter.ofPattern("MM/dd/yyyy"),
     };
+    private static final DateTimeFormatter[] TIME_FORMATTERS = {
+            DateTimeFormatter.ofPattern("H:mm"),
+            DateTimeFormatter.ofPattern("h:mm:ss a"),
+            DateTimeFormatter.ofPattern("h:mm a"),
+    };
 
     public static final String FILE_NAME = "Teacher Request Form.csv";
 
@@ -65,8 +70,13 @@ public class RequestLoader {
      */
     public static LocalTime parseLocalTime(String s) {
         String cleaned = getCleaned(s);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
-        return LocalTime.parse(cleaned.trim(), formatter);
+        String trimmed = cleaned.trim();
+        for (DateTimeFormatter formatter : TIME_FORMATTERS) {
+            try {
+                return LocalTime.parse(trimmed, formatter);
+            } catch (DateTimeParseException ignored) {}
+        }
+        throw new IllegalArgumentException("Unsupported time format: " + s + " (cleaned=" + cleaned + ")");
     }
 
     /**
