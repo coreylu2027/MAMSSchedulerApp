@@ -11,15 +11,30 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parses teacher-request CSV exports into request model objects.
+ */
 public class RequestLoader {
     private static final DateTimeFormatter[] FORMATTERS = {
             DateTimeFormatter.ISO_LOCAL_DATE,          // yyyy-MM-dd
             DateTimeFormatter.ofPattern("M/d/yyyy"),
             DateTimeFormatter.ofPattern("MM/dd/yyyy"),
     };
+    private static final DateTimeFormatter[] TIME_FORMATTERS = {
+            DateTimeFormatter.ofPattern("H:mm"),
+            DateTimeFormatter.ofPattern("h:mm:ss a"),
+            DateTimeFormatter.ofPattern("h:mm a"),
+    };
 
     public static final String FILE_NAME = "Teacher Request Form.csv";
 
+    /**
+     * Parses a date from supported request-form formats.
+     *
+     * @param s date text
+     * @return parsed local date
+     * @throws IllegalArgumentException when the value cannot be parsed
+     */
     public static LocalDate parseDate(String s) {
         if (s == null) throw new IllegalArgumentException("Date is null");
 
@@ -47,36 +62,65 @@ public class RequestLoader {
     }
 
 
+    /**
+     * Parses a local time string in hour-minute format.
+     *
+     * @param s time text
+     * @return parsed local time
+     */
     public static LocalTime parseLocalTime(String s) {
         String cleaned = getCleaned(s);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm");
-        return LocalTime.parse(cleaned.trim(), formatter);
+        String trimmed = cleaned.trim();
+        for (DateTimeFormatter formatter : TIME_FORMATTERS) {
+            try {
+                return LocalTime.parse(trimmed, formatter);
+            } catch (DateTimeParseException ignored) {}
+        }
+        throw new IllegalArgumentException("Unsupported time format: " + s + " (cleaned=" + cleaned + ")");
     }
 
+    /**
+     * Loads requests for a date from the default CSV filename.
+     *
+     * @param loadDate date to filter for
+     * @return matching requests
+     */
     public static List<TeacherRequest> loadRequests(LocalDate loadDate) {
+        return loadRequest(new File(FILE_NAME), loadDate);
+    }
+
+    /**
+     * Loads requests for a date from the given CSV file.
+     *
+     * @param requestFile CSV file to read
+     * @param loadDate date to filter for
+     * @return matching requests
+     */
+    public static List<TeacherRequest> loadRequest(File requestFile, LocalDate loadDate) {
         List<TeacherRequest> requests = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(requestFile))) {
             String line;
             boolean header = true;
+            int lineNum = 0;
 
             while ((line = br.readLine()) != null) {
+                lineNum++;
                 if (header) {
                     header = false;
                     continue;
                 }
 
-                String[] fields = line.split(",");
+                String[] fields = parseCsvLine(line);
+                if (fields.length < 6) {
+                    throw new IllegalArgumentException("CSV line " + lineNum + " has too few fields: " + fields.length);
+                }
 
                 String teacher = getCleaned(fields[1]);
                 LocalDate date = parseDate(fields[2]);
                 String type = fields[3];
                 LocalTime time = parseLocalTime(fields[4]);
                 Duration duration = Duration.ofMinutes((long) (Double.parseDouble(getCleaned(fields[5]))*60));
-                String reason = null;
-                try {
-                    reason = getCleaned(fields[6]);
-                } catch (Exception e) {
-                }
+                String reason = (fields.length > 6) ? getCleaned(fields[6]) : null;
 
                 if (!date.equals(loadDate)) {
                     continue;
@@ -95,10 +139,34 @@ public class RequestLoader {
                 requests.add(request);
             }
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Request file not found: " + requestFile.getAbsolutePath(), e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return requests;
+    }
+
+    private static String[] parseCsvLine(String line) {
+        List<String> out = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    sb.append('"');
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c == ',' && !inQuotes) {
+                out.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        out.add(sb.toString());
+        return out.toArray(new String[0]);
     }
 }

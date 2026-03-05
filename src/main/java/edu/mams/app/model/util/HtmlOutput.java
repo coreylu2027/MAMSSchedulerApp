@@ -8,14 +8,22 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Renders a {@link Week} into an HTML schedule table.
+ */
 public class HtmlOutput {
     private static PrintWriter out;
     private static Week week;
     private static final DateTimeFormatter TIME_FMT =
             DateTimeFormatter.ofPattern("h:mm");
 
+    /**
+     * Writes the provided week to {@code output_java.html}.
+     *
+     * @param setWeek week to render
+     */
     public static void output(Week setWeek) {
         week = setWeek;
         try {
@@ -25,6 +33,7 @@ public class HtmlOutput {
             dayHeader();
             sectionHeader();
             entries();
+            dayFooter();
             close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -36,12 +45,17 @@ public class HtmlOutput {
     }
 
     private static void header() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d");
         out.print("""
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>
                   <meta charset="UTF-8">
-                  <title>Title</title>
+                """);
+        out.print("  <title>Week of ");
+        out.print(week.getStartingDate().format(formatter));
+        out.println("</title>");
+        out.print("""
                   <link rel="stylesheet" href="style.css">
                 </head>
                 <body>
@@ -90,8 +104,13 @@ public class HtmlOutput {
         out.println("  <tr>");
         for (Day day : week.getDays()) {
             for (Section section : day.getSections()) {
-                out.print("    <th class=\"section-header\" colspan=\"2\">");
-                out.print(section.getName());
+                String sectionName = section.getName();
+                String sectionHeaderClass = "section-header";
+                if (isXyzSection(sectionName)) {
+                    sectionHeaderClass += " section-header-xyz";
+                }
+                out.print("    <th class=\"" + sectionHeaderClass + "\" colspan=\"2\">");
+                out.print(sectionName);
                 out.println("</th>");
             }
         }
@@ -107,8 +126,10 @@ public class HtmlOutput {
                     if (entry.getStart().equals(currentTime)) {
                         if (entry instanceof AllSchoolBlock allSchoolBlock) {
                             int span = (int) (allSchoolBlock.getLength().toMinutes() / 15);
+                            Assignment assignment = allSchoolBlock.getAssignment();
+                            String assignmentName = assignment == null ? "OPEN" : assignment.getName();
 
-                            if (allSchoolBlock.getAssignment() instanceof Course course) {
+                            if (assignment instanceof Course course) {
                                 out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
                                 out.print("<div class=\"slot span " + course.getName() + "\">");
                                 out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
@@ -118,23 +139,37 @@ public class HtmlOutput {
                                 }
                                 out.print("</div></td>\n");
                             } else {
+                                String eventClass = allSchoolCssClass(assignment);
                                 if (span == 1) {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
-                                    out.print("<div class=\"slot span event\">");
+                                    out.print("<div class=\"slot span " + eventClass + "\">");
                                     out.print("<div class=\"time\">" +
                                             allSchoolBlock.getStart().format(TIME_FMT) +
-                                            " (" + allSchoolBlock.getAssignment().getName() + ")" +
+                                            " (" + assignmentName + ")" +
                                             "</div>");
                                     out.print("</div></td>\n");
                                 } else {
                                     out.print("    <td class=\"slot-cell\" colspan=\"6\" rowspan=\"" + span + "\">");
-                                    out.print("<div class=\"slot span event\">");
+                                    out.print("<div class=\"slot span " + eventClass + "\">");
                                     out.print("<div class=\"time\">" + allSchoolBlock.getStart().format(TIME_FMT) + "</div>");
-                                    out.print("<div class=\"name\">" + allSchoolBlock.getAssignment().getName() + "</div>");
+                                    out.print("<div class=\"name\">" + assignmentName + "</div>");
                                     out.print("</div></td>\n");
                                 }
 
                             }
+                        } else if (entry instanceof PEBlock peBlock) {
+                            int span = (int) (peBlock.getLength().toMinutes() / 15);
+                            out.print("    <td class=\"slot-cell\" colspan=\"3\" rowspan=\"" + span + "\">");
+                            out.print("<div class=\"slot pe-block\">");
+                            out.print("<div class=\"time\">" + peBlock.getStart().format(TIME_FMT) + "</div>");
+                            out.print("<div class=\"name\">" + peBlock.getGroupAName() + ": " + peBlock.getGroupAActivity() + "</div>");
+                            out.print("</div></td>\n");
+
+                            out.print("    <td class=\"slot-cell\" colspan=\"3\" rowspan=\"" + span + "\">");
+                            out.print("<div class=\"slot pe-block\">");
+                            out.print("<div class=\"time\">" + peBlock.getStart().format(TIME_FMT) + "</div>");
+                            out.print("<div class=\"name\">" + peBlock.getGroupBName() + ": " + peBlock.getGroupBActivity() + "</div>");
+                            out.print("</div></td>\n");
                         } else if (entry instanceof ClassBlock classBlock) {
                             for (Section section : day.getSections()) {
                                 Assignment assignment = classBlock.getSectionCourses().get(section);
@@ -179,13 +214,71 @@ public class HtmlOutput {
                 }
             }
 
-            out.print("  </tr>\n");
-            currentTime = currentTime.plusMinutes(15);
+        out.print("  </tr>\n");
+        currentTime = currentTime.plusMinutes(15);
+    }
+}
+
+    private static void dayFooter() {
+        out.println("  <tr class=\"day-footer\">");
+        for (Day day : week.getDays()) {
+            out.print("    <td class=\"day-footer\" colspan=\"6\">");
+            boolean hasContent = false;
+            List<String> notes = day.getNotes();
+            if (notes != null) {
+                for (String note : notes) {
+                    if (note == null || note.isBlank()) {
+                        continue;
+                    }
+                    out.print("<div class=\"note\">" + note + "</div>");
+                    hasContent = true;
+                }
+            }
+            List<String> clubs = day.getClubs();
+            if (clubs != null) {
+                for (String club : clubs) {
+                    if (club == null || club.isBlank()) {
+                        continue;
+                    }
+                    out.print("<div class=\"club\">" + club + "</div>");
+                    hasContent = true;
+                }
+            }
+            if (!hasContent) {
+                out.print("&nbsp;");
+            }
+            out.println("</td>");
         }
+        out.println("  </tr>");
     }
 
     private static void close() {
         out.print("</table>");
         out.print("</body>");
+    }
+
+    private static boolean isXyzSection(String sectionName) {
+        if (sectionName == null) {
+            return false;
+        }
+        String normalized = sectionName.trim().toUpperCase();
+        return normalized.equals("XYZ")
+                || normalized.equals("X")
+                || normalized.equals("Y")
+                || normalized.equals("Z");
+    }
+
+    private static String allSchoolCssClass(Assignment assignment) {
+        if (assignment == null || assignment.getName() == null) {
+            return "event";
+        }
+        String name = assignment.getName().trim().toLowerCase();
+        if (name.startsWith("lunch")) {
+            return "lunch";
+        }
+        if (name.startsWith("flex")) {
+            return "flex-block";
+        }
+        return "event";
     }
 }

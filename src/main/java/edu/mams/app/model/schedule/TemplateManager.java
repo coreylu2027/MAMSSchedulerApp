@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 
+/**
+ * Registry for named day templates, including built-in defaults.
+ */
 public class TemplateManager {
     private static Map<String, DayTemplate> templates = new HashMap<>();
 
@@ -11,18 +14,39 @@ public class TemplateManager {
         loadDefaultTemplates();
     }
 
+    /**
+     * Adds or replaces a day template.
+     *
+     * @param template template to register
+     */
     public static void addTemplate(DayTemplate template) {
         templates.put(template.getName(), template);
     }
 
+    /**
+     * Returns a template by name.
+     *
+     * @param name template name
+     * @return template or {@code null}
+     */
     public static DayTemplate getTemplate(String name) {
         return templates.get(name);
     }
 
+    /**
+     * Removes a template by name.
+     *
+     * @param name template name
+     */
     public static void removeTemplate(String name) {
         templates.remove(name);
     }
 
+    /**
+     * Returns all registered template names.
+     *
+     * @return template names
+     */
     public static List<String> listTemplateNames() {
         return new ArrayList<>(templates.keySet());
     }
@@ -83,7 +107,7 @@ public class TemplateManager {
                         new BlockDefinition("ClassBlock", LocalTime.of(11,0), Duration.ofMinutes(60), "Block 4"),
                         new BlockDefinition("AllSchoolEvent", LocalTime.of(12,0), Duration.ofMinutes(30), "Lunch"),
                         new BlockDefinition("ClassBlock", LocalTime.of(12,30), Duration.ofMinutes(60), "Block 5"),
-                        new BlockDefinition("AllSchoolEvent", LocalTime.of(13,30), Duration.ofMinutes(75), "PE")
+                        new BlockDefinition("PEBlock", LocalTime.of(13,30), Duration.ofMinutes(75), "PE")
                 )
         ));
 

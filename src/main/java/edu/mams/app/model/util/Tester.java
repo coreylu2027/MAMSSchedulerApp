@@ -12,17 +12,38 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility entry point for building a sample schedule during local testing.
+ */
 public class Tester {
+    /**
+     * Runs the sample template generation path.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         testTemplate();
     }
 
+    /**
+     * Returns a copy of the list without the element at the given index.
+     *
+     * @param list source list
+     * @param index index to remove
+     * @param <T> list element type
+     * @return copied list without the requested index
+     */
     public static <T> List<T> removeIndex(List<T> list, int index) {
         List<T> newList = new ArrayList<>(list);
         newList.remove(index);
         return newList;
     }
 
+    /**
+     * Builds a fixed sample week used for manual testing.
+     *
+     * @return generated sample week
+     */
     public static Week testTemplate() {
         List<Assignment> classes = new ArrayList<>();
         classes.add(new Course("Math", new Teacher("Durost")));
