@@ -97,7 +97,8 @@ public class WeekEdit extends JFrame {
                 saveButton,
                 cancelButton
         );
-        getRootPane().setDefaultButton(generate);
+        AppTheme.styleDangerButton(clearAllButton);
+        getRootPane().setDefaultButton(saveButton);
 
         loadWeekIntoForm();
 

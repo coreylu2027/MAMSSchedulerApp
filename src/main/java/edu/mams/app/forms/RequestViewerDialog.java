@@ -26,7 +26,6 @@ import java.util.List;
 
 /**
  * Request viewer/editor for a Week.
- * - Adjust weekDays(...) to match your Week API.
  */
 public final class RequestViewerDialog extends JDialog {
     private final Week week;
@@ -83,6 +82,7 @@ public final class RequestViewerDialog extends JDialog {
         setContentPane(rootPanel);
         AppTheme.styleWindow(this, rootPanel);
         AppTheme.styleButtons(loadRequests, addButton, editButton, deleteButton, closeButton);
+        AppTheme.styleDangerButton(deleteButton);
         setMinimumSize(new Dimension(900, 420));
         setLocationRelativeTo(owner);
     }

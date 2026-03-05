@@ -106,6 +106,25 @@ final class AppTheme {
     }
 
     /**
+     * Styles a button as a destructive action.
+     *
+     * @param button button to style
+     */
+    static void styleDangerButton(AbstractButton button) {
+        if (button == null) return;
+        styleButtons(button);
+        Color dangerRed = new Color(200, 44, 44);
+        button.putClientProperty("JButton.background", dangerRed);
+        button.putClientProperty("JButton.foreground", Color.WHITE);
+        button.setBackground(dangerRed);
+        button.setForeground(Color.WHITE);
+        Font current = button.getFont();
+        if (current != null) {
+            button.setFont(current.deriveFont(Font.BOLD));
+        }
+    }
+
+    /**
      * Applies common table styling used across the UI.
      *
      * @param table table to style

@@ -40,6 +40,7 @@ public class WeekSelector extends JFrame {
         initWeekList();
         initActions();
         AppTheme.styleButtons(openButton, newWeekButton, deleteButton, cancelButton);
+        AppTheme.styleDangerButton(deleteButton);
         getRootPane().setDefaultButton(openButton);
     }
 
