@@ -54,3 +54,4 @@ build/
 /src/main/resources/macos/AppIcon.iconset/icon_256x256.png
 /src/main/resources/macos/AppIcon.iconset/icon_256x256@2x.png
 /src/main/resources/macos/AppIcon.iconset/icon_512x512@2x.png
+/javadoc/
