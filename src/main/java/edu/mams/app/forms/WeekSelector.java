@@ -10,8 +10,10 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 
 public class WeekSelector extends JFrame {
     private static final File FILE = new File("schedule.json");
@@ -74,7 +76,10 @@ public class WeekSelector extends JFrame {
 
         newWeekButton.addActionListener(_ -> {
             LocalDate lastStart = schedule.getWeekStartDates().stream().max(LocalDate::compareTo).orElse(null);
-            LocalDate newStart = (lastStart == null ? LocalDate.of(2025, 12, 1).minusWeeks(1) : lastStart).plusWeeks(1);
+            LocalDate baseStart = lastStart == null
+                    ? LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1)
+                    : lastStart;
+            LocalDate newStart = baseStart.plusWeeks(1);
 
             int startingDayNumber = 0;
             if (lastStart != null) {
@@ -85,11 +90,8 @@ public class WeekSelector extends JFrame {
             }
 
             Week newWeek = new Week(newStart, startingDayNumber);
-            schedule.addWeek(newWeek);
-            schedule.saveToFile(FILE);
-
-            refreshList();
-            weekList.setSelectedValue(newStart, true);
+            new WeekEdit(newWeek, schedule).setVisible(true);
+            dispose();
         });
 
         cancelButton.addActionListener(_ -> System.exit(0));

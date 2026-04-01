@@ -21,6 +21,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * Supports both standard schedules and split-course layouts.
  */
 public class ScheduleBuilder {
+    private record TemplateExpansion(List<ScheduleEntry> entries, List<Assignment> classes) {
+    }
+
     private static Course splitClass = null;
     private static Section splitSection = null;
     private static List<HalfSection> halfSections = new ArrayList<>(List.of(new HalfSection("Intermediate", new Section("G")), new HalfSection("Advanced", new Section("G"))));
@@ -151,9 +154,10 @@ public class ScheduleBuilder {
      */
     public static List<ScheduleEntry> buildNewSplitSchedule(String templateName, Day day) {
         List<TeacherRequest> requests = day.getRequests();
-        List<Assignment> classes = day.getClasses();
         List<Section> sections = day.getSections();
-        List<ScheduleEntry> entries = getScheduleEntries(templateName, day);
+        TemplateExpansion expansion = expandTemplate(templateName, requests, day.getClasses(), day.getDate());
+        List<Assignment> classes = expansion.classes();
+        List<ScheduleEntry> entries = expansion.entries();
         Assignment partnerAssignment = day.getSplitCourse();
         if (!(partnerAssignment instanceof Course partnerSplit)) {
             throw new IllegalStateException("Split mode requires a valid partner split course.");
@@ -254,7 +258,7 @@ public class ScheduleBuilder {
      * @return generated entries
      */
     public static List<ScheduleEntry> getScheduleEntries(String templateName, Day day) {
-        return getScheduleEntries(templateName, day.getRequests(), day.getClasses(), day.getDate());
+        return expandTemplate(templateName, day.getRequests(), day.getClasses(), day.getDate()).entries();
     }
 
     /**
@@ -267,11 +271,16 @@ public class ScheduleBuilder {
      * @return generated entries
      */
     public static List<ScheduleEntry> getScheduleEntries(String templateName, List<TeacherRequest> requests, List<Assignment> classes, LocalDate date) {
+        return expandTemplate(templateName, requests, classes, date).entries();
+    }
+
+    private static TemplateExpansion expandTemplate(String templateName, List<TeacherRequest> requests, List<Assignment> classes, LocalDate date) {
         List<ScheduleEntry> entries = new ArrayList<>();
+        List<Assignment> availableClasses = copyClasses(classes);
 
         DayTemplate template = TemplateManager.getTemplate(templateName);
         if (template == null) {
-            return entries;
+            return new TemplateExpansion(entries, availableClasses);
         }
 
         for (BlockDefinition def : template.getBlocks()) {
@@ -289,7 +298,7 @@ public class ScheduleBuilder {
         }
 
         if (requests == null) {
-            return entries;
+            return new TemplateExpansion(entries, availableClasses);
         }
 
         for (TeacherRequest request : requests) {
@@ -317,11 +326,11 @@ public class ScheduleBuilder {
 
                 if (bestIndex >= 0) {
                     entries.set(bestIndex, new AllSchoolBlock(allSchoolRequest));
-                    classes.remove(allSchoolRequest.getAssignment());
+                    availableClasses.remove(allSchoolRequest.getAssignment());
                 }
             }
         }
-        return entries;
+        return new TemplateExpansion(entries, availableClasses);
     }
 
     private static boolean[][] getForbidden(List<ScheduleEntry> entries, List<Assignment> classes, List<TeacherRequest> requests) {
@@ -405,6 +414,9 @@ public class ScheduleBuilder {
     }
 
     private static int getNumClassBlocks(List<ScheduleEntry> entries) {
+        if (entries == null) {
+            return 0;
+        }
         int numClassBlocks = 0;
         for (ScheduleEntry entry : entries) {
             if (entry instanceof ClassBlock) {
@@ -423,9 +435,10 @@ public class ScheduleBuilder {
      */
     public static List<ScheduleEntry> buildNewNoSplitSchedule(String templateName, Day day) {
         List<TeacherRequest> requests = day.getRequests();
-        List<Assignment> classes = day.getClasses();
         List<Section> sections = day.getSections();
-        List<ScheduleEntry> entries = getScheduleEntries(templateName, day);
+        TemplateExpansion expansion = expandTemplate(templateName, requests, day.getClasses(), day.getDate());
+        List<Assignment> classes = expansion.classes();
+        List<ScheduleEntry> entries = expansion.entries();
 
         boolean[][] forbidden = getForbidden(entries, classes, requests);
 
@@ -443,7 +456,7 @@ public class ScheduleBuilder {
      */
     public static List<ScheduleEntry> buildAroundSchedule(Day day) {
         List<ScheduleEntry> entries = day.getEntries();
-        List<Assignment> classes = day.getClasses();
+        List<Assignment> classes = getClassesForExistingEntries(day);
         List<Section> sections = day.getSections();
         List<TeacherRequest> requests = day.getRequests();
 
@@ -490,6 +503,47 @@ public class ScheduleBuilder {
             applySplitCourse(entries, sections, slot[0], slot[1], splitCourses.get(i));
         }
         return entries;
+    }
+
+    private static List<Assignment> copyClasses(List<Assignment> classes) {
+        return classes == null ? new ArrayList<>() : new ArrayList<>(classes);
+    }
+
+    private static List<Assignment> getClassesForExistingEntries(Day day) {
+        List<Assignment> classes = copyClasses(day.getClasses());
+        List<ScheduleEntry> entries = day.getEntries();
+        int numClassBlocks = getNumClassBlocks(entries);
+
+        if (classes.size() <= numClassBlocks) {
+            return classes;
+        }
+
+        List<TeacherRequest> requests = day.getRequests();
+        if (requests != null) {
+            for (TeacherRequest request : requests) {
+                if (classes.size() <= numClassBlocks) {
+                    break;
+                }
+                if (request instanceof AllSchoolRequest allSchoolRequest) {
+                    classes.remove(allSchoolRequest.getAssignment());
+                }
+            }
+        }
+
+        if (classes.size() <= numClassBlocks || entries == null) {
+            return classes;
+        }
+
+        for (ScheduleEntry entry : entries) {
+            if (classes.size() <= numClassBlocks) {
+                break;
+            }
+            if (entry instanceof AllSchoolBlock allSchoolBlock && allSchoolBlock.getAssignment() instanceof Course) {
+                classes.remove(allSchoolBlock.getAssignment());
+            }
+        }
+
+        return classes;
     }
 
     private static void applySplitCourse(List<ScheduleEntry> entries, List<Section> sections, int blockIndex, int sectionIndex, SplitCourse splitCourse) {

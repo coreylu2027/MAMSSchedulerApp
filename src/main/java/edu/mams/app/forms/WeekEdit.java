@@ -58,6 +58,7 @@ public class WeekEdit extends JFrame {
     private JTextArea notesArea;
     private JTextArea clubsArea;
     private LocalDate activeDate;
+    private boolean refreshingUi;
 
     public WeekEdit(Week week, Schedule schedule) {
         AppTheme.install();
@@ -74,7 +75,7 @@ public class WeekEdit extends JFrame {
 
         halfSections = ScheduleBuilder.getHalfSections();
 
-        this.week = week;
+        this.week = Objects.requireNonNull(week, "week").copy();
         setContentPane(mainPanel);
         setTitle("Week Editor");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -147,6 +148,7 @@ public class WeekEdit extends JFrame {
     }
 
     private void viewRequests() {
+        commitActiveDay();
         Window owner = SwingUtilities.getWindowAncestor(this); // or your root panel
         // If you have teacher/assignment lists available, pass them in:
         // new RequestViewerDialog(owner, week, teacherList, assignmentList).setVisible(true);
@@ -243,6 +245,8 @@ public class WeekEdit extends JFrame {
     }
 
     private void changeSection() {
+        if (refreshingUi) return;
+        commitActiveDay();
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
         if (date == null) return;
 
@@ -264,10 +268,23 @@ public class WeekEdit extends JFrame {
     }
 
     private void changeSplit() {
+        if (refreshingUi) return;
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
         if (date == null) return;
 
-        week.getDay(date).setSplit(splitButton.isSelected());
+        Day day = week.getDay(date);
+        boolean split = splitButton.isSelected();
+        day.setSplit(split);
+        splitClassSelector.setEnabled(split);
+        if (!split) {
+            day.setSplitCourse(null);
+            splitClassSelector.setSelectedItem("(None)");
+        } else {
+            if ("(None)".equals(splitClassSelector.getSelectedItem()) && splitClassSelector.getItemCount() > 1) {
+                splitClassSelector.setSelectedIndex(1);
+            }
+            selectPartnerSplit();
+        }
     }
 
     private void clearAll() {
@@ -376,6 +393,10 @@ public class WeekEdit extends JFrame {
 
     private void generateTemplate() {
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        commitActiveDay();
+
         Day day = week.getDay(date);
         if (day.getSections() == null) day.setSections(sectionGroups.get("RGB"));
         if (day.getClasses() == null || day.getClasses().isEmpty()) day.setClasses(new ArrayList<>(classes));
@@ -385,7 +406,6 @@ public class WeekEdit extends JFrame {
 
         day.setTemplate(templateName);
         day.generateBlocks();
-        updateModelFromUI();
         generateDay(day);
     }
 
@@ -515,83 +535,99 @@ public class WeekEdit extends JFrame {
     }
 
     private void generateDay(Day day) {
-        activeDate = day.getDate();
-        splitClassSelector.removeAllItems();
-        for (Assignment assignment : classes) {
-            if (!assignment.equals(ScheduleBuilder.getSplitClass()))
-                splitClassSelector.addItem(assignment.getName());
-        }
+        if (day == null) return;
 
-        if (day.getSplitCourse() != null) {
-            String name = day.getSplitCourse().getName();
-            splitClassSelector.setSelectedItem(name);
-        }
+        refreshingUi = true;
+        try {
+            activeDate = day.getDate();
+            splitClassSelector.removeAllItems();
+            splitClassSelector.addItem("(None)");
+            for (Assignment assignment : classes) {
+                if (!assignment.equals(ScheduleBuilder.getSplitClass()))
+                    splitClassSelector.addItem(assignment.getName());
+            }
 
-        if (!day.getSections().isEmpty()) {
-            if (day.getSections().getFirst().getName().equals("X"))
-                sectionSelect.setSelectedItem("XYZ");
-            else sectionSelect.setSelectedItem("RGB");
-        }
+            if (day.getSplitCourse() != null) {
+                String name = day.getSplitCourse().getName();
+                splitClassSelector.setSelectedItem(name);
+            } else {
+                splitClassSelector.setSelectedItem("(None)");
+            }
+            splitButton.setSelected(day.isSplit());
+            splitClassSelector.setEnabled(day.isSplit());
 
-        dynamicPanel.removeAll();
-        dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
-        Color panelBackground = UIManager.getColor("Panel.background");
-        dynamicPanel.setBackground(panelBackground == null ? new Color(245, 246, 248) : panelBackground);
-        dynamicPanel.setOpaque(true);
-        currentRows.clear();
+            if (day.getSections() != null && !day.getSections().isEmpty()) {
+                if (day.getSections().getFirst().getName().equals("X"))
+                    sectionSelect.setSelectedItem("XYZ");
+                else sectionSelect.setSelectedItem("RGB");
+            }
 
-        template.setSelectedItem(day.getTemplate());
+            dynamicPanel.removeAll();
+            dynamicPanel.setLayout(new BoxLayout(dynamicPanel, BoxLayout.Y_AXIS));
+            Color panelBackground = UIManager.getColor("Panel.background");
+            dynamicPanel.setBackground(panelBackground == null ? new Color(245, 246, 248) : panelBackground);
+            dynamicPanel.setOpaque(true);
+            currentRows.clear();
 
-        // Ensure we always have sections; prevents empty SectionClassPanel
-        if (day.getSections() == null || day.getSections().isEmpty()) {
-            List<Section> fallback = sectionGroups.get("RGB");
-            day.setSections(fallback == null ? new ArrayList<>() : new ArrayList<>(fallback));
-        }
+            template.setSelectedItem(day.getTemplate());
 
-        if (day.getEntries() == null) {
-            day.setEntries(new ArrayList<>(List.of(new AllSchoolBlock(LocalTime.of(7, 45)))));
-        }
+            // Ensure we always have sections; prevents empty SectionClassPanel
+            if (day.getSections() == null || day.getSections().isEmpty()) {
+                List<Section> fallback = sectionGroups.get("RGB");
+                day.setSections(fallback == null ? new ArrayList<>() : new ArrayList<>(fallback));
+            }
 
-        int blocks = day.getEntries().size();
+            if (day.getEntries() == null) {
+                day.setEntries(new ArrayList<>(List.of(new AllSchoolBlock(LocalTime.of(7, 45)))));
+            }
 
-        for (int i = 0; i < blocks; i++) {
-            LocalTime startTime = day.getEntry(i).getStart();
-            BlockRow row = new BlockRow(i, startTime, day.getSections(), day.getEntry(i));
-            currentRows.add(row);
+            int blocks = day.getEntries().size();
 
-            JPanel wrapper = new CardPanel();
-            wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
-            wrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
-            wrapper.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(217, 222, 229)),
-                    BorderFactory.createEmptyBorder(10, 10, 10, 10)
-            ));
-            Color cardBackground = UIManager.getColor("Panel.background");
-            wrapper.setBackground(cardBackground == null ? Color.WHITE : cardBackground);
-            wrapper.setOpaque(true);
+            for (int i = 0; i < blocks; i++) {
+                LocalTime startTime = day.getEntry(i).getStart();
+                BlockRow row = new BlockRow(i, startTime, day.getSections(), day.getEntry(i));
+                currentRows.add(row);
 
-            row.setOpaque(false); // let wrapper show the white card background
+                JPanel wrapper = new CardPanel();
+                wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
+                wrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
+                wrapper.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(217, 222, 229)),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                ));
+                Color cardBackground = UIManager.getColor("Panel.background");
+                wrapper.setBackground(cardBackground == null ? Color.WHITE : cardBackground);
+                wrapper.setOpaque(true);
 
-            wrapper.add(row);
-            wrapper.add(Box.createVerticalStrut(6));
-            // Ensure row does not stretch vertically
-            row.setAlignmentX(Component.LEFT_ALIGNMENT);
+                row.setOpaque(false); // let wrapper show the white card background
+
+                wrapper.add(row);
+                wrapper.add(Box.createVerticalStrut(6));
+                // Ensure row does not stretch vertically
+                row.setAlignmentX(Component.LEFT_ALIGNMENT);
 //            wrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, wrapper.getPreferredSize().height));
-            dynamicPanel.add(wrapper);
+                dynamicPanel.add(wrapper);
+            }
+
+            dynamicPanel.add(Box.createVerticalStrut(8));
+            JPanel notesPanel = buildNotesPanel(day);
+            dynamicPanel.add(notesPanel);
+
+            // Push everything to the top; extra space stays at the bottom.
+            dynamicPanel.add(Box.createVerticalGlue());
+            dynamicPanel.revalidate();
+            dynamicPanel.repaint();
+        } finally {
+            refreshingUi = false;
         }
-
-        dynamicPanel.add(Box.createVerticalStrut(8));
-        JPanel notesPanel = buildNotesPanel(day);
-        dynamicPanel.add(notesPanel);
-
-        // Push everything to the top; extra space stays at the bottom.
-        dynamicPanel.add(Box.createVerticalGlue());
-        dynamicPanel.revalidate();
-        dynamicPanel.repaint();
     }
 
     private void insertTemplate() {
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
+        if (date == null) return;
+
+        commitActiveDay();
+
         Day day = week.getDay(date);
         day.setSections(sectionGroups.get("RGB"));
         day.setClasses(new ArrayList<>(classes));
@@ -601,7 +637,6 @@ public class WeekEdit extends JFrame {
 
         day.setTemplate(templateName);
         day.setEntries(ScheduleBuilder.getScheduleEntries(templateName, day));
-        updateModelFromUI();
         generateDay(day);
     }
 
@@ -618,6 +653,7 @@ public class WeekEdit extends JFrame {
     }
 
     private void onOpenHTML() {
+        commitActiveDay();
         HtmlOutput.output(week);
         try {
             File file = new File("output_java.html");
@@ -628,12 +664,13 @@ public class WeekEdit extends JFrame {
     }
 
     private void onSave() {
-        updateModelFromUI();
-        schedule.addWeek(week);
+        commitActiveDay();
+        schedule.addWeek(week.copy());
         schedule.saveToFile(file);
     }
 
     private void openQuickGenerateDialog() {
+        commitActiveDay();
         Window owner = SwingUtilities.getWindowAncestor(mainPanel);
         QuickGenerateDialog dialog = new QuickGenerateDialog(
                 owner,
@@ -801,12 +838,17 @@ public class WeekEdit extends JFrame {
     }
 
     private void selectPartnerSplit() {
+        if (refreshingUi) return;
         LocalDate date = (LocalDate) daySelector.getSelectedItem();
         if (date == null) return;
 
         String selectedClass = (String) splitClassSelector.getSelectedItem();
-        Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(selectedClass)).findFirst().orElse(null);
+        if (selectedClass == null || "(None)".equals(selectedClass)) {
+            week.getDay(date).setSplitCourse(null);
+            return;
+        }
 
+        Assignment selectedAssignment = classes.stream().filter(a -> a.getName().equals(selectedClass)).findFirst().orElse(null);
         week.getDay(date).setSplitCourse((Course) selectedAssignment);
     }
 
@@ -824,6 +866,10 @@ public class WeekEdit extends JFrame {
                 break;
             }
         }
+    }
+
+    private void commitActiveDay() {
+        updateModelFromUI();
     }
 
     private JPanel buildNotesPanel(Day day) {

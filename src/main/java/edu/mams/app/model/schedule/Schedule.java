@@ -67,12 +67,12 @@ public class Schedule {
      */
     public void saveToFile(File file) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            File parent = file == null ? null : file.getAbsoluteFile().getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
 
-            mapper.writeValue(file, this);
+            createMapper().writeValue(file, this);
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to save schedule", e);
@@ -86,6 +86,10 @@ public class Schedule {
      * @return parsed schedule
      */
     public static Schedule loadFromFile(File file) {
+        if (file == null || !file.exists() || file.length() == 0) {
+            return new Schedule();
+        }
+
         try {
             ObjectMapper mapper = createMapper();
             return mapper.readValue(file, Schedule.class);

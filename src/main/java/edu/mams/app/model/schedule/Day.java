@@ -338,14 +338,20 @@ public class Day {
     public Day copy() {
         Day copy = new Day(this.date, this.dayNumber, this.sections, this.classes);
         copy.entries = deepCopyEntries(this.entries);
-        copy.requests = this.requests;
-        copy.notes = this.notes;
-        copy.clubs = this.clubs;
+        copy.requests = copyList(this.requests);
+        copy.notes = copyList(this.notes);
+        copy.clubs = copyList(this.clubs);
         copy.template = this.template;
         copy.splitCourse = this.splitCourse;
         copy.split = this.split;
-        copy.sections = this.sections;
+        copy.sections = copyList(this.sections);
+        copy.classes = copyList(this.classes);
         return copy;
+    }
+
+
+    private static <T> List<T> copyList(List<T> source) {
+        return source == null ? null : new ArrayList<>(source);
     }
 
     private static List<ScheduleEntry> deepCopyEntries(List<ScheduleEntry> source) {

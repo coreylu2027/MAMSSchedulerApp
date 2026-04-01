@@ -161,5 +161,20 @@ public class Week {
         for (int d = 0; d < days.size(); d++) {
             days.get(d).generateBlocks(templates.get(d));
         }
-}
+    }
+
+    /**
+     * Returns a detached copy of this week and its days.
+     *
+     * @return deep-enough copy for editor workflows
+     */
+    public Week copy() {
+        List<Day> copiedDays = new ArrayList<>();
+        if (days != null) {
+            for (Day day : days) {
+                copiedDays.add(day == null ? null : day.copy());
+            }
+        }
+        return new Week(copiedDays);
+    }
 }
