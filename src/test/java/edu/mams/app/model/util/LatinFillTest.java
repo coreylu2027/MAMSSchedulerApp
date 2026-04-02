@@ -2,9 +2,7 @@ package edu.mams.app.model.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class LatinFillTest {
 
@@ -30,7 +28,7 @@ class LatinFillTest {
         assertLatinProperties(grid, n, cols);
         for (int r = 0; r < n; r++) {
             for (int c = 0; c < cols; c++) {
-                assertTrue(!forbidden[r][grid[r][c]]);
+                assertFalse(forbidden[r][grid[r][c]]);
             }
         }
     }
@@ -69,7 +67,7 @@ class LatinFillTest {
             for (int c = 0; c < cols; c++) {
                 int value = grid[r][c];
                 assertTrue(value >= 0 && value < n);
-                assertTrue(!rowSeen[value]);
+                assertFalse(rowSeen[value]);
                 rowSeen[value] = true;
             }
         }
@@ -78,7 +76,7 @@ class LatinFillTest {
             boolean[] colSeen = new boolean[n];
             for (int r = 0; r < n; r++) {
                 int value = grid[r][c];
-                assertTrue(!colSeen[value]);
+                assertFalse(colSeen[value]);
                 colSeen[value] = true;
             }
             for (boolean seen : colSeen) {
