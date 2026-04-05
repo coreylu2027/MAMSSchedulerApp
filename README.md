@@ -1,13 +1,41 @@
-current steps for testing:
-1) run the WeekEdit.java main method
-2) a ui should appear allowing you to select / replace classes.
-3) setting a class to open and clicking generate will solve / replace the open blocks
-4) this will not save the day. clicking save will save the day into object storage (persistent memory is not implemented yet) and update the html output
-5) request form can be accessed here:
-6) public view: https://forms.gle/Hx5vzp1UCmz4iK7WA
-7) note i believe clicking download responses from the private view and downloading the csv from the google sheets file output two different csvs. i believe both are supported but this hasn't been tested fully yet. the name of the file can be changed in RequestLoader.java (final constant).
-8) things that still need to be implemented.
-9) persistent storage across runs, likely using a json, txt, or xmll file (done)
-10) selecting templates for each day and generating. likely using a week view rather than a per day view. currently the template is set in the Tester.java file (done)
-11) implementing splits. this is likely to be accomplished by setting two blocks with lang and the other split class to be filled, and then generating the schedule around that (done)
-12) PE data and graphic support
+# MAMS Scheduler App
+
+MAMS Scheduler App is a Java desktop app for building weekly school schedules, loading teacher requests, and publishing an HTML version of the week for sharing.
+
+The full end-user guide lives in [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
+
+## Launching the app
+
+### Option 1: Run the packaged macOS app
+
+If you already have a built app image, open:
+
+- `dist/MAMSSchedulerApp.app`
+
+### Option 2: Build and run from the command line
+
+This project targets Java 22.
+
+```bash
+mvn package
+java -jar target/MAMSSchedulerApp-1.0-SNAPSHOT.jar
+```
+
+### Option 3: Run from an IDE
+
+Run the `main` method in:
+
+- `edu.mams.app.forms.WeekSelector`
+
+## Files the app uses
+
+- `schedule.json`: saved weeks
+- `Teacher Request Form.csv`: default teacher-request import file
+- `output_java.html`: generated HTML preview/export
+- `style.css`: styling for the HTML output
+
+## For users
+
+If you want instructions for creating a week, generating days, loading requests, using split schedules, and exporting HTML, start here:
+
+- [User Guide](docs/USER_GUIDE.md)
