@@ -130,9 +130,6 @@
                             <type>APP_IMAGE</type>
                             <icon>${project.basedir}/src/main/resources/macos/AppIcon.icns</icon>
 
-                            <javaOptions>
-                                <javaOption>-XstartOnFirstThread</javaOption>
-                            </javaOptions>
                         </configuration>
                     </execution>
                 </executions>
